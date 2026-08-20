@@ -83,9 +83,16 @@ APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Y
 | StorageCleanup / StorageMonitor | 未迁 | ⏳ | 422+421 行，随存储面板需求再迁 |
 | CloudSyncService / DataExporter / DataImporter / MigrationService | 未迁 | ⏳ | 云同步相关，需后端配套 |
 
-### 第三批（重写评估）— 选型已定（2026-08-20 调研，见下），实施待排期
+### 第三批（重写评估）— ✅ 已实施（2026-08-20 深夜二）
 
-**决策一：CollabService 重写 = Yjs 胶水化（推荐，高置信）**
+| 决策 | 实施位置 | 状态 | 备注 |
+| --- | --- | --- | --- |
+| 决策一：CollabService Yjs 胶水化 | `ide/services/collab/` | ✅ v2.0.0 | 741→250 行；y-websocket/y-indexeddb/Awareness/y-monaco 全部就位；API 兼容归档面 + bindEditor；UndoManager captureTimeout:0 修正合并语义；8 用例 |
+| 决策二：终端沙箱抽象层 | `ide/services/terminal/` | ✅ v1.0.0 | 策略闸门（黑名单正则含参数/白名单/会话配额/超时截断/环形审计）+ E2B/Cloudflare 双适配器（SDK 注入零硬依赖）+ DryRun；15 用例；后续终端面板仅需 registerProvider |
+
+**原选型依据（2026-08-20 调研）**：
+
+**决策一：协作引擎 — Yjs（高置信）**
 
 关键发现：归档 CollabService（741 行）本就是 Yjs 基座，问题是自研了生态免费提供的
 东西。重写路径（预计 741 → ~150 行胶水）：
@@ -143,4 +150,18 @@ APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Y
 | 2026-08-20 上午 | 保底提交 `ec0903c` → 归档移动 `9cfe0a5` → 第一批回迁（MCP 栈 + 上下文工程）→ PreviewModeController 双版本合并 v1.2.0 → 删假 vitest 垫片 |
 | 2026-08-20 下午 | 1.5 批：LLMService/降级引擎/限流器 → services/llm/（修复 selectModel 与 ollama baseURL 真 bug）→ 面板宿主 panel-host + AgentMarket 回迁 → MCP 客户端升级 2026-07-28 规范 v1.2.0 → 删假 lucide 垫片（tsc 错误 55→26）|
 | 2026-08-20 晚 | Agent 编排批次收官：useMemoryStore（+idb 依赖）→ useMultiAgentDispatch → AgentOrchestrator/MultiAgentPanel/ModelRegistry/i18n。累计 668 用例全绿 |
-| 2026-08-20 深夜 | 第二批收官：安全/存储/插件三套件 + useConfirmStore（881 用例全绿，全仓 tsc 94→19）；第三批选型定案：Collab=Yjs 胶木化（y-websocket/Awareness/y-indexeddb/y-monaco），沙箱=托管 API 起步→Daytona 降本，WebContainers 定位预览补充 |
+| 2026-08-20 深夜 | 第二批收官：安全/存储/插件三套件 + useConfirmStore（881 用例全绿，全仓 tsc 94→19）；第三批选型定案：Collab=Yjs 胶水化，沙箱=托管 API 起步→Daytona 降本 |
+| 2026-08-20 深夜二 | 第三批实施：services/collab/（Yjs 胶水 v2.0.0，8 用例）+ services/terminal/（沙箱策略+双供应商适配器，15 用例）。**三个批次全部完成**，904 用例全绿 |
+
+## 收官状态（2026-08-20）
+
+单日完成：保底提交 → 归档 → 第一批（MCP+2026-07-28 规范/上下文工程）→ 1.5 批（LLM 调用层/面板宿主）→ Agent 编排批次 → 第二批（安全/存储/插件）→ 第三批（协作重写/沙箱抽象）。
+**23 个提交，904 测试用例全绿，全仓 tsc 94→19（余量为 MonacoWrapper 等 6 个未迁模块的引用）**。
+
+剩余待办（低优先）：
+1. MonacoWrapper 的 6 个依赖模块（fileData/useThemeStore/useScrollSyncStore/useEditorRegistry/ErrorReportingService/AICompletionService）→ 消除最后 8 个预存错误
+2. LayoutPresetsEnhanced 需要 PanelManager 上下文抽象（面板壳二期）
+3. StorageCleanup/StorageMonitor（422+421 行，随存储面板需求）
+4. CloudSync/DataExporter/DataImporter/MigrationService（云同步，需后端）
+5. terminal-api v1/v2 本体与 XTerminal 面板（沙箱层已就绪，接入时走 TerminalService）
+6. CollabPanel 升级消费新 collab 服务（当前为自包含展示面板）
