@@ -23,16 +23,16 @@
     //   /// <reference types="vitest/globals" />
     // 或见 ide/types/vitest.d.ts 中的全局 ambient 声明兜底
 
-    "baseUrl": ".",
+    // TS 5.6+ 弃用 baseUrl（7.0 移除）：迁移为无 baseUrl 的相对 paths 写法
     "paths": {
-      "@/*": ["src/*"],
-      "@/services/*": ["services/*"],
-      "@/lib/*": ["lib/*"],
-      "@/components/*": ["components/*"],
-      "@/stores/*": ["stores/*"],
-      "@/hooks/*": ["hooks/*"],
-      "@/utils/*": ["utils/*"],
-      "@/types/*": ["types/*"]
+      "@/*": ["./src/*"],
+      "@/services/*": ["./services/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/components/*": ["./components/*"],
+      "@/stores/*": ["./stores/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/utils/*": ["./utils/*"],
+      "@/types/*": ["./types/*"]
     }
   },
   "include": [
