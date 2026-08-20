@@ -23,6 +23,7 @@ import {
   chatCompletionStream,
   extractCodeBlock,
   findAvailableProvider,
+  initializeApiKeysFromEnv,
 } from "../LLMService";
 import { ZAI_PLAN_PROVIDER, OLLAMA_PROVIDER } from "../providers";
 import type { ProviderConfig } from "../types";
@@ -255,5 +256,15 @@ describe("findAvailableProvider", () => {
   it("无配置时本地优先回退到 ollama（authType none 视为可用）", () => {
     const found = findAvailableProvider();
     expect(found?.config.id).toBe("ollama");
+  });
+});
+
+describe("审计修复回归（H2 env 密钥种子禁用）", () => {
+  it("initializeApiKeysFromEnv 为 no-op：不写任何 localStorage 键", () => {
+    localStorage.clear();
+    initializeApiKeysFromEnv();
+    expect(
+      localStorage.getItem("yyc3_llm_key_zai-plan"),
+    ).toBeNull();
   });
 });

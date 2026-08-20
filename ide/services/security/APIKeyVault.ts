@@ -316,12 +316,14 @@ class APIKeyVault {
   async setActive(id: string): Promise<void> {
     if (!this.db) await this.init();
 
-    const keys = await this.listKeys();
-    const targetKey = keys.find(k => k.id === id);
+    // 安全修复（审计 H3）：必须从库取原始（加密）记录——listKeys 返回掩码副本，
+    // 原实现将掩码文本 put 回库会把密钥永久覆盖损毁
+    const rawKeys: APIKeyConfig[] = await this.db!.getAll(STORE_NAME);
+    const targetKey = rawKeys.find(k => k.id === id);
 
     if (!targetKey) return;
 
-    for (const key of keys) {
+    for (const key of rawKeys) {
       if (key.provider === targetKey.provider) {
         await this.db!.put(STORE_NAME, { ...key, isActive: key.id === id });
       }

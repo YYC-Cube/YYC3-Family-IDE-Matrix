@@ -25,6 +25,9 @@ import type {
 
 const AUDIT_LIMIT = 500;
 
+/** shell 元字符（审计 H1）：出现在完整命令行即拒绝 */
+const SHELL_METACHAR_RE = /[;|&$`<>()\r\n]/;
+
 export class SandboxPolicy {
   private config: Required<
     Pick<SandboxPolicyConfig, "defaultTimeoutMs" | "maxTimeoutMs">
@@ -48,6 +51,17 @@ export class SandboxPolicy {
    */
   check(name: string, fullCommand?: string): PolicyDecision {
     const line = fullCommand ?? name;
+
+    // 审计 H1 修复：参数中出现 shell 元字符一律拒绝（`;|&$\\`<>()` 换行/回车）。
+    // 白名单只校验命令名，元字符可借参数注入任意命令（如 echo "x"; rm -rf /），
+    // 因此这是比黑名单更前置的硬闸门；引号包裹的元字符同样拒绝（从严）。
+    if (SHELL_METACHAR_RE.test(line)) {
+      return {
+        verdict: "denied",
+        reason: "shell metacharacters in command line are not allowed",
+      };
+    }
+
     for (const pattern of this.config.blockedPatterns ?? []) {
       if (pattern.test(line)) {
         return {

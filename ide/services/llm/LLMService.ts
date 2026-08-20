@@ -111,19 +111,17 @@ export function hasApiKey(providerId: ProviderId): boolean {
   return !!getApiKey(providerId);
 }
 
-/** 从环境变量初始化 API Key（仅当 localStorage 中未配置时） */
+/**
+ * 从环境变量初始化 API Key —— 已禁用（审计 H2 修复）
+ *
+ * Vite 的 VITE_* 变量会被打进客户端 bundle，任何访问者可从 JS 中读取密钥。
+ * 密钥今后只经用户在 UI 中录入（setApiKey），云端供应商密钥应走服务端代理。
+ * 保留导出以兼容旧调用方；调用将记录一条告警。
+ */
 export function initializeApiKeysFromEnv(): void {
-  const envMappings: Array<{ providerId: ProviderId; envKey: string }> = [
-    { providerId: "zai-plan", envKey: "VITE_ZHIPU_API_KEY" },
-  ];
-
-  for (const { providerId, envKey } of envMappings) {
-    const envValue = (import.meta as any).env?.[envKey];
-    if (envValue && !hasApiKey(providerId)) {
-      setApiKey(providerId, envValue);
-      logger.info(`Initialized API key for ${providerId} from env ${envKey}`);
-    }
-  }
+  logger.warn(
+    "[LLMService] initializeApiKeysFromEnv 已禁用：VITE_* 密钥会进入客户端 bundle（审计 H2）。请改由用户录入或服务端代理。",
+  );
 }
 
 // ── Ollama 本地探测 ──

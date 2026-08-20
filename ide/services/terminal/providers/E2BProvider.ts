@@ -22,7 +22,7 @@ import type { CommandRequest, ExecResult, SandboxProvider } from "../types";
 /** E2B SDK 的最小结构类型（版本升级时仅需校对本接口） */
 export interface E2BSDKLike {
   Sandbox: {
-    create(options?: { timeoutMs?: number }): Promise<E2BSandboxLike>;
+    create(options?: { timeoutMs?: number; apiKey?: string }): Promise<E2BSandboxLike>;
   };
 }
 
@@ -40,17 +40,16 @@ export interface E2BProviderOptions {
   sdk: E2BSDKLike;
   /** 沙箱创建超时（毫秒） */
   createTimeoutMs?: number;
+  /** 供应商 API Key（仅运行时传 SDK，不落盘；审计 H2） */
+  apiKey?: string;
 }
 
 export class E2BProvider implements SandboxProvider {
   readonly name = "e2b";
-  private readonly options: Required<E2BProviderOptions>;
+  private readonly options: E2BProviderOptions & { createTimeoutMs: number };
 
   constructor(options: E2BProviderOptions) {
-    this.options = {
-      createTimeoutMs: options.createTimeoutMs ?? 15_000,
-      ...options,
-    };
+    this.options = { ...options, createTimeoutMs: options.createTimeoutMs ?? 15_000 };
   }
 
   async execute(
@@ -61,11 +60,14 @@ export class E2BProvider implements SandboxProvider {
     const full = [request.command, ...(request.args ?? [])].join(" ");
     const sandbox = await this.options.sdk.Sandbox.create({
       timeoutMs: this.options.createTimeoutMs,
+      apiKey: this.options.apiKey,
     });
 
     try {
+      // 原生超时透传（审计 M5）：与 TerminalService 的 abort 闸门双保险
       const result = await sandbox.commands.run(full, {
         cwd: request.workdir,
+        timeoutMs: request.timeoutMs,
       });
       return {
         exitCode: result.exitCode,

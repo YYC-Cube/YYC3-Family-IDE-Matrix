@@ -31,41 +31,34 @@ import {
   SandboxPolicy,
   DryRunProvider,
   SandboxError,
+  createTerminalService,
+  SANDBOX_POLICY_DEFAULTS,
   type TerminalService as ITerminalService,
 } from "../../services/terminal";
 import { CircleAlert, CircleCheck } from "lucide-react";
 
-/** 默认策略：常见只读/构建命令放行，危险模式一律拒绝 */
-const DEFAULT_POLICY = new SandboxPolicy({
-  allowedCommands: [
-    "echo", "ls", "cat", "head", "tail", "grep", "find", "pwd", "which",
-    "node", "npm", "pnpm", "git", "mkdir", "touch", "false", "sleep", "clear",
-  ],
-  blockedPatterns: [
-    /rm\s+-rf/,
-    /\bcc\b|\bchmod\s+777\b/,
-    /curl[^|]*\|\s*(ba)?sh/,
-    /wget[^|]*\|\s*(ba)?sh/,
-    /:\(\)\{.*\};:/,
-    />\s*\/dev\/sd/,
-    /\bmkfs\b/,
-  ],
-  session: { maxCommands: 60, windowMs: 60_000 },
-  defaultTimeoutMs: 10_000,
-  maxTimeoutMs: 30_000,
-});
-
 /** 默认服务实例（DryRun）；接入托管沙箱时传入自建 service */
-let defaultService: ITerminalService | null = null;
+/** 默认面板服务：工厂默认策略（单一真相源 SANDBOX_POLICY_DEFAULTS）+ DryRun */
+let defaultServicePromise: Promise<ITerminalService> | null = null;
+const serviceRef: { current: ITerminalService | null } = { current: null };
+
 function getDefaultService(): ITerminalService {
-  if (!defaultService) {
-    defaultService = new TerminalService({
-      policy: DEFAULT_POLICY,
-      defaultProvider: "dry-run",
-    });
-    defaultService.registerProvider(new DryRunProvider());
+  if (!serviceRef.current) {
+    const policy = new SandboxPolicy({
+      ...SANDBOX_POLICY_DEFAULTS,
+      session: SANDBOX_POLICY_DEFAULTS.session!,
+    } as ConstructorParameters<typeof SandboxPolicy>[0]);
+    const service = new TerminalService({ policy, defaultProvider: "dry-run" });
+    service.registerProvider(new DryRunProvider());
+    serviceRef.current = service;
   }
-  return defaultService;
+  return serviceRef.current;
+}
+
+/** 异步版本：经工厂支持真实沙箱 env 注入（增强②入口） */
+export function getDefaultSandboxedService(): Promise<ITerminalService> {
+  defaultServicePromise ??= createTerminalService().then((r) => r.service);
+  return defaultServicePromise;
 }
 
 export interface TerminalPanelProps {

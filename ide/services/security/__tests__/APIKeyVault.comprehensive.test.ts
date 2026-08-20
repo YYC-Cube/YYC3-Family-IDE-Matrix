@@ -123,3 +123,24 @@ describe('APIKeyVault - 边界情况', () => {
     })
   })
 })
+
+describe("审计修复回归（H3 setActive 完整性）", () => {
+  it("setActive 实现必须直读库内原始记录而非 listKeys 掩码副本", async () => {
+    // jsdom 无 indexedDB，运行时行为由真浏览器 E2E 覆盖；
+    // 此处以源码 tripwire 防止回归为 listKeys 路径（掩码回写=密钥损毁）
+    const source = await import("../APIKeyVault");
+    expect(typeof source.apiKeyVault.setActive).toBe("function");
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const code = fs.readFileSync(
+      path.resolve(process.cwd(), "services/security/APIKeyVault.ts"),
+      "utf-8",
+    );
+    const setActiveBody = code.slice(
+      code.indexOf("async setActive"),
+      code.indexOf("async clearAll"),
+    );
+    expect(setActiveBody).toContain("db!.getAll(STORE_NAME)");
+    expect(setActiveBody).not.toContain("await this.listKeys()");
+  });
+});

@@ -50,6 +50,16 @@ const DEFAULT_CONFIG: CsrfConfig = {
   rotateOnUse: true,
 };
 
+/** 常数时间字符串比较（防时序侧信道；审计 M3 修复） */
+function timingSafeEqual(a: string, b: string): boolean {
+  const maxLen = Math.max(a.length, b.length);
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < maxLen; i++) {
+    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  }
+  return diff === 0;
+}
+
 class CsrfProtectionService {
   private config: CsrfConfig;
   private currentToken: CsrfToken | null = null;
@@ -102,7 +112,7 @@ class CsrfProtectionService {
 
     if (!this.currentToken) return false;
 
-    if (tokenValue !== this.currentToken.value) {
+    if (!timingSafeEqual(tokenValue, this.currentToken.value)) {
       return false;
     }
 
@@ -227,7 +237,7 @@ class CsrfProtectionService {
       return false;
     }
 
-    if (cookieToken !== headerToken) {
+    if (!timingSafeEqual(cookieToken, headerToken)) {
       logger.warn("[CSRF] Double-submit: token mismatch");
       return false;
     }

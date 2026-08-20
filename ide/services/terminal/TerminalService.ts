@@ -107,11 +107,15 @@ export class TerminalService {
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     const start = Date.now();
 
+    // 审计 M5 修复：把解析后的超时注入请求，供应商透传给原生 timeout（abort
+    // 信号此前被真实 provider 忽略）
+    const providerRequest: CommandRequest = { ...request, timeoutMs };
+
     let result: ExecResult;
     let outcome: AuditOutcome;
 
     try {
-      result = await provider.execute(request, controller.signal);
+      result = await provider.execute(providerRequest, controller.signal);
       outcome = result.exitCode === 0 ? "executed" : "exec-failed";
     } catch (error) {
       result = {

@@ -60,19 +60,29 @@ export interface TerminalServiceFactoryResult {
   degraded: boolean;
 }
 
-const DEFAULT_POLICY: Partial<ConstructorParameters<typeof SandboxPolicy>[0]> = {
+/**
+ * 默认沙箱策略（审计 H2/H1 收紧后）：
+ * - 白名单仅保留展示型/只读命令 —— node/npm/pnpm/git 可执行任意脚本，已移除，
+ *   需要时经 config.policy 显式加回并自担风险
+ * - 黑名单覆盖直接破坏形态（配合元字符闸门形成双层）
+ */
+export const SANDBOX_POLICY_DEFAULTS: Partial<
+  ConstructorParameters<typeof SandboxPolicy>[0]
+> = {
   allowedCommands: [
     "echo", "ls", "cat", "head", "tail", "grep", "find", "pwd", "which",
-    "node", "npm", "pnpm", "git", "mkdir", "touch", "false", "sleep", "clear",
+    "mkdir", "touch", "false", "sleep", "clear",
   ],
   blockedPatterns: [
-    /rm\s+-rf/,
-    /\bcc\b|\bchmod\s+777\b/,
+    /\brm\s+-\w*r/,            // rm -r/-rf/-fr（任意含 r 的旗标组合）
+    /\bchmod\s+0?777\b/,
+    /\bmkfs\b/,
+    /\bdd\s+[^;]*of=\/dev\//,  // dd 写设备
+    /\bfind\s+[^;]*-delete\b/,
     /curl[^|]*\|\s*(ba)?sh/,
     /wget[^|]*\|\s*(ba)?sh/,
     /:\(\)\{.*\};:/,
     />\s*\/dev\/sd/,
-    /\bmkfs\b/,
   ],
   session: { maxCommands: 60, windowMs: 60_000 },
   defaultTimeoutMs: 10_000,
@@ -109,9 +119,9 @@ export async function createTerminalService(
     );
 
   const policy = new SandboxPolicy({
-    ...DEFAULT_POLICY,
+    ...SANDBOX_POLICY_DEFAULTS,
     ...resolved.policy,
-    session: resolved.policy?.session ?? DEFAULT_POLICY.session!,
+    session: resolved.policy?.session ?? SANDBOX_POLICY_DEFAULTS.session!,
   } as ConstructorParameters<typeof SandboxPolicy>[0]);
 
   const service = new TerminalService({
@@ -155,6 +165,8 @@ async function loadRealProvider(
     if (typeof mod?.Sandbox?.create === "function") {
       return new E2BProvider({
         sdk: { Sandbox: mod.Sandbox },
+        // env 密钥仅作为 SDK 运行参数传递，绝不落盘 localStorage（审计 H2）
+        apiKey: config.apiKey,
       });
     }
     return null;

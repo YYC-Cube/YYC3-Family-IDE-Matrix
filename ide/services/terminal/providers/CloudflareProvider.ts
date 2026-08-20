@@ -49,8 +49,10 @@ export class CloudflareProvider implements SandboxProvider {
     const sandbox = await this.sdk.Sandbox.create();
 
     try {
+      // 原生超时透传（审计 M5）
       const result = await sandbox.commands.run(full, {
         workdir: request.workdir,
+        timeoutMs: request.timeoutMs,
       });
       return {
         exitCode: result.exitCode,
