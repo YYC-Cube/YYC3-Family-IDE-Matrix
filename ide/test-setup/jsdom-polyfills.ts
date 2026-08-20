@@ -32,6 +32,16 @@ if (typeof File !== "undefined" && typeof File.prototype.text !== "function") {
   File.prototype.text = blobTextPolyfill;
 }
 
+// ── ResizeObserver polyfill（jsdom 无实现；xterm 等组件依赖）──
+if (typeof globalThis.ResizeObserver === "undefined") {
+  class ResizeObserverStub implements ResizeObserver {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  }
+  globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+}
+
 // ── RTL 组件卸载清理（避免跨用例 DOM 泄漏）──
 afterEach(() => {
   cleanup();

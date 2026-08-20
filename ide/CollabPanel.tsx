@@ -9,10 +9,12 @@
  * @status: dev
  * @license: MIT
  * @copyright: Copyright (c) 2026 YanYuCloudCube Team
+ * @upgraded: 2026-08-20 可选注入 services/collab 实时驱动（Yjs 胶水版）
  * @tags: collaboration,realtime,users,panel
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { CollabService, CollabUser as LiveCollabUser } from "./services/collab";
 import {
   Users,
   Edit3,
@@ -147,14 +149,49 @@ const MOCK_EVENTS: CollabEvent[] = [
   },
 ];
 
-export default function CollabPanel({ nodeId }: { nodeId: string }) {
-  const [users] = useState(MOCK_USERS);
+export default function CollabPanel({
+  nodeId,
+  service,
+}: {
+  nodeId: string;
+  /** 注入 Yjs 协作服务（收官清理新增）：提供时状态/用户实时驱动；缺省演示模式 */
+  service?: CollabService;
+}) {
+  const [users, setUsers] = useState(MOCK_USERS);
   const [events] = useState(MOCK_EVENTS);
   const [activeTab, setActiveTab] = useState<
     "users" | "activity" | "permissions"
   >("users");
   const [showCursors, setShowCursors] = useState(true);
   const [isConnected, setIsConnected] = useState(true);
+
+  // 真实协作服务接线：连接状态 + 在线用户实时驱动（演示模式跳过）
+  useEffect(() => {
+    if (!service) return;
+
+    const toPanelUser = (u: LiveCollabUser) => ({
+      id: u.id,
+      name: u.name,
+      avatar: u.name.slice(0, 1),
+      color: u.color,
+      status: "online" as const,
+      role: "editor" as const,
+    });
+
+    const applyUsers = () => setUsers(service.getUsers().map(toPanelUser));
+    const applyStatus = () =>
+      setIsConnected(service.getConnectionStatus() === "connected");
+
+    const unsubscribe = service.subscribe((event) => {
+      if (event.type === "status-changed") applyStatus();
+      if (event.type === "users-changed") applyUsers();
+    });
+
+    applyStatus();
+    applyUsers();
+    service.connect();
+    return unsubscribe;
+  }, [service]);
 
   const onlineCount = users.filter((u) => u.status !== "offline").length;
   const editingCount = users.filter((u) => u.status === "editing").length;
