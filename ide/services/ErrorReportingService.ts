@@ -434,13 +434,16 @@ class ErrorReportingService {
       errorStack = error.stack;
     } else if (error instanceof Event) {
       // 处理 Event 对象
+      // jsdom 等环境无 Worker 全局 —— typeof 守卫避免 ReferenceError（审计 Batch D）
       const targetInfo = error.target
-        ? (error.target instanceof Worker ? 'Worker' : String(error.target))
+        ? (typeof Worker !== 'undefined' && error.target instanceof Worker
+            ? 'Worker'
+            : String(error.target))
         : 'unknown target';
       errorMessage = `Event: ${error.type} - ${targetInfo}`;
       errorStack = undefined;
       err = new Error(errorMessage);
-    } else if (error instanceof Worker) {
+    } else if (typeof Worker !== 'undefined' && error instanceof Worker) {
       // 处理 Worker 对象
       errorMessage = `Worker error: ${error.toString()}`;
       errorStack = undefined;

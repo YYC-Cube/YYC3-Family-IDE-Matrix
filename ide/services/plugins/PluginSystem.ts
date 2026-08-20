@@ -262,7 +262,10 @@ export class PluginManager {
       // Create sandboxed API for this plugin
       const api = this.createPluginAPI(pluginId);
 
-      // Execute plugin's main entry point (simulated)
+      // 执行插件入口（审计 Batch D 修复：原实现从未调用 manifest.activate，
+      // 插件的命令注册/面板注册等全部不会发生——"simulated" 注释揭示的缺口）
+      plugin.manifest.activate?.(api);
+
       plugin.status = "active";
       plugin.exports = { api };
       this.plugins.set(pluginId, plugin);
