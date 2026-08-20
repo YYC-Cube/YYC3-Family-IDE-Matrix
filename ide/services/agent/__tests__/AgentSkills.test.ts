@@ -1105,10 +1105,8 @@ describe("AgentSkillsEngine — E2E / 回归测试 (10%)", () => {
         "buildSystemPrompt", // private，但仍在 prototype 上 (TypeScript 只做编译期限制)
       ];
       for (const name of publicMethods) {
-        expect(typeof (engine as any)[name]).toBe(
-          "function",
-          `方法 ${name} 缺失 — 如为有意移除，请更新此回归测试`
-        );
+        // vitest 的 toBe 类型仅收 1 参（jest 风格消息参数不支持）
+        expect(typeof (engine as any)[name]).toBe("function"); // 方法 ${name} 缺失检查
       }
       const protoFns = Object.getOwnPropertyNames(Object.getPrototypeOf(engine))
         .filter((k) => typeof (engine as any)[k] === "function" && k !== "constructor");

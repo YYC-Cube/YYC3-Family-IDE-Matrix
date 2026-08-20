@@ -38,6 +38,9 @@ export default defineConfig({
     // 全局环境: jsdom (后续测 React 组件需 DOM)
     environment: "jsdom",
 
+    // 全局 setup：jsdom Blob/File .text() polyfill + RTL cleanup
+    setupFiles: ["./test-setup/jsdom-polyfills.ts"],
+
     // 启用 globals 以支持 describe/it/expect 无需 import
     globals: true,
 
@@ -120,8 +123,8 @@ export default defineConfig({
       // 100% 分支但未访问的计数显示
       all: true,
 
-      // 允许部分文件因存根暂时低于阈值
-      perFile: true,
+      // 注：perFile 非 CoverageV8Options 类型成员（vitest 1.6 类型），已移除；
+      // 当前阈值均按单文件配置，无全局 per-file 语义需求
     },
 
     // mock 清理由 beforeEach 管理 (文件内我们已经手动 clearAllMocks)

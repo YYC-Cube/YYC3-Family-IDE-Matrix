@@ -35,7 +35,7 @@ import {
   usePanelManager,
   type LayoutNode,
   LAYOUT_PRESETS,
-} from './PanelManager'
+} from './components/panel-host'
 import { loadJSON, saveJSON } from './constants/storage-keys'
 
 const SK_SAVED_PRESETS = 'yyc3_layout_presets_v2'

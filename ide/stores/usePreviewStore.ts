@@ -34,6 +34,8 @@ export interface PreviewState {
   autoRefresh: boolean;
   /** 最后刷新时间 */
   lastRefreshTime: number;
+  /** 编辑器↔预览滚动同步开关（MonacoWrapper 消费 · 收官清理补齐） */
+  scrollSyncEnabled: boolean;
 }
 
 export interface PreviewActions {
@@ -46,7 +48,11 @@ export interface PreviewActions {
   /** 设置可见性 */
   setVisible: (visible: boolean) => void;
   /** 设置自动刷新 */
-  setAutoRefresh: (auto: boolean) => void;
+  setAutoRefresh: (autoRefresh: boolean) => void;
+  /** 设置滚动同步 */
+  setScrollSyncEnabled: (enabled: boolean) => void;
+  /** 通知文件变更（预览模式控制器入口；无控制器时回退直接刷新） */
+  notifyFileChange: () => void;
 }
 
 export type PreviewStore = PreviewState & PreviewActions;
@@ -61,6 +67,7 @@ let state: PreviewState = {
   refreshCount: 0,
   autoRefresh: true,
   lastRefreshTime: Date.now(),
+  scrollSyncEnabled: false,
 };
 
 const listeners: Set<() => void> = new Set();
@@ -101,6 +108,16 @@ const actions: PreviewActions = {
 
   setAutoRefresh(auto) {
     setState({ autoRefresh: auto });
+  },
+
+  setScrollSyncEnabled(scrollSyncEnabled) {
+    setState({ scrollSyncEnabled });
+  },
+
+  notifyFileChange() {
+    // 本 Store 为轻量实现（无 modeController），文件变更直接触发刷新；
+    // 归档版语义：有控制器时走控制器（节流/延迟策略），否则回退此处
+    actions.triggerRefresh();
   },
 };
 

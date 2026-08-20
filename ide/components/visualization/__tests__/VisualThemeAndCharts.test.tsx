@@ -1042,7 +1042,7 @@ describe("D · SunRise 主题 · 完整令牌 / WCAG / 家族色 / 集成 (vis-1
 // ★ E. useVisualTheme 边界 · SSR / 脏存储 / toggle / initialThemeId (vis-141~vis-170)
 // ==================================================================
 describe("E · useVisualTheme Provider/Hook 边界 · SSR/脏值/toggle/initial (vis-141~vis-170)", () => {
-  let warnSpy: Mock<any, any>;
+  let warnSpy: ReturnType<typeof vi.spyOn>;
   beforeEach(() => {
     localStorage.clear();
     warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});

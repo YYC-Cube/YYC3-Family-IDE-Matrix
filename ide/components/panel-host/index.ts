@@ -17,3 +17,16 @@ import "./tokens.css";
 
 export { PanelHeader } from "./PanelHeader";
 export type { PanelHeaderProps } from "./PanelHeader";
+
+// 面板壳二期：布局上下文（split/merge 编辑能力三期扩展）
+export {
+  PanelManagerProvider,
+  usePanelManager,
+  LAYOUT_PRESETS,
+} from "./PanelManagerContext";
+export type {
+  PanelManagerContextValue,
+  LayoutNode,
+  SplitDirection,
+  PanelId,
+} from "./PanelManagerContext";
