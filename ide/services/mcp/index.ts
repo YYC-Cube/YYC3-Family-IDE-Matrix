@@ -40,6 +40,7 @@ export type {
   MCPPrompt,
   MCPToolCallResult,
   MCPResourceContent,
+  CacheHint,
 } from "./MCPClient";
 
 export {

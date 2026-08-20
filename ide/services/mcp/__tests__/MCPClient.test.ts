@@ -33,14 +33,19 @@ describe("MCPClient", () => {
     vi.unstubAllGlobals();
   });
 
-  it("connect() 成功时拉取 tools/resources/prompts 三个列表", async () => {
+  it("connect() 无握手：server/discover(可选) + 拉取三个列表并捕获缓存提示", async () => {
     fetchMock.mockImplementation(async (_url: string, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body));
       switch (body.method) {
-        case "initialize":
+        case "server/discover":
           return rpcResponse({ serverInfo: { name: "test-server" } });
         case "tools/list":
-          return rpcResponse({ tools: [{ name: "read_file", description: "读文件" }] });
+          // 2026-07-28 规范：列表响应可携带 ttlMs + cacheScope 缓存提示
+          return rpcResponse({
+            tools: [{ name: "read_file", description: "读文件" }],
+            ttlMs: 30000,
+            cacheScope: "client",
+          });
         case "resources/list":
           return rpcResponse({ resources: [{ uri: "file:///a.ts", name: "a.ts", description: "" }] });
         case "prompts/list":
@@ -58,10 +63,53 @@ describe("MCPClient", () => {
     expect(client.listTools()).toHaveLength(1);
     expect(client.listResources()).toHaveLength(1);
     expect(client.listPrompts()).toHaveLength(1);
-    // initialize 请求体包含协议版本与客户端信息
-    const initBody = JSON.parse(String(fetchMock.mock.calls[0][1].body));
-    expect(initBody.method).toBe("initialize");
-    expect(initBody.params.protocolVersion).toBe("2024-11-05");
+
+    // 2026-07-28：首个请求为可选的 server/discover，身份与能力在 params._meta
+    const discoverBody = JSON.parse(String(fetchMock.mock.calls[0][1].body));
+    expect(discoverBody.method).toBe("server/discover");
+    expect(discoverBody.params._meta.clientInfo.name).toBe("YYC3 Family AI");
+    expect(discoverBody.params._meta.protocolVersion).toBe("2026-07-28");
+
+    // 头路由：每个请求携带协议版本与方法名
+    const discoverHeaders = fetchMock.mock.calls[0][1].headers as Record<string, string>;
+    expect(discoverHeaders["MCP-Protocol-Version"]).toBe("2026-07-28");
+    expect(discoverHeaders["Mcp-Method"]).toBe("server/discover");
+
+    // 缓存提示已捕获
+    expect(client.getCacheHints().tools).toEqual({ ttlMs: 30000, cacheScope: "client" });
+  });
+
+  it("server/discover 不受支持时容忍失败，仍完成连接", async () => {
+    fetchMock.mockImplementation(async (_url: string, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body));
+      if (body.method === "server/discover") {
+        return new Response(
+          JSON.stringify({ jsonrpc: "2.0", id: 1, error: { code: -32601, message: "Method not found" } }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      if (body.method === "tools/list") return rpcResponse({ tools: [] });
+      if (body.method === "resources/list") return rpcResponse({ resources: [] });
+      if (body.method === "prompts/list") return rpcResponse({ prompts: [] });
+      return rpcResponse({});
+    });
+
+    const client = new MCPClient({ serverUrl: "https://mcp.example.com" });
+    await expect(client.connect()).resolves.toBe(true);
+    expect(client.isConnected()).toBe(true);
+  });
+
+  it("protocolVersion 可配置覆盖（旧服务器协商回退）", async () => {
+    fetchMock.mockResolvedValue(rpcResponse({}));
+
+    const client = new MCPClient({
+      serverUrl: "https://mcp.example.com",
+      protocolVersion: "2025-06-18",
+    });
+    await client.connect();
+
+    const headers = fetchMock.mock.calls[0][1].headers as Record<string, string>;
+    expect(headers["MCP-Protocol-Version"]).toBe("2025-06-18");
   });
 
   it("connect() 失败时返回 false 且不进入连接态", async () => {
@@ -94,7 +142,7 @@ describe("MCPClient", () => {
     await expect(client.getPrompt("code-review")).rejects.toThrow("not connected");
   });
 
-  it("callTool() 成功返回 success=true 与数据", async () => {
+  it("callTool() 成功返回 success=true 与数据，头路由携带 Mcp-Name", async () => {
     fetchMock.mockResolvedValue(rpcResponse({ content: "file body" }));
 
     const client = new MCPClient({ serverUrl: "https://mcp.example.com" });
@@ -103,6 +151,10 @@ describe("MCPClient", () => {
     const result = await client.callTool("read_file", { path: "/a.ts" });
     expect(result.success).toBe(true);
     expect(result.data).toEqual({ content: "file body" });
+
+    const headers = fetchMock.mock.calls[0][1].headers as Record<string, string>;
+    expect(headers["Mcp-Method"]).toBe("tools/call");
+    expect(headers["Mcp-Name"]).toBe("read_file");
   });
 
   it("callTool() JSON-RPC 错误时返回 success=false 与错误信息", async () => {
@@ -170,18 +222,15 @@ describe("MCPClient", () => {
     expect(sent.params.name).toBe("code-review");
   });
 
-  it("disconnect() 清空状态并调用 shutdown", async () => {
-    fetchMock.mockResolvedValue(rpcResponse({}));
-
+  it("disconnect() 纯本地清空（2026-07-28 无会话，不发任何请求）", async () => {
     const client = new MCPClient({ serverUrl: "https://mcp.example.com" });
     client["connected"] = true;
 
     await client.disconnect();
     expect(client.isConnected()).toBe(false);
     expect(client.listTools()).toHaveLength(0);
-
-    const sent = JSON.parse(String(fetchMock.mock.calls[0][1].body));
-    expect(sent.method).toBe("shutdown");
+    expect(client.getCacheHints()).toEqual({});
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("createMCPClient() 工厂返回可用实例", () => {
