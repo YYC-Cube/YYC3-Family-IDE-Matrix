@@ -61,12 +61,85 @@ export function getDefaultSandboxedService(): Promise<ITerminalService> {
   return defaultServicePromise;
 }
 
+/** 沙箱化终端面板状态（useSandboxedTerminalService 返回） */
+export interface SandboxedTerminalState {
+  /** 生效服务（解析前为 DryRun 默认；env 配置真实供应商时热切换） */
+  service: ITerminalService;
+  /** 实际供应商名 */
+  provider: string;
+  /** 是否降级（真实供应商不可用 → DryRun） */
+  degraded: boolean;
+  /** 异步工厂是否已解析 */
+  ready: boolean;
+}
+
+/**
+ * 沙箱化终端服务 Hook（组装期默认入口）：
+ * 首帧同步给 DryRun 默认（零延迟可输入），异步工厂解析后按 env 配置
+ * 热切换到 E2B/Cloudflare 真实沙箱；降级时保持 DryRun 并标记。
+ */
+export function useSandboxedTerminalService(): SandboxedTerminalState {
+  const [state, setState] = useState<SandboxedTerminalState>(() => ({
+    service: getDefaultService(),
+    provider: "dry-run",
+    degraded: false,
+    ready: false,
+  }));
+
+  useEffect(() => {
+    let alive = true;
+    createTerminalService()
+      .then((result) => {
+        if (!alive) return;
+        setState({
+          service: result.service,
+          provider: result.provider,
+          degraded: result.degraded,
+          ready: true,
+        });
+      })
+      .catch(() => {
+        // 工厂异常不阻断面板：保持 DryRun 默认
+        if (alive) setState((prev) => ({ ...prev, ready: true }));
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  return state;
+}
+
+/**
+ * 沙箱化终端面板（组装期默认组件）：
+ * 自动按 env（VITE_SANDBOX_PROVIDER 等）接入真实沙箱，头部显示供应商徽章。
+ */
+export function SandboxedTerminalPanel({
+  nodeId,
+  sessionKey = "main",
+}: {
+  nodeId: string;
+  sessionKey?: string;
+}) {
+  const { service, provider, degraded } = useSandboxedTerminalService();
+  return (
+    <TerminalPanel
+      nodeId={nodeId}
+      sessionKey={sessionKey}
+      service={service}
+      providerLabel={degraded ? `${provider} → dry-run（降级）` : provider}
+    />
+  );
+}
+
 export interface TerminalPanelProps {
   nodeId: string;
   /** 会话键（配额/审计隔离单位） */
   sessionKey?: string;
   /** 注入的终端服务（默认 DryRun） */
   service?: ITerminalService;
+  /** 供应商徽章文本（如 "e2b" / "e2b → dry-run（降级）"） */
+  providerLabel?: string;
 }
 
 const PROMPT = "\r\nyyc3 ❯ ";
@@ -75,6 +148,7 @@ export default function TerminalPanel({
   nodeId,
   sessionKey = "main",
   service = getDefaultService(),
+  providerLabel,
 }: TerminalPanelProps) {
   const handleRef = useRef<XTerminalHandle | null>(null);
   const bufferRef = useRef("");
@@ -171,6 +245,14 @@ export default function TerminalPanel({
         icon={lastExit === 0 ? <CircleCheck className="w-3 h-3 text-emerald-400/80" /> : lastExit !== null ? <CircleAlert className="w-3 h-3 text-amber-400/80" /> : undefined}
       >
         <span className="text-[0.6rem] text-slate-500">
+          {providerLabel && (
+            <span
+              className={`mr-1 rounded px-1 ${providerLabel.includes("降级") ? "bg-amber-900/40 text-amber-400" : "bg-cyan-900/40 text-cyan-400"}`}
+              data-testid="sandbox-provider"
+            >
+              {providerLabel}
+            </span>
+          )}
           session: {sessionKey}
         </span>
       </PanelHeader>
