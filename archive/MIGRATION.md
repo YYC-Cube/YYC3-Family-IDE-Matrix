@@ -72,20 +72,40 @@ AgentOrchestrator/MultiAgentPanel/ModelRegistry/i18n → `components/agent/` +
 APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Yjs/Loro
 重写评估)与 terminal-api(沙箱先行)。
 
-### 第二批（PluginSystem / 存储套件 / 安全套件）— 待办
+### 第二批（PluginSystem / 存储套件 / 安全套件）— ✅ 已完成（2026-08-20 深夜）
 
-- PluginSystem(748行) + 7 内置插件 + 插件市场
-- 存储套件：StorageManager / IndexedDBAdapter / Backup / Migration / Encryption / Versioning
-- 安全套件：Sanitizer / CsrfProtection / APIKeyVault / RateLimiter / EncryptionService
-- 注意：`IndexedDBAdapter.optimized.ts`(812行) 与基础版(305行) 合并后回迁
+| 能力域 | 目标位置 | 状态 | 备注 |
+| --- | --- | --- | --- |
+| 安全套件 | `ide/services/security/` | ✅ | APIKeyVault/Sanitizer/CsrfProtection/EncryptionService + 148 用例；新依赖 dompurify |
+| useConfirmStore | `ide/stores/` | ✅ | APIKeyManagerPanel 5 个预存 tsc 错误随之清零 |
+| 存储套件 | `ide/services/storage/` | ✅ | IndexedDBAdapter 双版本合并（optimized 基座+补回 getDB）+ StorageManager/Backup/Versioning/ThreeWayMerge + 212 用例 |
+| PluginSystem + 7 插件 + 市场 | `ide/services/plugins/` + `components/plugins/` | ✅ | 淘汰滞后 PluginContext；修复 bookmarks/context 命名炸弹与 4 处引号 bug |
+| StorageCleanup / StorageMonitor | 未迁 | ⏳ | 422+421 行，随存储面板需求再迁 |
+| CloudSyncService / DataExporter / DataImporter / MigrationService | 未迁 | ⏳ | 云同步相关，需后端配套 |
 
-### 第三批（需重写评估）— 待办
+### 第三批（重写评估）— 选型已定（2026-08-20 调研，见下），实施待排期
 
-- CollabService(741行)：自研协作 → 评估改用 **Yjs / Loro**（2026 CRDT 生态主流）
-- terminal-api v1/v2(512行) + XTerminal：**必须先行确定沙箱方案**
-  （Firecracker microVM / gVisor / 托管 E2B，参考 2026-08 趋势调研），禁止裸迁
-- MCP 客户端协议升级：`protocolVersion "2024-11-05"` → MCP **2026-07-28 规范**
-  （无状态、可缓存、HTTP 头路由），同步评估 ACP 作为 Agent-编辑器协议
+**决策一：CollabService 重写 = Yjs 胶水化（推荐，高置信）**
+
+关键发现：归档 CollabService（741 行）本就是 Yjs 基座，问题是自研了生态免费提供的
+东西。重写路径（预计 741 → ~150 行胶水）：
+1. 删自研 sync-step-1/2 WS 协议与 ThreeWayMerge 依赖 → 换 **y-websocket** provider
+2. 光标/在线状态 → **Y.Awareness**
+3. 离线队列 → **y-indexeddb**
+4. 编辑器绑定 → **y-monaco**（官方维护，npm 0.1.6，Liveblocks 生产采用）
+- 不选 Loro/Automerge 的原因：性能虽强但无官方 Monaco 绑定（loro-monaco 为
+  爱好级），需自写绑定，收益不抵风险。Yjs 纯 TS 无 WASM、包最小。
+
+**决策二：终端沙箱 = 托管 API 起步 → 中期 Daytona 自托管降本（中高置信）**
+
+- WebContainers **不能**替代服务端沙箱：仅 Node.js、生产需商业授权、依赖
+  SharedArrayBuffer 跨域隔离头、Safari 受限——定位为零成本 dev-server 预览的补充
+- MVP（0-3 月）：terminal-api 接 E2B（~$0.05/vCPU·h）或 Cloudflare Sandbox
+  （2026-04 GA）；命令白名单 + 会话超时配额 + 审计日志；预算 $50-150/月
+- 生产（3-9 月）：低风险命令迁 Daytona 单 VPS 自托管（$6-12/月），高风险留托管
+  microVM；保持双供应商 SDK 适配层
+- **明确不做**：自建 Firecracker/gVisor 集群（小团队运维硬门槛）
+- 风险：Daytona Docker 隔离弱于 microVM（勿跑恶意向命令）；托管 API 供应商锁定
 
 ## .optimized.ts 双版本合并状态
 
@@ -123,3 +143,4 @@ APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Y
 | 2026-08-20 上午 | 保底提交 `ec0903c` → 归档移动 `9cfe0a5` → 第一批回迁（MCP 栈 + 上下文工程）→ PreviewModeController 双版本合并 v1.2.0 → 删假 vitest 垫片 |
 | 2026-08-20 下午 | 1.5 批：LLMService/降级引擎/限流器 → services/llm/（修复 selectModel 与 ollama baseURL 真 bug）→ 面板宿主 panel-host + AgentMarket 回迁 → MCP 客户端升级 2026-07-28 规范 v1.2.0 → 删假 lucide 垫片（tsc 错误 55→26）|
 | 2026-08-20 晚 | Agent 编排批次收官：useMemoryStore（+idb 依赖）→ useMultiAgentDispatch → AgentOrchestrator/MultiAgentPanel/ModelRegistry/i18n。累计 668 用例全绿 |
+| 2026-08-20 深夜 | 第二批收官：安全/存储/插件三套件 + useConfirmStore（881 用例全绿，全仓 tsc 94→19）；第三批选型定案：Collab=Yjs 胶木化（y-websocket/Awareness/y-indexeddb/y-monaco），沙箱=托管 API 起步→Daytona 降本，WebContainers 定位预览补充 |
