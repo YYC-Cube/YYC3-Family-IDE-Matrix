@@ -23,7 +23,7 @@ import {
   ArrowLeftRight,
   Layers,
 } from "lucide-react";
-import type { PreviewSnapshot } from "./stores/usePreviewStore";
+import type { PreviewSnapshot } from "../../types/previewTypes";
 
 // ── Simple Line-Level Diff ──
 

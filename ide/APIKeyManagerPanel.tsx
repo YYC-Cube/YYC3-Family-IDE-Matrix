@@ -21,7 +21,7 @@ import {
   ChevronDown,
   Settings,
 } from 'lucide-react';
-import { apiKeyVault, PROVIDERS, type APIKeyConfig, type ProviderId, type ProviderInfo } from './services/APIKeyVault';
+import { apiKeyVault, PROVIDERS, type APIKeyConfig, type ProviderId, type ProviderInfo } from './services/security/APIKeyVault';
 import { confirmDialog } from './stores/useConfirmStore';
 
 interface APIKeyManagerPanelProps {

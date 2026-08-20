@@ -23,7 +23,7 @@ import {
   Wifi,
   WifiOff,
 } from "lucide-react";
-import { PanelHeader } from "./PanelManager";
+import { PanelHeader } from "./components/panel-host";
 
 interface CollabUser {
   id: string;
@@ -188,7 +188,7 @@ export default function CollabPanel({ nodeId }: { nodeId: string }) {
   };
 
   return (
-    <div className="size-full flex flex-col bg-[var(--ide-bg)]">
+    <div className="panel-host-root size-full flex flex-col bg-[var(--ide-bg)]">
       <PanelHeader
         nodeId={nodeId}
         panelId="collab"
