@@ -1,0 +1,238 @@
+/**
+ * @file: .github/workflows/ide-test-coverage.yml
+ * @description: GitHub Actions CI — IDE 测试 & 覆盖率门禁 (Vitest + v8)
+ * @author: YanYuCloudCube Team <admin@0379.email>
+ * @version: v1.0.0
+ * @created: 2026-08-19
+ * @updated: 2026-08-19
+ * @status: active
+ * @tags: [ci,github-actions,test,coverage,gate]
+ *
+ * brief: 每次 push/PR 自动执行 IDE 单元测试与覆盖率检查，阈值不达标即阻断合并
+ *
+ * details:
+ * - 触发: push(main/master) + pull_request(all branches)
+ * - 环境矩阵: Node.js 18, 20, 22 × pnpm 9
+ * - 门禁策略:
+ *   1) 任一测试用例失败 → ❌ CI 失败 (阻断PR)
+ *   2) vitest thresholds 不达标 → ❌ CI 失败 (阻断PR)
+ *      · AgentSkills.ts 专项: 语句/函数 ≥95%, 分支/行 ≥90%
+ *      · (后续可在 vitest.config.ts thresholds.全局 开启全局 90/85)
+ * - 产物:
+ *   · coverage 报告 (HTML) 以 Actions Artifact 上传 30 天
+ *   · test-results JSON 上传供 Code Review 机器人消费
+ * - 缓存: pnpm store + node_modules (按 lockfile hash)
+ *
+ * notes:
+ * - 与本地 `pnpm test:coverage` 100% 一致，避免 "我本地能过" 分歧
+ * - 覆盖率阈值统一写在 ide/vitest.config.ts，不在 workflow 再写一套
+ * - 依赖 Experience#959665: 优先用 "stable 机器可解析的 thresholds 配置"，不 grep 文本
+ */
+
+name: IDE · Test & Coverage Gate
+
+# ------------- 触发时机 -------------
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "ide/**"
+      - ".github/workflows/ide-test-coverage.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "ide/**"
+      - ".github/workflows/ide-test-coverage.yml"
+  # 允许手动触发（可指定单文件测试）
+  workflow_dispatch:
+    inputs:
+      test_file_pattern:
+        description: "仅跑匹配文件 (如: services/agent/__tests__/AgentSkills.test.ts，留空=全部)"
+        required: false
+        default: ""
+        type: string
+
+# ------------- 全局配置 -------------
+concurrency:
+  # PR 同一分支再次 push，取消上次运行，节省 CI 时间
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ide
+    shell: bash
+
+# ================================================================
+jobs:
+  # ==============================================================
+  # Job 1: 单元测试 + 覆盖率 (矩阵: 3 个 Node 版本)
+  # ==============================================================
+  test-and-coverage:
+    name: Test & Coverage · Node ${{ matrix.node-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # 一个版本失败仍让其它版本跑完，方便定位是兼容性问题
+      matrix:
+        # 与 package.json engines.node >=18 保持一致
+        os: [ubuntu-latest, macos-latest]  # macOS 验证用户本地环境一致性
+        node-version: [18.x, 20.x, 22.x]
+        exclude:
+          # 没必要全组合跑 — 只在 ubuntu 跑 18/20, macos 跑 22 (开发者默认最新)
+          - os: macos-latest
+            node-version: 18.x
+          - os: macos-latest
+            node-version: 20.x
+
+    steps:
+      # ---- 1. Checkout ----
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---- 2. 安装 Node.js (含 corepack) ----
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          # 缓存 pnpm store — setup-node 原生支持
+          cache: "pnpm"
+          cache-dependency-path: "ide/pnpm-lock.yaml"
+
+      # ---- 3. 启用 pnpm 9.x (packageManager 锁定版本) ----
+      - name: Enable corepack & install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.0.0 --activate
+          pnpm --version
+
+      # ---- 4. 安装依赖 (严格按 lockfile，不允许漂移) ----
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # ---- 5. 运行 Vitest + 覆盖率 ----
+      # 阈值不达标 Vitest 会返回非 0 → CI 自动失败 (覆盖率门禁点)
+      - name: Run Vitest with coverage (gate)
+        id: vitest
+        env:
+          # 让 jsdom 更贴近真实浏览器 UA
+          TEST_ENV: ci
+          CI: true
+        run: |
+          PATTERN="${{ github.event.inputs.test_file_pattern }}"
+          if [ -n "$PATTERN" ]; then
+            echo "🎯 手动触发，仅运行匹配文件: $PATTERN"
+            pnpm vitest run "$PATTERN" --coverage
+          else
+            echo "🚀 完整测试套件 + 覆盖率门禁"
+            pnpm test:coverage
+          fi
+
+      # ---- 6. 上传覆盖率 HTML 报告 (Actions Artifact) ----
+      - name: Upload coverage report artifact
+        if: always()  # 即使失败也上传，方便 debug
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-node${{ matrix.node-version }}-${{ matrix.os }}-${{ github.run_number }}
+          path: |
+            ide/coverage/**
+          retention-days: 30
+          if-no-files-found: ignore
+
+      # ---- 7. 上传测试结果 JSON (供下游机器人消费) ----
+      - name: Upload vitest JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-report-node${{ matrix.node-version }}-${{ matrix.os }}-${{ github.run_number }}
+          path: ide/coverage/coverage-final.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+  # ==============================================================
+  # Job 2: 覆盖率徽章 + PR 评论 (仅 ubuntu-latest + node 20，避免刷屏)
+  # ==============================================================
+  coverage-summary:
+    name: Coverage Summary & PR Comment
+    needs: test-and-coverage
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write   # 允许写 PR 评论
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 下载 Node 20 × ubuntu 的覆盖率 (矩阵第一个稳定代表)
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-node20.x-ubuntu-latest-*
+          merge-multiple: true
+          path: _coverage_tmp
+
+      - name: Parse coverage summary
+        id: parse
+        run: |
+          JSON_FILE="_coverage_tmp/coverage-final.json"
+          if [ ! -f "$JSON_FILE" ]; then
+            echo "coverage_not_found=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # 从 json 中抽取 AgentSkills 指标 (用 node 读更稳健)
+          node -e '
+            const fs = require("fs");
+            const data = JSON.parse(fs.readFileSync("_coverage_tmp/coverage-final.json","utf8"));
+            // AgentSkills.ts 的 key 是绝对路径，用 endsWith 匹配
+            for (const [filePath, fileData] of Object.entries(data)) {
+              if (filePath.endsWith("services/agent/AgentSkills.ts")) {
+                const s = fileData.summary || {};
+                process.stdout.write(`AGENT_STMTS=${s.lines?.pct ?? "N/A"}\n`);
+                process.stdout.write(`AGENT_BRANCH=${s.branches?.pct ?? "N/A"}\n`);
+                process.stdout.write(`AGENT_FUNCS=${s.functions?.pct ?? "N/A"}\n`);
+                process.stdout.write(`AGENT_LINES=${s.lines?.pct ?? "N/A"}\n`);
+              }
+            }
+          ' >> $GITHUB_OUTPUT || true
+
+      - name: Comment PR with coverage badges
+        uses: actions/github-script@v7
+        if: steps.parse.outputs.coverage_not_found != 'true'
+        with:
+          script: |
+            const body = `### 📊 IDE 覆盖率报告 (AgentSkills 专项)
+
+            | 指标 | 实际值 | 阈值 | 状态 |
+            |------|--------|------|------|
+            | 🟦 Statements | **${{ steps.parse.outputs.AGENT_STMTS }}%** | ≥ 90% | ${{ (parseFloat(steps.parse.outputs.AGENT_STMTS) >= 90) ? '✅' : '❌' }} |
+            | 🟩 Branches   | **${{ steps.parse.outputs.AGENT_BRANCH }}%** | ≥ 85% | ${{ (parseFloat(steps.parse.outputs.AGENT_BRANCH) >= 85) ? '✅' : '❌' }} |
+            | 🟪 Functions  | **${{ steps.parse.outputs.AGENT_FUNCS }}%** | ≥ 95% | ${{ (parseFloat(steps.parse.outputs.AGENT_FUNCS) >= 95) ? '✅' : '❌' }} |
+            | 🟧 Lines      | **${{ steps.parse.outputs.AGENT_LINES }}%** | ≥ 90% | ${{ (parseFloat(steps.parse.outputs.AGENT_LINES) >= 90) ? '✅' : '❌' }} |
+
+            📎 **完整报告**: 本 PR Actions Artifact \`coverage-node20.x-ubuntu-latest\` → 下载并打开 \`coverage/index.html\` 查看逐行高亮
+
+            > Workflow Run: #${{ github.run_number }} · Commit: \`${{ github.event.pull_request.head.sha }}\`
+            `;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });
+
+  # ==============================================================
+  # Job 3: 需求状态徽章 (汇总测试矩阵状态)
+  # ==============================================================
+  final-status:
+    name: CI Status Summary
+    needs: test-and-coverage
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark success only if ALL matrix jobs succeeded
+        if: needs.test-and-coverage.result != 'success'
+        run: exit 1
+      - name: All tests passed & coverage gates met 🎉
+        run: echo "✅ IDE CI Gate passed — all green"

@@ -1,36 +1,181 @@
-# YYC3-可视化体系设计开发者文档
+<!--
+  file: README.md
+  description: YYC³ Family IDE Matrix · 可视化体系设计开发者文档
+  author: YanYuCloudCube Team <admin@0379.email>
+  version: v1.1.0
+  created: 2026-08-19
+  updated: 2026-08-20
+  status: active
+  tags: [docs,visualization,architecture,spec]
+-->
 
-> ***YanYuCloudCube***
-> *言启象限 | 语枢未来*
-> ***Words Initiate Quadrants, Language Serves as Core for Future***
-> *万象归元于云枢 | 深栈智启新纪元*
-> ***All things converge in cloud pivot; Deep stacks ignite a new era of intelligence***
+<p align="center">
+  <img src="public/yyc3-family.png" alt="YYC³ Family — 可视化体系设计" />
+</p>
 
----
+<h1 align="center">YYC³ Family IDE Matrix · 可视化体系设计开发者文档</h1>
 
-# YYC³ 可视化体系设计 · 开发者文档
+<div align="center">
 
+> ***YanYuCloudCube*** · 言启象限 · 语枢未来
+>
 > **设计哲学**：以「深蓝 + 青色赛博朋克」为视觉基因，以「数据洞察 → 快速决策」为目标，
 > 构建**高信息密度、低认知负担、强交互反馈**的智能可视化系统。
 
+</div>
+
 ---
 
-## 文档索引
+## 🏷️ 徽章系统
+
+<div align="center">
+
+**工程状态**
+
+[![CI · Test & Coverage Gate](https://github.com/YYC-Cube/YYC3-Family-IDE-Matrix/actions/workflows/ide-test-coverage.yml/badge.svg)](https://github.com/YYC-Cube/YYC3-Family-IDE-Matrix/actions/workflows/ide-test-coverage.yml)
+[![Stars](https://img.shields.io/github/stars/YYC-Cube/YYC3-Family-IDE-Matrix?style=flat-square&label=stars&color=06b6d4)](https://github.com/YYC-Cube/YYC3-Family-IDE-Matrix)
+[![Repo Size](https://img.shields.io/github/repo-size/YYC-Cube/YYC3-Family-IDE-Matrix?style=flat-square&label=repo%20size&color=3b82f6)](https://github.com/YYC-Cube/YYC3-Family-IDE-Matrix)
+[![Version](https://img.shields.io/badge/version-1.0.0-06b6d4?style=flat-square)](ide/package.json)
+[![License](https://img.shields.io/badge/license-MIT-10b981?style=flat-square)](ide/package.json)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-3b82f6?style=flat-square)](ide/package.json)
+[![Package Manager](https://img.shields.io/badge/pnpm-9.0.0-f6921e?style=flat-square)](ide/package.json)
+[![Coverage Gate](https://img.shields.io/badge/coverage%20gate-%E2%89%A595%25-10b981?style=flat-square)](.github/workflows/ide-test-coverage.yml)
+
+**核心技术栈**
+
+[![React](https://img.shields.io/badge/React-18-61dafb?style=flat-square&logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646cff?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Recharts](https://img.shields.io/badge/Recharts-2.12-06b6d4?style=flat-square)](https://recharts.org/)
+[![Zod](https://img.shields.io/badge/Zod-3-3e67b1?style=flat-square&logo=zod&logoColor=white)](https://zod.dev/)
+[![Zustand](https://img.shields.io/badge/Zustand-4.5-764abc?style=flat-square)](https://github.com/pmndrs/zustand)
+[![Radix UI](https://img.shields.io/badge/Radix%20UI-1-7a58c9?style=flat-square)](https://www.radix-ui.com/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-3-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Vitest](https://img.shields.io/badge/Vitest-1-6da13f?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![framer-motion](https://img.shields.io/badge/framer--motion-11.5-ec4899?style=flat-square)](https://www.framer.com/motion/)
+
+</div>
+
+---
+
+## 🗺️ 文档架构
+
+本文档按「**规划 → 设计 → 质量 → 落地**」四层组织 12 个章节，形成一套可落地、可验证、可演进的可视化体系规范。
+
+### 分层全景图
+
+```mermaid
+flowchart TB
+    subgraph PLAN["🅰 规划层 · 架构与设计"]
+        S1["§1 体系架构总览"]
+        S2["§2 分层设计与数据流"]
+        S3["§3 技术栈选型与版本锁"]
+        S1 --> S2 --> S3
+    end
+    subgraph DESIGN["🅱 设计层 · 视觉与组件"]
+        S4["§4 主题与色板体系"]
+        S5["§5 图表组件库规范"]
+        S6["§6 数据适配器与校验层"]
+        S4 --> S5 --> S6
+    end
+    subgraph QUALITY["🅲 质量层 · 性能与保障"]
+        S7["§7 性能优化手册"]
+        S8["§8 无障碍与响应式"]
+        S9["§9 测试策略与覆盖率门禁"]
+        S7 --> S8 --> S9
+    end
+    subgraph LAND["🅳 落地层 · 规范与演进"]
+        S10["§10 目录结构与文件命名规范"]
+        S11["§11 开发者快速上手 Cookbook"]
+        S12["§12 演进路线图"]
+        S10 --> S11 --> S12
+    end
+    PLAN --> DESIGN --> QUALITY --> LAND
+```
+
+### 章节索引
 
 | 章节 | 主题 | 目标读者 |
-|------|------|----------|
-| §1 | 体系架构总览 | 全体 |
-| §2 | 分层设计与数据流 | 前端架构师 |
-| §3 | 技术栈选型与版本锁 | DevOps / 技术负责人 |
-| §4 | 主题与色板体系 | 设计师 / 前端 |
-| §5 | 图表组件库规范 | 前端工程师 |
-| §6 | 数据适配器与校验层 | 全栈工程师 |
-| §7 | 性能优化手册 | 高级前端 |
-| §8 | 无障碍 (a11y) 与响应式 | 高级前端 |
-| §9 | 测试策略与覆盖率门禁 | QA / 前端 |
-| §10 | 目录结构与文件命名规范 | 全体 |
-| §11 | 开发者快速上手 (Cookbook) | 新成员 |
-| §12 | 演进路线图 | 技术负责人 |
+| ------ | ------ | ---------- |
+| [§1 体系架构总览](#1-体系架构总览) | 五维组合 · 五高 × 五维目标矩阵 | 全体 |
+| [§2 分层设计与数据流](#2-分层设计与数据流) | 单向管线 · 组件依赖方向 | 前端架构师 |
+| [§3 技术栈选型与版本锁](#3-技术栈选型与版本锁) | 依赖基线 · 重型库黑名单 | DevOps / 技术负责人 |
+| [§4 主题与色板体系](#4-主题与色板体系-cyberpunk-基因) | Design Tokens · 色板使用铁律 | 设计师 / 前端 |
+| [§5 图表组件库规范](#5-图表组件库规范) | 统一 API 契约 · 组件清单 | 前端工程师 |
+| [§6 数据适配器与校验层](#6-数据适配器与校验层) | Zod Schema · useChartData Hook | 全栈工程师 |
+| [§7 性能优化手册](#7-性能优化手册) | LTTB 降采样 · 渲染优化清单 | 高级前端 |
+| [§8 无障碍与响应式](#8-无障碍-a11y-与响应式) | a11y 三项铁律 · 响应式断点 | 高级前端 |
+| [§9 测试策略与覆盖率门禁](#9-测试策略与覆盖率门禁) | 测试金字塔 · 必测清单 | QA / 前端 |
+| [§10 目录结构与文件命名规范](#10-目录结构与文件命名规范) | 目录约定 · 命名铁律 | 全体 |
+| [§11 开发者快速上手 Cookbook](#11-开发者快速上手-cookbook) | 场景化示例 · 上手捷径 | 新成员 |
+| [§12 演进路线图](#12-演进路线图) | M1→M5 里程碑 | 技术负责人 |
+
+---
+
+## 📌 项目简介
+
+**YYC³ Family IDE Matrix** 是 YanYuCloudCube 家族智能应用矩阵的**可视化体系设计规范**，覆盖从数据接入、图表渲染到性能治理与测试门禁的**全链路设计标准**。本文档既是**开发者规范**，也是**架构决策记录 (ADR)**，确保任何开发者与 AI 协同对象都能按同一契约构建智能可视化能力。
+
+### 核心能力
+
+| 能力 | 说明 |
+| ------ | ------ |
+| **五高保障** | 高可用 · 高性能 · 高安全 · 高扩展 · 高智能 |
+| **五维评估** | 时间 · 空间 · 属性 · 事件 · 关联 全维度审视 |
+| **统一契约** | 图表组件单一 Props 契约 + Zod 运行时校验 |
+| **主题基因** | Cyberpunk-88 深蓝 + 青色 Design Tokens，可插拔 |
+| **性能治理** | LTTB 降采样 / React.memo / 懒加载 分级策略 |
+| **质量门禁** | 覆盖率阈值写入 `vitest.config.ts` + CI 阻断合并 |
+
+### 目标读者
+
+架构师 / 前端工程师 / 全栈工程师 / QA / DevOps / 新成员。
+
+---
+
+## 🚀 快速开始
+
+```bash
+# 1. 安装依赖（pnpm ≥ 8）
+cd ide
+pnpm install
+
+# 2. 启动开发服务器（端口 3030 起 🚨）
+pnpm dev
+
+# 3. 运行测试 & 覆盖率（与 CI 门禁 100% 一致）
+pnpm test
+pnpm test:coverage
+
+# 4. 类型检查 / Lint
+pnpm exec tsc --noEmit
+pnpm lint
+```
+
+> 环境要求：Node.js ≥ 18 · pnpm ≥ 8 · 包管理器锁定 `pnpm@9.0.0`（见 [`ide/package.json`](ide/package.json)）。
+
+---
+
+## 📦 仓库结构
+
+```
+YYC3-Family-IDE-Matrix/
+├── README.md                     # ← 本文档 · 可视化体系设计规范
+├── public/
+│   ├── yyc3-family.png           # 品牌顶图
+│   └── yyc3/                     # 各平台应用图标 (Android/iOS/macOS/watchOS/Web)
+├── ide/                          # @yyc3/ide 工作台工程
+│   ├── package.json              # 依赖基线 & 版本锁
+│   ├── components/
+│   │   └── visualization/        # 可视化体系实现（主题/图表/校验/适配）
+│   │       └── README.md         # 组件库快速参考
+│   ├── services/agent/           # Agent 技能/蓝图/LLM 服务
+│   ├── lib/snapshot/             # 快照 Diff 引擎
+│   ├── stores/                   # Zustand 状态管理
+│   └── docs/                     # IDE 开发运维拓展指南
+└── .github/workflows/
+    └── ide-test-coverage.yml     # CI 测试 & 覆盖率门禁
+```
 
 ---
 
@@ -75,7 +220,7 @@ YYC³ 可视化体系 = **主题引擎** + **图表组件库** + **数据适配�
 ### 1.2 设计目标矩阵 (五高 × 五维)
 
 | 五高指标 | 在可视化层的体现 | 测量方式 |
-|----------|-----------------|----------|
+| ---------- | ----------------- | ---------- |
 | **高可用** | 任意异常输入不崩溃；空值/错误/超时降级占位齐备 | 单测覆盖率 ≥ 95% |
 | **高性能** | 1w 点折线 ≤ 60fps；30 条 series 不卡顿 | Chrome Performance Profiler |
 | **高安全** | 展示内容 XSS 过滤；数据来源验证；Tooltip 防注入 | CSP + 代码审计 |
@@ -101,6 +246,7 @@ YYC³ 可视化体系 = **主题引擎** + **图表组件库** + **数据适配�
 ```
 
 **三个重要原则**：
+
 1. **数据永远在进入图表前标准化** — 不要在 LineChart/AreaChart 内做 `item.latency || 0`
 2. **校验失败不抛异常，转 fallback 渲染** — 空骨架 / 历史快照 / N/A 卡
 3. **渲染函数是纯函数** — 相同输入必然相同输出，便于 snapshot testing 和缓存
@@ -144,6 +290,7 @@ components/visualization/
 ```
 
 **依赖禁止反向引用**：
+
 - ✅ `panels/` → `charts/` → `primitives/`
 - ❌ `primitives/` → `charts/` (绝对禁止)
 
@@ -154,7 +301,7 @@ components/visualization/
 ### 3.1 主技术栈 (v1 基线)
 
 | 领域 | 库 | 版本 | 选型理由 | 替换风险 |
-|------|----|------|----------|----------|
+| ------ | ---- | ------ | ---------- | ---------- |
 | 主图表引擎 | `recharts` | `^2.12.7` | 生态成熟、React 原生、动画支持好 | 低 |
 | 辅助小图 | `recharts` 原生 PieCell、ReferenceLine | — | 同引擎零耦合 | — |
 | 大型热力 / 矩阵 | `recharts` Heatmap (或自定义 SVG) | — | 保持一致的色板体系 | 低 |
@@ -180,7 +327,7 @@ components/visualization/
 ### 3.3 禁止引入的重型库 (黑名单)
 
 | 库 | 禁止理由 | 推荐替代 |
-|----|----------|----------|
+| ---- | ---------- | ---------- |
 | `echarts` (整个包) | 900KB+ 体积过大 | 只在 EChartsWrapper 中异步 lazy import |
 | `antv/g2` | 生态不兼容 React 现有组件体系 | recharts + 自研 SVG |
 | `d3` (整包) | API 函数式过重 | 仅按需引入 `d3-scale`, `d3-array` 等单函数模块 |
@@ -286,7 +433,7 @@ export const VISUAL_TOKENS = {
 ### 4.2 色板使用铁律
 
 | 场景 | 必须使用 | 禁止使用 |
-|------|----------|----------|
+| ------ | ---------- | ---------- |
 | 主趋势线 / 主要 series | `primary.500` (#06b6d4) | 艳绿色、黄色 |
 | 错误值 / 异常点高亮 | `semantic.error` (#ef4444) | 紫色、蓝色 |
 | 成功 / 正常状态 | `semantic.success` (#10b981) | 红色 |
@@ -436,7 +583,7 @@ export function LineChart(props: BaseChartProps) {
 ### 5.3 组件清单 v1
 
 | 文件名 | 图表 | 使用场景 | 优先级 |
-|--------|------|----------|--------|
+| -------- | ------ | ---------- | -------- |
 | `LineChart.tsx` | 折线图 | 延迟趋势、token 消耗、时间序列 | P0 |
 | `AreaChart.tsx` | 面积图 | 吞吐、算力使用率 (参考 LatencyTrendChart) | P0 |
 | `BarChart.tsx` | 柱状图 | 对比不同模型延迟 | P0 |
@@ -578,7 +725,7 @@ export function perfDataToLine(points: PerfPoint[]): LinePoint[] {
 ### 7.1 性能分级与对应策略
 
 | 数据规模 | 折线 | 柱状 | 热力 | 策略 |
-|----------|------|------|------|------|
+| ---------- | ------ | ------ | ------ | ------ |
 | ≤200 点 | 全量渲染 + 动画开 | 同左 | — | 默认模式 |
 | 200~2000 点 | 动画关 (`isAnimationActive=false`) | 同左 | — | 中等模式 |
 | 2000~10000 点 | **LTTB 降采样** → 400 个特征点 | 同左 | 降采样 | 大型模式 |
@@ -631,7 +778,7 @@ export function lttbDownsample(data: { x: number; y: number }[], lengthDown: num
 ### 7.3 React 渲染优化清单
 
 | 优化点 | 实现方式 | 预期效果 |
-|--------|----------|----------|
+| -------- | ---------- | ---------- |
 | 数据 memo | `useChartData` 返回值已经 useMemo | 避免父渲染时重算 |
 | 图表组件 memo | `export const LineChart = React.memo(LineChartImpl)` | 减少父组件重渲染联动 |
 | 自定义 Tooltip memo | TooltipShell 用 React.memo | hover 不闪烁 |
@@ -651,7 +798,7 @@ export function lttbDownsample(data: { x: number; y: number }[], lengthDown: num
 ### 8.1 a11y 三项铁律
 
 | # | 要求 | 实现方式 | 核查方法 |
-|---|------|----------|----------|
+| --- | ------ | ---------- | ---------- |
 | 1 | 所有图表必须有 `role="region"` + `aria-label` | 见 §5.2 代码模板 | axe DevTools |
 | 2 | Tooltip 键盘可达 (Focus tooltipContent) | Recharts `trigger="hover focus"` | Tab 遍历 |
 | 3 | 颜色不单独传达语义 — 必须补充文本/形状 | 图例文本 + 数据点边框样式 | 色盲模拟器验证 |
@@ -661,7 +808,7 @@ export function lttbDownsample(data: { x: number; y: number }[], lengthDown: num
 使用 Tailwind 语义断点，图表高度按容器调整：
 
 | 断点 | 容器策略 | 典型图表高度 |
-|------|----------|--------------|
+| ------ | ---------- | -------------- |
 | `<640px mobile` | 单列 | size.sm (130px) |
 | `640-1024px tablet` | 双列 | size.md (220px) |
 | `>1024px desktop` | 2~4 列 | size.lg (320px) |
@@ -720,6 +867,7 @@ thresholds: {
 ### 9.4 视觉回归 (推荐)
 
 使用 Playwright screenshot comparison：
+
 - 每个 `Chart` 组件 × 3 种状态：空/正常/数据异常
 - CI 中 diff 像素 > 2% 自动发评论标记 PR
 
@@ -780,7 +928,7 @@ ide/components/visualization/              # 主目录
 ### 文件命名铁律
 
 | 对象 | 规则 | 示例 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 图表组件 | `{Xxx}Chart.tsx` (PascalCase) | `GaugeChart.tsx` |
 | 面板组件 | `{Xxx}Panel.tsx` | `ModelPerfPanel.tsx` |
 | 适配器 | `{domain}.adapter.ts` | `perf.adapter.ts` |
@@ -851,7 +999,7 @@ function TokenUsagePanel({ raw }: { raw: TokenUsage[] }) {
 ## §12 演进路线图
 
 | 阶段 | 版本 | 里程碑 | 预期时间 |
-|------|------|--------|----------|
+| ------ | ------ | -------- | ---------- |
 | **M1 基础** | v1.0 | tokens + 4 类 P0 图表 + useChartData + zod | 2026 Q3 |
 | **M2 丰富** | v1.1 | 4 类 P1 图表 + Composition HOC + 数据采样 | 2026 Q3末 |
 | **M3 智能** | v2.0 | AI Chart Suggester (给数据自动选图表) + 异常点高亮 | 2026 Q4 |
@@ -860,10 +1008,22 @@ function TokenUsagePanel({ raw }: { raw: TokenUsage[] }) {
 
 ---
 
-## 变更历史
+## 📚 相关文档
+
+| 文档 | 说明 | 位置 |
+| ------ | ------ | ------ |
+| 本文档 | 可视化体系设计规范（架构 / 主题 / 组件 / 性能 / 测试） | [`README.md`](README.md) |
+| 可视化组件库参考 | 图表 / 主题 / 校验 组件快速参考 | [`ide/components/visualization/README.md`](ide/components/visualization/README.md) |
+| IDE 开发运维拓展指南 | IDE 工程化、CI/CD、运维实践 | [`ide/docs/YYC3-IDE-开发运维拓展指南.md`](ide/docs/YYC3-IDE-开发运维拓展指南.md) |
+| CI 测试覆盖率门禁 | GitHub Actions 工作流定义 | [`.github/workflows/ide-test-coverage.yml`](.github/workflows/ide-test-coverage.yml) |
+
+---
+
+## 📝 变更历史
 
 | 版本 | 日期 | 变更内容 | 作者 |
 |------|------|----------|------|
+| v1.1.0 | 2026-08-20 | 完善 README：新增品牌顶图、徽章系统、文档架构可视化、项目概览与快速开始 | YanYuCloudCube Team |
 | v1.0.0 | 2026-08-19 | 初始版本：架构、主题令牌、组件规范、适配层、性能优化、测试、Cookbook | YanYuCloudCube Team |
 
 ---
@@ -876,4 +1036,11 @@ function TokenUsagePanel({ raw }: { raw: TokenUsage[] }) {
 > 「***All things converge in cloud pivot; Deep stacks ignite a new era of intelligence***」
 
 </div>
-# YYC3-Family-IDE-Matrix
+
+---
+
+<div align="center">
+
+*© 2025-2026 YanYuCloudCube™ · YYC³ Family IDE Matrix · All Rights Reserved.*
+
+</div>

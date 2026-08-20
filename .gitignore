@@ -1,0 +1,30 @@
+# ---------- IDE 子项目 ----------
+ide/node_modules
+ide/.pnpm-store
+ide/dist
+ide/coverage
+ide/*.tsbuildinfo
+ide/.vite
+
+# ---------- 常见编辑器 ----------
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# ---------- 系统 ----------
+.DS_Store
+Thumbs.db
+.tmp
+.cache
+
+# ---------- 日志 ----------
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ---------- 环境 ----------
+.env
+.env.local
+.env.*.local
