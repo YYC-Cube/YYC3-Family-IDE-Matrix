@@ -33,25 +33,40 @@
 
 | 能力域 | 目标位置 | 状态 | 备注 |
 | --- | --- | --- | --- |
-| MCP 服务栈（Client/Tools/Prompts/Resources） | `ide/services/mcp/` | ✅ 已回迁 | 移植时移除 @ts-nocheck、修复 13 处引号模板串；新写 25 个测试用例；`readonly TTL + as any` 改为可变字段直赋 |
+| MCP 服务栈（Client/Tools/Prompts/Resources） | `ide/services/mcp/` | ✅ 已回迁 | 移植时移除 @ts-nocheck、修复 13 处引号模板串；新写测试用例；`readonly TTL + as any` 改为可变字段直赋 |
+| **MCP 客户端升级 2026-07-28 规范** | `ide/services/mcp/MCPClient.ts` | ✅ v1.2.0 | 无状态（废除 initialize 握手/Mcp-Session-Id）、HTTP 头路由（MCP-Protocol-Version/Mcp-Method/Mcp-Name）、列表响应 ttlMs+cacheScope 缓存提示、protocolVersion 可配置回退。来源：blog.modelcontextprotocol.io/posts/2026-07-28 |
 | MCP 配置面板 | `ide/components/model-settings/` | ✅ 早已迁移 | 单体中即已存在，无需动作 |
 | 上下文压缩（Compressor/Strategy/Summarizer/Types） | `ide/llm/` | ✅ 已回迁 | 零外部依赖，移植归档版完整测试套件（移除 @ts-nocheck） |
 | 上下文收集（ContextCollector） | `ide/llm/` | ✅ 已回迁 | 零依赖纯函数 |
-| AgentOrchestrator + 多 Agent 调度 | 待定 | ⏸ 阻塞 | 依赖闭包见下节，需先建面板宿主抽象 |
+| AgentOrchestrator + 多 Agent 调度 | 待定 | 🔶 部分解锁 | 见下节 |
 
-**AgentOrchestrator 依赖闭包（阻塞原因）**：
+### 1.5 批（2026-08-20 完成：解锁 Agent 编排的前置依赖）
+
+| 能力域 | 目标位置 | 状态 | 备注 |
+| --- | --- | --- | --- |
+| LLMService（811行）+ AIDegradationService（532行）+ RateLimiter（501行）+ providers | `ide/services/llm/` | ✅ 已回迁 | 共享类型抽至 types.ts 缩小值级循环环面；修复 7 处引号模板串 + 2 个真 bug（见下） |
+| 面板宿主抽象 | `ide/components/panel-host/` | ✅ 新建 | PanelHeader 解耦最小实现（无 dnd/pin/floating）+ --ide-* 令牌 CSS |
+| AgentMarket（383行） | `ide/components/agent/` | ✅ 已回迁 | 验证面板宿主可用；自带冒烟测试 |
+
+**1.5 批修复的单体真 bug**：
+1. `AIDegradationService.selectModel`：models.length===0 提前返回 null，而 ollama
+   预设列表为空 → 降级链中的 ollama 永远选不出模型被跳过。改为先查活跃模型再回退。
+2. `providers.ts` ollama baseURL 含 `/api/chat` 与 `getChatEndpoint` 后缀叠加成
+   双重路径。baseURL 改为服务根地址。
+
+**AgentOrchestrator 批次（更新后依赖状态）**：
 
 ```
-AgentOrchestrator.tsx ──→ PanelManager（UI 宿主，未迁移）
-                      └─→ ModelRegistry（依赖 stores/useModelStore）
-MultiAgentPanel.tsx ───→ PanelManager + LLMService(811行) + useMemoryStore + i18n
-AgentMarket.tsx ───────→ PanelManager（其余自包含）
-useAgentOrchestrator ──→ AgentServiceAdapter + agent/types + useMemoryStore
-useMultiAgentDispatch → LLMService + useMemoryStore + Logger
+PanelHeader ──────────── ✅ 已由 components/panel-host 提供
+LLMService(811行) ────── ✅ 已由 services/llm 提供
+useMemoryStore(367行) ── ⏳ 依赖 zustand+idb（idb 需加依赖或去 idb 化）
+ModelRegistry ────────── ⏳ 依赖 stores/useModelStoreZustand（现在类型可从 services/llm 取）
+i18n ──────────────────── ⏳ MultiAgentPanel 专用
 ```
 
-**解锁条件**：ide/ 先落地面板宿主（PanelHost）抽象 + 回迁 LLMService（建议列为 1.5 批），
-随后 AgentMarket（最轻）→ 编排 hooks → 两个面板 依次迁入。
+**下一步**：迁 useMemoryStore（或降级为内存版）→ AgentMarket 已就绪直接可用 →
+useMultiAgentDispatch（LLMService 已解）→ AgentOrchestrator/MultiAgentPanel（还差
+ModelRegistry + i18n）。
 
 ### 第二批（PluginSystem / 存储套件 / 安全套件）— 待办
 
@@ -80,24 +95,26 @@ useMultiAgentDispatch → LLMService + useMemoryStore + Logger
 
 ## 已知问题（回迁时顺带消除）
 
-1. **ide/ 根面板预存坏引用（55 个 tsc 错误的主体）**：`APIKeyManagerPanel.tsx` 引用
-   `./services/APIKeyVault`、`./stores/useConfirmStore`；`CollabPanel.tsx` 引用
-   `./PanelManager`；`LayoutPresetsEnhanced`/`MultiInstancePanel`/`MonacoWrapper` 等
-   存在 lucide 图标改名（CheckCircle2→CheckCircle 等）—— 均为单体模块/旧版依赖，
-   对应模块回迁后消除。这也是 CI 只跑 vitest 不跑 tsc 的历史原因。
-   （2026-08-20 基线：全仓 tsc 错误 94→55，其中回迁/修复部分见下）
-2. **tsconfig**：已迁移为无 `baseUrl` 的相对 paths 写法（TS 5.6+ 弃用 baseUrl，
-   7.0 移除），同时移除无效的 `ignoreDeprecations: "6.0"`（TS5103）。
-3. **types/vitest.d.ts v2.0.0**：删除了伪造的 `declare module "vitest"` 兜底
-   （其 Mock 类型用了不存在的 mockReturn/mockResolved 方法名，ambient 声明覆盖
-   真实包类型，导致全部测试 mock 类型报错）；现仅保留 globals 注入并指向真实包。
-   依赖安装后 `pnpm exec tsc --noEmit` 才能给出真实结果。
-4. **覆盖率**：全库行覆盖 7.9%（回迁前），CI 门禁阈值目前仅对
-   `services/agent/AgentSkills.ts` 生效；随模块回迁逐步扩大门禁范围。
-   2026-08-20 回迁后：12 个测试文件 · 584 用例全绿。
+1. **ide/ 根面板预存坏引用（2026-08-20 晚基线：26 个 tsc 错误）**：
+   `APIKeyManagerPanel.tsx` 引用 `./services/APIKeyVault`、`./stores/useConfirmStore`；
+   `CollabPanel.tsx` 引用 `./PanelManager`；`MonacoWrapper.tsx` 8 个（react-dnd 等）
+   —— 均为未迁入的单体模块，对应模块回迁后消除。这也是 CI 只跑 vitest 不跑
+   tsc 的历史原因。（错误数变化：初始 94 → 删假 vitest 垫片后 55 → 删假
+   lucide 垫片后 26）
+2. **假类型垫片清理记录**：`types/vitest.d.ts`（伪造 Mock API，已重写 v2.0.0
+   仅留 globals）与 `types/lucide-react.d.ts`（手工图标清单缺 Store/Code2/
+   CheckCircle2/Edit3/XCircle 等，已删除）。两者均创建于 node_modules 为空的
+   时期，ambient `declare module` 会覆盖真实包类型 —— 教训：**依赖装好后必须
+   删除此类垫片，否则类型检查给出的是假象**。
+3. **tsconfig**：已迁移为无 `baseUrl` 的相对 paths 写法（TS 5.6+ 弃用 baseUrl，
+   7.0 移除）。
+4. **覆盖率**：CI 门禁阈值目前仅对 `services/agent/AgentSkills.ts` 生效；
+   随模块回迁逐步扩大门禁范围。2026-08-20 晚：16 个测试文件 · 645 用例全绿
+   （当日新增 MCP 33 + 上下文 26 + LLM 53 + Agent 面板 6）。
 
 ## 变更历史
 
 | 日期 | 事项 |
 | --- | --- |
-| 2026-08-20 | 保底提交 `ec0903c` → 归档移动 `9cfe0a5` → 第一批回迁（MCP 栈 + 上下文工程）→ PreviewModeController 双版本合并 v1.2.0 |
+| 2026-08-20 上午 | 保底提交 `ec0903c` → 归档移动 `9cfe0a5` → 第一批回迁（MCP 栈 + 上下文工程）→ PreviewModeController 双版本合并 v1.2.0 → 删假 vitest 垫片 |
+| 2026-08-20 下午 | 1.5 批：LLMService/降级引擎/限流器 → services/llm/（修复 selectModel 与 ollama baseURL 真 bug）→ 面板宿主 panel-host + AgentMarket 回迁 → MCP 客户端升级 2026-07-28 规范 v1.2.0 → 删假 lucide 垫片（tsc 错误 55→26）|
