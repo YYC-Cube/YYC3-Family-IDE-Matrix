@@ -1,0 +1,24 @@
+/**
+ * @file: tokens.css
+ * @description: 面板宿主 CSS 变量 — 单体面板组件依赖的 --ide-* 设计令牌
+ * @author: YanYuCloudCube Team <admin@0379.email>
+ * @version: v1.0.0
+ * @created: 2026-08-20
+ * @updated: 2026-08-20
+ * @status: active
+ * @tags: [panel-host],[tokens],[css]
+ *
+ * brief: 回迁面板直接引用 --ide-* 变量（原定义于单体全局样式），
+ *        此处按 README §4 Cyberpunk-88 令牌提供等价默认值
+ *
+ * notes: 仅当变量未被外部定义时生效（:where 零特异性 + var 回退双保险）
+ */
+
+:where(.panel-host-root, .panel-host-root *) {
+  --ide-bg: #0d1117;
+  --ide-bg-elevated: #161b22;
+  --ide-border-faint: rgba(255, 255, 255, 0.04);
+  --ide-border-subtle: rgba(255, 255, 255, 0.06);
+  --ide-border-mid: rgba(255, 255, 255, 0.10);
+  --ide-border-dim: rgba(255, 255, 255, 0.08);
+}
