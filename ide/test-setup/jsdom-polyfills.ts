@@ -12,6 +12,7 @@
  *        涉及文件读取的存储/迁移类测试在无此 polyfill 时必失败
  */
 
+import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vitest";
 import { cleanup } from "@testing-library/react";
 

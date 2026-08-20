@@ -13,6 +13,8 @@
  */
 
 export { TerminalService, SandboxError } from "./TerminalService";
+export { createTerminalService, resolveSandboxConfigFromEnv } from "./createTerminalService";
+export type { SandboxServiceConfig, SandboxProviderKind, TerminalServiceFactoryResult } from "./createTerminalService";
 export type { TerminalServiceOptions } from "./TerminalService";
 
 export { SandboxPolicy } from "./policy";

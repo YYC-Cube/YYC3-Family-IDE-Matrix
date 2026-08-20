@@ -18,7 +18,7 @@ import "./tokens.css";
 export { PanelHeader } from "./PanelHeader";
 export type { PanelHeaderProps } from "./PanelHeader";
 
-// 面板壳二期：布局上下文（split/merge 编辑能力三期扩展）
+// 面板壳二期：布局上下文；三期：布局编辑 + 渲染器
 export {
   PanelManagerProvider,
   usePanelManager,
@@ -30,3 +30,7 @@ export type {
   SplitDirection,
   PanelId,
 } from "./PanelManagerContext";
+
+export { PanelShell, PanelRegistryProvider } from "./PanelShell";
+export type { PanelComponent } from "./PanelShell";
+export * from "./layout-ops";

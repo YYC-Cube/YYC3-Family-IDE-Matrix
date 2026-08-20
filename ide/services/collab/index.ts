@@ -17,3 +17,11 @@ export type {
   ConnectionStatus,
   CursorPosition,
 } from "./types";
+
+export {
+  createCollabServiceFromConfig,
+  resolveCollabConfigFromEnv,
+  getCollabDefaults,
+  COLLAB_DEFAULTS,
+} from "./config";
+export type { CollabServerConfig } from "./config";
