@@ -164,15 +164,20 @@ YYC3-Family-IDE-Matrix/
 ├── public/
 │   ├── yyc3-family.png           # 品牌顶图
 │   └── yyc3/                     # 各平台应用图标 (Android/iOS/macOS/watchOS/Web)
-├── ide/                          # @yyc3/ide 工作台工程
+├── ide/                          # @yyc3/ide 工作台工程（唯一生产线）
 │   ├── package.json              # 依赖基线 & 版本锁
-│   ├── components/
-│   │   └── visualization/        # 可视化体系实现（主题/图表/校验/适配）
-│   │       └── README.md         # 组件库快速参考
+│   ├── components/visualization/ # 可视化体系实现（主题/图表/校验/适配）
+│   │   └── README.md             # 组件库快速参考
 │   ├── services/agent/           # Agent 技能/蓝图/LLM 服务
+│   ├── services/mcp/             # MCP 服务栈（Client/Tools/Prompts/Resources）
+│   ├── llm/                      # 上下文工程（压缩/摘要/收集）
 │   ├── lib/snapshot/             # 快照 Diff 引擎
 │   ├── stores/                   # Zustand 状态管理
 │   └── docs/                     # IDE 开发运维拓展指南
+├── archive/
+│   ├── MIGRATION.md              # 单体回迁路线图（批次/规则/状态）
+│   └── ide-monolith-2026-03/     # 2026-03 单体快照（只读 · 渐进回迁源）
+├── docs/                         # 纯文档目录（源码不放这里）
 └── .github/workflows/
     └── ide-test-coverage.yml     # CI 测试 & 覆盖率门禁
 ```
@@ -1015,6 +1020,7 @@ function TokenUsagePanel({ raw }: { raw: TokenUsage[] }) {
 | 本文档 | 可视化体系设计规范（架构 / 主题 / 组件 / 性能 / 测试） | [`README.md`](README.md) |
 | 可视化组件库参考 | 图表 / 主题 / 校验 组件快速参考 | [`ide/components/visualization/README.md`](ide/components/visualization/README.md) |
 | IDE 开发运维拓展指南 | IDE 工程化、CI/CD、运维实践 | [`ide/docs/YYC3-IDE-开发运维拓展指南.md`](ide/docs/YYC3-IDE-开发运维拓展指南.md) |
+| 单体回迁路线图 | 归档快照 → ide/ 的批次计划与状态 | [`archive/MIGRATION.md`](archive/MIGRATION.md) |
 | CI 测试覆盖率门禁 | GitHub Actions 工作流定义 | [`.github/workflows/ide-test-coverage.yml`](.github/workflows/ide-test-coverage.yml) |
 
 ---
