@@ -17,10 +17,12 @@
  *   split/merge 等编辑能力由三期面板壳在此上下文上扩展
  */
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { LayoutNode, SplitDirection, PanelId } from "./types";
 import {
+  findNode,
+  genNodeId,
   insertPanelBeside,
   removeNode,
   replacePanel as replacePanelOp,
@@ -100,6 +102,44 @@ export interface PanelManagerContextValue {
   /** 已固定的面板 id 集合（固定者不参与关闭/替换） */
   pinnedPanels: ReadonlySet<string>;
   togglePin: (panelId: string) => void;
+  // ── 三期补完：浮动窗口 ──
+  /** 浮动窗口列表（面板脱离布局树，以覆盖窗口呈现） */
+  floatingPanels: FloatingPanelState[];
+  /** 将叶子面板浮出为窗口（从布局树移除） */
+  floatPanel: (nodeId: string, size?: { w: number; h: number }) => void;
+  /** 浮动窗口停坞回布局（插入首个叶子右侧；布局空则成为根叶子） */
+  dockFloating: (floatingId: string) => void;
+  /** 关闭浮动窗口（面板丢弃，不回布局） */
+  closeFloating: (floatingId: string) => void;
+  /** 置顶浮动窗口（z 轴提升） */
+  focusFloating: (floatingId: string) => void;
+  /** 移动浮动窗口位置 */
+  moveFloating: (floatingId: string, x: number, y: number) => void;
+}
+
+/** 浮动窗口状态 */
+export interface FloatingPanelState {
+  /** 窗口实例 id（float_ 前缀） */
+  id: string;
+  /** 窗口承载的面板 id */
+  panelId: PanelId;
+  /** 位置与尺寸（px） */
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** 层叠序 */
+  z: number;
+}
+
+/** 深度优先取首个叶子（dockFloating 的插入锚点） */
+function firstLeaf(node: LayoutNode): LayoutNode | null {
+  if (node.type === "leaf") return node;
+  for (const child of node.children ?? []) {
+    const hit = firstLeaf(child);
+    if (hit) return hit;
+  }
+  return null;
 }
 
 const PanelManagerContext = createContext<PanelManagerContextValue | null>(null);
@@ -114,6 +154,8 @@ export function PanelManagerProvider({
   const [layout, setLayoutState] = useState<LayoutNode>(initialLayout);
   const [maximizedPanel, setMaximizedPanel] = useState<string | null>(null);
   const [pinned, setPinned] = useState<ReadonlySet<string>>(new Set());
+  const [floating, setFloating] = useState<FloatingPanelState[]>([]);
+  const zCounterRef = useRef(10);
 
   const setLayout = useCallback(
     (next: LayoutNode | ((prev: LayoutNode) => LayoutNode)) => {
@@ -158,8 +200,57 @@ export function PanelManagerProvider({
           else next.add(panelId);
           return next;
         }),
+      // ── 浮动窗口 ──
+      floatingPanels: floating,
+      floatPanel: (nodeId, size) => {
+        const leaf = findNode(layout, nodeId);
+        const panelId = leaf?.panelId;
+        if (!panelId) return;
+        applyOp((prev) => removeNode(prev, nodeId));
+        setFloating((prev) => [
+          ...prev,
+          {
+            id: genNodeId("float"),
+            panelId,
+            x: 40 + prev.length * 24,
+            y: 40 + prev.length * 24,
+            w: size?.w ?? 480,
+            h: size?.h ?? 360,
+            z: ++zCounterRef.current,
+          },
+        ]);
+      },
+      dockFloating: (floatingId) => {
+        setFloating((prev) => {
+          const target = prev.find((f) => f.id === floatingId);
+          if (!target) return prev;
+          applyOp((cur) => {
+            const first = firstLeaf(cur);
+            return first
+              ? insertPanelBeside(cur, first.id, target.panelId, "right")
+              : { id: "root", type: "leaf", panelId: target.panelId };
+          });
+          return prev.filter((f) => f.id !== floatingId);
+        });
+      },
+      closeFloating: (floatingId) =>
+        setFloating((prev) => prev.filter((f) => f.id !== floatingId)),
+      focusFloating: (floatingId) =>
+        setFloating((prev) =>
+          prev.map((f) =>
+            f.id === floatingId ? { ...f, z: ++zCounterRef.current } : f,
+          ),
+        ),
+      moveFloating: (floatingId, x, y) =>
+        setFloating((prev) =>
+          prev.map((f) =>
+            f.id === floatingId
+              ? { ...f, x: Math.max(0, x), y: Math.max(0, y) }
+              : f,
+          ),
+        ),
     }),
-    [layout, setLayout, applyOp, initialLayout, maximizedPanel, pinned],
+    [layout, setLayout, applyOp, initialLayout, maximizedPanel, pinned, floating],
   );
 
   return (

@@ -23,11 +23,12 @@
 
 import { createContext, useCallback, useContext, useMemo, useRef } from "react";
 import type { ComponentType, DragEvent, MouseEvent as ReactMouseEvent, ReactNode } from "react";
-import { Pin, PinOff, Maximize2, Minimize2, X } from "lucide-react";
+import { Pin, PinOff, Maximize2, Minimize2, X, Dock, GripVertical, PictureInPicture2 } from "lucide-react";
 import {
   usePanelManager,
   type LayoutNode,
   type PanelId,
+  type FloatingPanelState,
 } from "./PanelManagerContext";
 import { findNode } from "./layout-ops";
 
@@ -90,9 +91,93 @@ export function PanelShell({ className = "" }: { className?: string }) {
 
   return (
     <div
-      className={`panel-host-root size-full min-h-0 bg-[var(--ide-bg)] ${className}`}
+      className={`panel-host-root relative size-full min-h-0 bg-[var(--ide-bg)] ${className}`}
     >
       <LayoutRenderer node={target} />
+      <FloatingLayer />
+    </div>
+  );
+}
+
+// ── 浮动窗口层（三期补完）──
+
+function FloatingLayer() {
+  const { floatingPanels } = usePanelManager();
+  if (floatingPanels.length === 0) return null;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {floatingPanels.map((fp) => (
+        <FloatingWindow key={fp.id} floating={fp} />
+      ))}
+    </div>
+  );
+}
+
+function FloatingWindow({ floating }: { floating: FloatingPanelState }) {
+  const registry = usePanelRegistry();
+  const { dockFloating, closeFloating, focusFloating, moveFloating } =
+    usePanelManager();
+  const Panel = registry.get(floating.panelId);
+  const title = PANEL_TITLES[floating.panelId] ?? floating.panelId;
+
+  const onHeaderPointerDown = (
+    e: ReactMouseEvent<HTMLDivElement>,
+  ) => {
+    if ((e.target as HTMLElement).closest("button")) return; // 按钮不触发拖拽
+    e.preventDefault();
+    focusFloating(floating.id);
+    const startX = e.clientX - floating.x;
+    const startY = e.clientY - floating.y;
+    const onMove = (ev: globalThis.MouseEvent) =>
+      moveFloating(floating.id, ev.clientX - startX, ev.clientY - startY);
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
+
+  return (
+    <div
+      data-floating-id={floating.id}
+      data-panel-id={floating.panelId}
+      className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-lg border border-[var(--ide-border-mid)] bg-[var(--ide-bg)] shadow-2xl shadow-black/50"
+      style={{ left: floating.x, top: floating.y, width: floating.w, height: floating.h, zIndex: floating.z }}
+      onMouseDown={() => focusFloating(floating.id)}
+    >
+      <div
+        onMouseDown={onHeaderPointerDown}
+        className="flex h-7 flex-shrink-0 cursor-move items-center gap-1 border-b border-[var(--ide-border-dim)] bg-[var(--ide-bg-elevated)] px-2 select-none"
+      >
+        <GripVertical className="h-3 w-3 text-slate-600" />
+        <span className="truncate text-[0.68rem] font-medium text-slate-400">{title}</span>
+        <div className="flex-1" />
+        <button
+          title="停坞回布局"
+          onClick={() => dockFloating(floating.id)}
+          className="p-0.5 text-slate-600 hover:text-cyan-400"
+        >
+          <Dock className="h-3 w-3" />
+        </button>
+        <button
+          title="关闭"
+          onClick={() => closeFloating(floating.id)}
+          className="p-0.5 text-slate-600 hover:text-red-400"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </div>
+      <div className="min-h-0 flex-1">
+        {Panel ? (
+          <Panel nodeId={floating.id} />
+        ) : (
+          <div className="flex size-full items-center justify-center text-[0.62rem] text-slate-600">
+            未注册面板：{floating.panelId}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -191,6 +276,7 @@ function PanelSlot({ nodeId, panelId }: { nodeId: string; panelId?: PanelId }) {
   const {
     swapPanels,
     removePanel,
+    floatPanel,
     maximizedPanel,
     setMaximizedPanel,
     pinnedPanels,
@@ -232,6 +318,13 @@ function PanelSlot({ nodeId, panelId }: { nodeId: string; panelId?: PanelId }) {
           {title}
         </span>
         <div className="flex-1" />
+        <button
+          title="浮出为窗口"
+          onClick={() => floatPanel(nodeId)}
+          className="p-0.5 text-slate-600 hover:text-slate-400"
+        >
+          <PictureInPicture2 className="h-3 w-3" />
+        </button>
         <button
           title={pinned ? "取消固定" : "固定面板"}
           onClick={() => panelId && togglePin(panelId)}
