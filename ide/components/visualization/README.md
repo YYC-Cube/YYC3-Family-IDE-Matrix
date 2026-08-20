@@ -13,7 +13,7 @@ audience: developers
 complexity: intermediate
 project: yyc3-platform
 phase: development
-related_docs: ../../../../YYC3-可视化体系设计开发者文档.md
+related_docs: ../../../docs/visualization-spec.md
 license: MIT
 copyright: Copyright (c) 2026 YanYuCloudCube Team
 ---
@@ -64,7 +64,7 @@ copyright: Copyright (c) 2026 YanYuCloudCube Team
 
 ## 0️⃣ · 体系总览
 
-本模块 (`ide/components/visualization/`) 是 **YYC³ IDE** 的可视化基础设施层，承接开发者文档 [YYC3-可视化体系设计开发者文档.md](../../../../YYC3-可视化体系设计开发者文档.md) §3~§7 的落地实现：
+本模块 (`ide/components/visualization/`) 是 **YYC³ IDE** 的可视化基础设施层，承接开发者文档 [YYC3-可视化体系设计开发者文档.md](../../../docs/visualization-spec.md) §3~§7 的落地实现：
 
 ```
                    ┌─────────────────────────────────────────┐
