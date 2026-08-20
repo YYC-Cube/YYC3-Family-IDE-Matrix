@@ -151,17 +151,29 @@ APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Y
 | 2026-08-20 下午 | 1.5 批：LLMService/降级引擎/限流器 → services/llm/（修复 selectModel 与 ollama baseURL 真 bug）→ 面板宿主 panel-host + AgentMarket 回迁 → MCP 客户端升级 2026-07-28 规范 v1.2.0 → 删假 lucide 垫片（tsc 错误 55→26）|
 | 2026-08-20 晚 | Agent 编排批次收官：useMemoryStore（+idb 依赖）→ useMultiAgentDispatch → AgentOrchestrator/MultiAgentPanel/ModelRegistry/i18n。累计 668 用例全绿 |
 | 2026-08-20 深夜 | 第二批收官：安全/存储/插件三套件 + useConfirmStore（881 用例全绿，全仓 tsc 94→19）；第三批选型定案：Collab=Yjs 胶水化，沙箱=托管 API 起步→Daytona 降本 |
-| 2026-08-20 深夜二 | 第三批实施：services/collab/（Yjs 胶水 v2.0.0，8 用例）+ services/terminal/（沙箱策略+双供应商适配器，15 用例）。**三个批次全部完成**，904 用例全绿 |
+| 2026-08-20 深夜二 | 第三批实施：services/collab/（Yjs 胶水 v2.0.0，8 用例）+ services/terminal/（沙箱策略+双供应商适配器，15 用例）。三个批次完成 |
+| 2026-08-20 终 | 收官清理两期：tsc 94→0（26 模块回迁+面板壳二期+云同步四件）+ XTerminal/TerminalPanel（沙箱消费端）+ CollabPanel 接线。972 用例全绿，六项待办全销 |
 
-## 收官状态（2026-08-20）
+## 收官状态（2026-08-20 终版）
 
-单日完成：保底提交 → 归档 → 第一批（MCP+2026-07-28 规范/上下文工程）→ 1.5 批（LLM 调用层/面板宿主）→ Agent 编排批次 → 第二批（安全/存储/插件）→ 第三批（协作重写/沙箱抽象）。
-**23 个提交，904 测试用例全绿，全仓 tsc 94→19（余量为 MonacoWrapper 等 6 个未迁模块的引用）**。
+单日完成：保底提交 → 归档 → 第一批（MCP+2026-07-28 规范/上下文工程）→ 1.5 批（LLM 调用层/面板宿主）→ Agent 编排批次 → 第二批（安全/存储/插件）→ 第三批（协作重写/沙箱抽象）→ **收官清理两期（19 个预存 tsc 错误清零 + 六项待办全销）**。
+**26 个提交，972 测试用例全绿（40 文件），全仓 tsc 0 错误（起点 94）**。
 
-剩余待办（低优先）：
-1. MonacoWrapper 的 6 个依赖模块（fileData/useThemeStore/useScrollSyncStore/useEditorRegistry/ErrorReportingService/AICompletionService）→ 消除最后 8 个预存错误
-2. LayoutPresetsEnhanced 需要 PanelManager 上下文抽象（面板壳二期）
-3. StorageCleanup/StorageMonitor（422+421 行，随存储面板需求）
-4. CloudSync/DataExporter/DataImporter/MigrationService（云同步，需后端）
-5. terminal-api v1/v2 本体与 XTerminal 面板（沙箱层已就绪，接入时走 TerminalService）
-6. CollabPanel 升级消费新 collab 服务（当前为自包含展示面板）
+收官清理两期内容：
+- 一期：MonacoWrapper 6 依赖 + MultiInstancePanel/ThemeSwitcher/ToastContainer 依赖
+  共 20 个模块回迁（含 useThemeTokens 1050 行/CustomThemeStore 723/fileData 604）；
+  面板壳二期 PanelManagerContext（LayoutNode/LAYOUT_PRESETS/Provider）；云同步四件 +
+  StorageCleanup/Monitor（实测无后端硬耦合一并迁入）；usePreviewStore 契约补齐；
+  monaco 0.52 漂移修复；jsdom-polyfills（Blob/File .text + ResizeObserver + RTL cleanup）
+- 二期：XTerminal(274) + xterm-theme(286) 回迁（@xterm/xterm 6 + 4 addon）；
+  TerminalPanel REPL 面板（沙箱闸门消费端，默认 DryRun，注入即接真实沙箱）；
+  CollabPanel 可选注入 CollabService（实时驱动/演示回退双模式）
+
+原六项待办处置：① MonacoWrapper 依赖 ✅ ② 面板壳二期 ✅ ③ StorageCleanup/Monitor ✅
+④ 云同步四件 ✅（无后端硬耦合，已迁） ⑤ XTerminal/终端面板 ✅（经 TerminalService，
+归档 terminal-api v1/v2 本体废弃不再迁） ⑥ CollabPanel 接线 ✅
+
+未来增强（非债务，按需排期）：
+- 面板壳三期：split/merge 布局编辑、dnd、pin/floating
+- 真实沙箱接入：E2B/Cloudflare SDK 注入 TerminalPanel（决策二路径）
+- 协作服务端：y-websocket 服务部署地址配置化
