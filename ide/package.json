@@ -15,7 +15,8 @@
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "lint": "eslint . --ext .ts,.tsx",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "collab:server": "node collab-server/server.mjs"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
@@ -43,14 +44,17 @@
     "dompurify": "^3.4.14",
     "framer-motion": "^11.5.4",
     "idb": "^8.0.3",
+    "lib0": "^0.2.117",
     "lucide-react": "^0.441.0",
     "monaco-editor": "^0.52.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.5.2",
+    "ws": "^8.21.3",
     "y-indexeddb": "^9.0.12",
     "y-monaco": "^0.1.6",
+    "y-protocols": "^1.0.7",
     "y-websocket": "^3.1.0",
     "yjs": "^13.6.32",
     "zod": "^3.23.8",
