@@ -153,7 +153,8 @@ APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Y
 | 2026-08-20 深夜 | 第二批收官：安全/存储/插件三套件 + useConfirmStore（881 用例全绿，全仓 tsc 94→19）；第三批选型定案：Collab=Yjs 胶水化，沙箱=托管 API 起步→Daytona 降本 |
 | 2026-08-20 深夜二 | 第三批实施：services/collab/（Yjs 胶水 v2.0.0，8 用例）+ services/terminal/（沙箱策略+双供应商适配器，15 用例）。三个批次完成 |
 | 2026-08-20 终 | 收官清理两期：tsc 94→0 + XTerminal/TerminalPanel + CollabPanel 接线（972 用例）|
-| 2026-08-20 审 | 三项增强（面板壳三期/沙箱工厂/协作配置化）+ 全端深度审核四批次修复（安全 H1-H3/M3/M5、质量 Q1-Q4、架构 #2-#7、引擎缺陷×2）。终态 1025 用例全绿 |
+| 2026-08-20 审 | 三项增强 + 全端深度审核四批次修复。终态 1025 用例全绿 |
+| 2026-08-20 终章 | 组装期三项（浮动窗口/沙箱热接入/协作服务端 E2E）+ 可选优化两项（TTL/持久化、IdeWorkbench 组装）。**终态 1040 用例全绿（49 文件）tsc 0，36 提交** |
 
 ## 全端深度审核（2026-08-20 终）
 
@@ -216,4 +217,8 @@ APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Y
   DryRun→env 热切换 E2B/CF + 供应商徽章，提交 45d3997）
 - ✅ 协作服务端：**collab-server/server.mjs** 自建 y-websocket 兼容服务端
   （双端 E2E 实证 + PM2/Nginx 部署指引 + .env.example，提交 07324d7）
-- 待排期：房间 TTL 回收与 y-leveldb 持久化；Monaco 编辑器 ↔ PanelShell 组装
+- ~~待排期：房间 TTL/持久化、Monaco↔PanelShell 组装~~ **均已于 2026-08-20 落地**：
+  · ✅ collab-server TTL（ROOM_TTL_MS）+ 快照持久化（PERSIST_DIR，原子写+防抖+
+    SIGTERM 全量+重启恢复，E2E 实证），提交 ce4d8ac
+  · ✅ IdeWorkbench 组装（Monaco lazy 分片×SandboxedTerminal×AgentMarket×Collab
+    ×PresetToolbar×三栏布局），提交 bcfbc4a
