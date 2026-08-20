@@ -209,7 +209,11 @@ APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Y
 ④ 云同步四件 ✅（无后端硬耦合，已迁） ⑤ XTerminal/终端面板 ✅（经 TerminalService，
 归档 terminal-api v1/v2 本体废弃不再迁） ⑥ CollabPanel 接线 ✅
 
-未来增强（非债务，按需排期）：
-- 面板壳三期：split/merge 布局编辑、dnd、pin/floating
-- 真实沙箱接入：E2B/Cloudflare SDK 注入 TerminalPanel（决策二路径）
-- 协作服务端：y-websocket 服务部署地址配置化
+未来增强（非债务，按需排期）——~~三项已于 2026-08-20 组装期全部落地~~：
+- ✅ 面板壳三期全量：split/merge 布局编辑 + 原生 DnD + pin + **浮动窗口**
+  （floatPanel/dockFloating/focusFloating/moveFloating + FloatingLayer 拖拽渲染，提交 15c063f）
+- ✅ 真实沙箱接入：**SandboxedTerminalPanel**（useSandboxedTerminalService 首帧
+  DryRun→env 热切换 E2B/CF + 供应商徽章，提交 45d3997）
+- ✅ 协作服务端：**collab-server/server.mjs** 自建 y-websocket 兼容服务端
+  （双端 E2E 实证 + PM2/Nginx 部署指引 + .env.example，提交 07324d7）
+- 待排期：房间 TTL 回收与 y-leveldb 持久化；Monaco 编辑器 ↔ PanelShell 组装
