@@ -30,6 +30,9 @@ export const SK_MODEL_PERF_DATA = "yyc3_model_perf_history_v1";
 /** 布局预设保存数据 — LayoutPresetsEnhanced 消费 */
 export const SK_SAVED_PRESETS = "yyc3_layout_presets_v2";
 
+/** 用户自定义服务商定义 — ModelRegistry 消费（Agent 批③回迁时从单体补回） */
+export const SK_CUSTOM_PROVIDERS = "yyc3-custom-providers";
+
 // ==================================================================
 // 2. 通用 JSON 读写工具
 // ==================================================================
