@@ -33,6 +33,9 @@ export const SK_SAVED_PRESETS = "yyc3_layout_presets_v2";
 /** 用户自定义服务商定义 — ModelRegistry 消费（Agent 批③回迁时从单体补回） */
 export const SK_CUSTOM_PROVIDERS = "yyc3-custom-providers";
 
+/** 存储键前缀族 — BackupService 扫描 localStorage 用（第二批回迁时从单体补回） */
+export const STORAGE_PREFIXES = ["yyc3_", "yyc3-"] as const;
+
 // ==================================================================
 // 2. 通用 JSON 读写工具
 // ==================================================================
