@@ -12,6 +12,9 @@
  */
 
 import { createServer } from "node:http";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { WebSocketServer } from "ws";
 import * as Y from "yjs";
 import * as syncProtocol from "y-protocols/sync";
@@ -23,6 +26,12 @@ const HOST = process.env.HOST ?? "127.0.0.1";
 const PORT = Number(process.env.PORT ?? 1234);
 const PING_INTERVAL = 30_000;
 const AWARENESS_TIMEOUT = 30_000;
+/** 房间 TTL：最后一个连接断开后经此毫秒数回收（env 可调；0=禁用回收） */
+const ROOM_TTL_MS = Number(process.env.ROOM_TTL_MS ?? 10 * 60_000);
+/** 持久化目录：Y.Doc 状态快照（env 可调；空串=禁用持久化） */
+const PERSIST_DIR = process.env.PERSIST_DIR ?? "./collab-server/data";
+/** 持久化写盘防抖 */
+const PERSIST_DEBOUNCE_MS = 2_000;
 
 const MESSAGE_SYNC = 0;
 const MESSAGE_AWARENESS = 1;
@@ -30,8 +39,11 @@ const MESSAGE_QUERY_AWARENESS = 3;
 
 /** 房间文档（每房间一个 Y.Doc + Awareness + 连接集） */
 class RoomDoc extends Y.Doc {
-  constructor() {
+  constructor(roomName) {
     super();
+    this.roomName = roomName;
+    this.gcTimer = null;        // TTL 回收计时器
+    this.persistTimer = null;   // 写盘防抖计时器
     this.awareness = new awarenessProtocol.Awareness(this);
     this.awareness.setLocalState(null);
     this.conns = new Set();
@@ -51,6 +63,41 @@ class RoomDoc extends Y.Doc {
   }
 }
 
+// ── 持久化：房间级 Y.Doc 状态快照（原子写：tmp → rename）──
+
+const persistDirAbs = PERSIST_DIR ? resolve(PERSIST_DIR) : null;
+if (persistDirAbs) await mkdir(persistDirAbs, { recursive: true });
+
+function persistPath(roomName) {
+  // 房间名仅作文件名：剔除路径分隔符防目录穿越
+  const safe = roomName.replace(/[\\/]/g, "_");
+  return join(persistDirAbs, `${safe}.ydoc`);
+}
+
+async function loadPersistedState(roomName) {
+  if (!persistDirAbs) return null;
+  const file = persistPath(roomName);
+  if (!existsSync(file)) return null;
+  try {
+    return new Uint8Array(await readFile(file));
+  } catch (err) {
+    console.error(`[collab-server] 读取快照失败 (${roomName}):`, err.message);
+    return null;
+  }
+}
+
+async function persistRoomState(roomName, doc) {
+  if (!persistDirAbs) return;
+  const file = persistPath(roomName);
+  const tmp = `${file}.${Date.now()}.tmp`;
+  try {
+    await writeFile(tmp, Y.encodeStateAsUpdate(doc));
+    await rename(tmp, file); // 原子替换
+  } catch (err) {
+    console.error(`[collab-server] 写入快照失败 (${roomName}):`, err.message);
+  }
+}
+
 function broadcast(doc, message, exclude = null) {
   for (const conn of doc.conns) {
     if (conn === exclude) continue;
@@ -58,15 +105,79 @@ function broadcast(doc, message, exclude = null) {
   }
 }
 
-/** 房间表 */
+/** 房间表（含 TTL 回收） */
 const docs = new Map();
 
+function cancelRoomGC(doc) {
+  if (doc.gcTimer) {
+    clearTimeout(doc.gcTimer);
+    doc.gcTimer = null;
+  }
+}
+
+/** 房间回收：立即落盘 → 从表中移除 → destroy */
+function gcRoom(roomName) {
+  const doc = docs.get(roomName);
+  if (!doc || doc.conns.size > 0) return;
+  docs.delete(roomName);
+  const finalFlush = doc.persistTimer
+    ? Promise.resolve()
+    : persistRoomState(roomName, doc);
+  if (doc.persistTimer) {
+    clearTimeout(doc.persistTimer);
+    doc.persistTimer = null;
+  }
+  Promise.resolve(finalFlush)
+    .then(() => persistRoomState(roomName, doc))
+    .catch(() => undefined)
+    .finally(() => doc.destroy());
+  console.log(`[collab-server] 房间 "${roomName}" 已回收（TTL 到期，状态已持久化）`);
+}
+
+function scheduleRoomGC(doc) {
+  if (!ROOM_TTL_MS) return; // 0 = 禁用回收（永久驻留）
+  cancelRoomGC(doc);
+  doc.gcTimer = setTimeout(() => gcRoom(doc.roomName), ROOM_TTL_MS);
+  doc.gcTimer.unref?.();
+}
+
+/** 防抖落盘 */
+function schedulePersist(doc) {
+  if (!persistDirAbs) return;
+  if (doc.persistTimer) clearTimeout(doc.persistTimer);
+  doc.persistTimer = setTimeout(() => {
+    doc.persistTimer = null;
+    void persistRoomState(doc.roomName, doc);
+  }, PERSIST_DEBOUNCE_MS);
+  doc.persistTimer.unref?.();
+}
+
+/**
+ * 获取（或创建）房间文档；创建时异步恢复持久化快照。
+ * 返回 doc（快照在后台 apply，首个 sync-step 交互天然兼容增量合并）。
+ */
 function getRoomDoc(roomName) {
   let doc = docs.get(roomName);
   if (!doc) {
-    doc = new RoomDoc();
+    doc = new RoomDoc(roomName);
     docs.set(roomName, doc);
+
+    // 文档变更 → 防抖落盘
+    doc.on("update", () => schedulePersist(doc));
+
+    // 恢复快照（如有）
+    if (persistDirAbs) {
+      loadPersistedState(roomName).then((state) => {
+        if (state && docs.get(roomName) === doc && doc.conns.size > 0) {
+          Y.applyUpdate(doc, state, "persistence");
+        } else if (state) {
+          // 尚无连接：先恢复内存态，等首连同步分发
+          Y.applyUpdate(doc, state, "persistence");
+        }
+      });
+    }
   }
+  cancelRoomGC(doc); // 活跃连接存在 → 取消回收
   return doc;
 }
 
@@ -156,7 +267,8 @@ function setupWSConnection(conn, doc) {
           "connection closed",
         );
       }
-      // 简单驻留策略：保留文档供重连（生产可加 TTL 回收/持久化）
+      // 房间空置：排程 TTL 回收（回收时最终落盘；重连会取消）
+      scheduleRoomGC(doc);
     }
   });
 }
@@ -166,7 +278,7 @@ function setupWSConnection(conn, doc) {
 const server = createServer((req, res) => {
   if (req.url === "/healthz") {
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ ok: true, rooms: docs.size, ts: Date.now() }));
+    res.end(JSON.stringify({ ok: true, rooms: docs.size, persistence: !!persistDirAbs, roomTtlMs: ROOM_TTL_MS, ts: Date.now() }));
     return;
   }
   res.writeHead(404).end();
@@ -208,6 +320,16 @@ setInterval(() => {
     );
   }
 }, AWARENESS_TIMEOUT).unref?.();
+
+// 优雅退出：全部房间最终落盘
+async function shutdown() {
+  const rooms = [...docs.entries()];
+  await Promise.all(rooms.map(([name, doc]) => persistRoomState(name, doc)));
+  console.log(`[collab-server] 已持久化 ${rooms.length} 个房间，退出`);
+  process.exit(0);
+}
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
 
 server.listen(PORT, HOST, () => {
   console.log(

@@ -10,7 +10,19 @@ pnpm collab:server              # 127.0.0.1:1234
 HOST=0.0.0.0 PORT=443 node collab-server/server.mjs   # 自定义
 ```
 
-健康检查：`curl http://127.0.0.1:1234/healthz` → `{"ok":true,"rooms":N,...}`
+健康检查：`curl http://127.0.0.1:1234/healthz`
+→ `{"ok":true,"rooms":N,"persistence":true,"roomTtlMs":600000,...}`
+
+## 房间 TTL 与持久化
+
+| 环境变量 | 默认 | 说明 |
+| --- | --- | --- |
+| `ROOM_TTL_MS` | `600000`（10 分钟） | 最后连接断开后经此毫秒回收房间（`0` = 禁用，永久驻留）；回收时最终落盘 |
+| `PERSIST_DIR` | `./collab-server/data` | 房间快照目录（`""` = 禁用持久化）；每次文档变更防抖 2s 落盘 + SIGTERM/SIGINT 全量落盘 + TTL 回收时落盘，写盘经 tmp→rename 原子替换 |
+
+持久化语义：服务重启后同房间首个客户端连接时自动恢复快照（CRDT 增量合并，
+与在线客户端的更新天然收敛）。E2E 实证：写入 → SIGTERM → 重启 → 新客户端
+读到 "跨重启数据" ✅；TTL 600ms 到期后 healthz `rooms:0` ✅。
 
 ## 客户端配置（ide/）
 
