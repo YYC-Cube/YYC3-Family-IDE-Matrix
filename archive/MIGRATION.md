@@ -38,7 +38,7 @@
 | MCP 配置面板 | `ide/components/model-settings/` | ✅ 早已迁移 | 单体中即已存在，无需动作 |
 | 上下文压缩（Compressor/Strategy/Summarizer/Types） | `ide/llm/` | ✅ 已回迁 | 零外部依赖，移植归档版完整测试套件（移除 @ts-nocheck） |
 | 上下文收集（ContextCollector） | `ide/llm/` | ✅ 已回迁 | 零依赖纯函数 |
-| AgentOrchestrator + 多 Agent 调度 | 待定 | 🔶 部分解锁 | 见下节 |
+| AgentOrchestrator + 多 Agent 调度 | `ide/components/agent/` + `ide/hooks/` | ✅ **已回迁** | Agent 批三步全部完成（2026-08-20 晚）：① useMemoryStore（idb 持久化+语义检索，新增依赖 idb@8.0.3）② useMultiAgentDispatch 四阶段流水线 ③ AgentOrchestrator(422行)+MultiAgentPanel(1233行)+ModelRegistry(918行)+i18n(1031行) |
 
 ### 1.5 批（2026-08-20 完成：解锁 Agent 编排的前置依赖）
 
@@ -64,9 +64,13 @@ ModelRegistry ────────── ⏳ 依赖 stores/useModelStoreZust
 i18n ──────────────────── ⏳ MultiAgentPanel 专用
 ```
 
-**下一步**：迁 useMemoryStore（或降级为内存版）→ AgentMarket 已就绪直接可用 →
-useMultiAgentDispatch（LLMService 已解）→ AgentOrchestrator/MultiAgentPanel（还差
-ModelRegistry + i18n）。
+**下一步（Agent 批已完成，2026-08-20 晚）**：三小步全部落地——useMemoryStore →
+`stores/`（idb 依赖已加入 package.json）；useMultiAgentDispatch → `hooks/`；
+AgentOrchestrator/MultiAgentPanel/ModelRegistry/i18n → `components/agent/` +
+`i18n/`。编排器需 ModelRegistryProvider 包裹（useModelRegistry 上下文契约，
+测试已覆盖）。**剩余方向：第二批 PluginSystem/存储/安全套件**（顺带消除
+APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Yjs/Loro
+重写评估)与 terminal-api(沙箱先行)。
 
 ### 第二批（PluginSystem / 存储套件 / 安全套件）— 待办
 
@@ -118,3 +122,4 @@ ModelRegistry + i18n）。
 | --- | --- |
 | 2026-08-20 上午 | 保底提交 `ec0903c` → 归档移动 `9cfe0a5` → 第一批回迁（MCP 栈 + 上下文工程）→ PreviewModeController 双版本合并 v1.2.0 → 删假 vitest 垫片 |
 | 2026-08-20 下午 | 1.5 批：LLMService/降级引擎/限流器 → services/llm/（修复 selectModel 与 ollama baseURL 真 bug）→ 面板宿主 panel-host + AgentMarket 回迁 → MCP 客户端升级 2026-07-28 规范 v1.2.0 → 删假 lucide 垫片（tsc 错误 55→26）|
+| 2026-08-20 晚 | Agent 编排批次收官：useMemoryStore（+idb 依赖）→ useMultiAgentDispatch → AgentOrchestrator/MultiAgentPanel/ModelRegistry/i18n。累计 668 用例全绿 |
