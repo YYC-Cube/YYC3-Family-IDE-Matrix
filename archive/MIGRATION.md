@@ -152,7 +152,43 @@ APIKeyVault/useConfirmStore 等根面板坏引用），第三批 CollabService(Y
 | 2026-08-20 晚 | Agent 编排批次收官：useMemoryStore（+idb 依赖）→ useMultiAgentDispatch → AgentOrchestrator/MultiAgentPanel/ModelRegistry/i18n。累计 668 用例全绿 |
 | 2026-08-20 深夜 | 第二批收官：安全/存储/插件三套件 + useConfirmStore（881 用例全绿，全仓 tsc 94→19）；第三批选型定案：Collab=Yjs 胶水化，沙箱=托管 API 起步→Daytona 降本 |
 | 2026-08-20 深夜二 | 第三批实施：services/collab/（Yjs 胶水 v2.0.0，8 用例）+ services/terminal/（沙箱策略+双供应商适配器，15 用例）。三个批次完成 |
-| 2026-08-20 终 | 收官清理两期：tsc 94→0（26 模块回迁+面板壳二期+云同步四件）+ XTerminal/TerminalPanel（沙箱消费端）+ CollabPanel 接线。972 用例全绿，六项待办全销 |
+| 2026-08-20 终 | 收官清理两期：tsc 94→0 + XTerminal/TerminalPanel + CollabPanel 接线（972 用例）|
+| 2026-08-20 审 | 三项增强（面板壳三期/沙箱工厂/协作配置化）+ 全端深度审核四批次修复（安全 H1-H3/M3/M5、质量 Q1-Q4、架构 #2-#7、引擎缺陷×2）。终态 1025 用例全绿 |
+
+## 全端深度审核（2026-08-20 终）
+
+三项增强（面板壳三期/沙箱 SDK 注入/协作配置化）完成后，由三个专项审计员
+（质量/安全/架构）+ 量化体检执行全端审核，产出 4 个修复批次（提交 0b0a433/
+3c1c29f/5ef7691/cce4389）。**终态：1025 用例全绿（46 文件），tsc 0，
+@ts-nocheck 源码清零**。
+
+**已修复（按审计编号）**：
+
+| 级别 | 编号 | 内容 |
+| --- | --- | --- |
+| 安全·高 | H1 | 沙箱参数级旁路：shell 元字符硬闸门 + 默认白名单移除 node/npm/pnpm/git + 黑名单增强 |
+| 安全·高 | H2 | env 密钥入 bundle：initializeApiKeysFromEnv 禁用 no-op；VITE_E2B_API_KEY 仅运行时透传 |
+| 安全·高 | H3 | APIKeyVault.setActive 掩码回写覆盖密文（密钥不可恢复损毁）→ 直读库内原始记录 |
+| 安全·中 | M3 | CSRF 比较 !== → 常数时间比较 |
+| 安全·中 | M5 | 沙箱超时失效：解析后超时注入供应商请求，E2B/CF 透传原生 timeoutMs |
+| 质量·高 | Q1 | 8 个 @ts-nocheck 指令全移除（暴露并修复 6 处路径/1 漏导入/1 类型缺字段） |
+| 质量·高 | Q2 | 三大零覆盖域从 0 到 1（插件×13/错误上报×5/云同步×4） |
+| 质量·中 | Q3 | ErrorReporting 全局监听器 destroy 移除（HMR 泄漏） |
+| 质量·中 | Q4 | AgentRole 三重定义收敛 types/agent.ts |
+| 架构 | #2 | panel-host 类型环断开（types.ts 提取） |
+| 架构 | #3 | logger 下沉 lib/（5 处反向违规修正，services/logger 转发兼容） |
+| 架构 | #5/#6 | 9 处残留引号模板串清零；22 个死文件删除（20 存根+2 断链旧测） |
+| 架构 | #7 | 补齐 6 个 barrel（services/agent + components 五域） |
+| 引擎缺陷 | 新发现 | PluginSystem.activate 从未调用 manifest.activate（插件生态从未运行）→ 修复；captureError 在无 Worker 环境 ReferenceError → typeof 守卫 |
+
+**遗留观察项（记录不阻塞，按需排期）**：
+- 安全 M1/M2/L2：插件 HTML 面板休眠 XSS（panel:show 无消费者）、市场无签名/权限校验、
+  审计日志不持久 —— 面板壳组装期一并处理
+- 安全 M4：加密密钥与数据同储（localStorage/sessionStorage）—— 需口令派生重设计
+- 架构 #1：LLMService↔AIDegradation 值环（已文档化，ESM 安全）；架构 #4 Preview 双轨
+  （Controller 为 lib 基础设施，组装期接线）；架构 #10 根面板 17 文件/4145 行待组装期下沉
+- 依赖：14 个零引用运行时依赖（@radix-ui×9 等 UI 组装期预留，README 技术栈契约）
+- 覆盖率：总语句 46.97%（stores 12.71%/plugins 起步）—— 随面板组装与补测推进
 
 ## 收官状态（2026-08-20 终版）
 
