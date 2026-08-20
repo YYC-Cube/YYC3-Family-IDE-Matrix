@@ -355,7 +355,7 @@ class StorageMonitorService {
         }
       }
 
-      logger.warn('Cleaned up ${cleanedCount} files older than ${daysOld} days');
+      logger.warn(`Cleaned up ${cleanedCount} files older than ${daysOld} days`);
 
     } catch (e) {
       logger.error("[StorageMonitor] Error cleaning up old data:", e);
@@ -396,7 +396,7 @@ class StorageMonitorService {
         // 保存更新后的会话列表
         localStorage.setItem(sessionsKey, JSON.stringify(sessionsToKeep));
 
-        logger.warn('Cleaned up ${cleanedCount} old chat sessions');
+        logger.warn(`Cleaned up ${cleanedCount} old chat sessions`);
       }
 
     } catch (e) {

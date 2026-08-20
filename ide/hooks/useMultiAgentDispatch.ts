@@ -28,7 +28,9 @@ import { logger } from "../services/logger";
 
 // ── Types ──
 
-export type AgentRole = 'planner' | 'coder' | 'tester' | 'reviewer'
+import type { AgentRole } from "../types/agent";
+
+export type { AgentRole };
 export type PipelineStage = 'idle' | 'planning' | 'coding' | 'testing' | 'reviewing' | 'completed' | 'error'
 
 export interface AgentResult {

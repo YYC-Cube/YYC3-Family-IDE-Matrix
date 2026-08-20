@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck — TODO(P0-1): React 19 + lucide-react 类型兼容性问题，待上游修复
 /**
  * @file ProxyConfigPanel.tsx
  * @description 代理服务配置面板 — 支持健康检查、架构模板、高级设置
@@ -15,8 +14,8 @@ import {
 import {
   loadProxyConfig, saveProxyConfig, checkProxyHealth,
   type ProxyConfig, DEFAULT_PROXY_CONFIG, PROXY_SERVER_TEMPLATE,
-} from '../ProxyService'
-import { copyToClipboard } from '../utils/clipboard'
+} from '../../ProxyService'
+import { copyToClipboard } from '../../utils/clipboard'
 
 export function ProxyConfigPanel() {
   const [config, setConfig] = useState<ProxyConfig>(() => loadProxyConfig())

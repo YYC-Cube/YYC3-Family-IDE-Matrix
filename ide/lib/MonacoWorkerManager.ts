@@ -13,7 +13,7 @@
  * @tags: monaco,worker,lazy-load,optimization
  */
 
-import { logger } from "../services/logger";
+import { logger } from "./logger";
 
 type WorkerLabel = 'json' | 'css' | 'scss' | 'less' | 'html' | 'handlebars' | 'razor' | 'typescript' | 'javascript' | 'default';
 

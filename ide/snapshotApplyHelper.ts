@@ -38,7 +38,7 @@ import { logger } from "./services/logger";
  *   clearOtherFiles: false
  * });
  *
- logger.warn('Applied ${result.successCount} files');
+ logger.warn(`Applied ${result.successCount} files`);
  * ```
  */
 export async function applySnapshotFiles(

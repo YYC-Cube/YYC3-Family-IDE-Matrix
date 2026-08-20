@@ -26,10 +26,8 @@ export {
 } from "./PanelManagerContext";
 export type {
   PanelManagerContextValue,
-  LayoutNode,
-  SplitDirection,
-  PanelId,
 } from "./PanelManagerContext";
+export type { LayoutNode, SplitDirection, PanelId } from "./types";
 
 export { PanelShell, PanelRegistryProvider } from "./PanelShell";
 export type { PanelComponent } from "./PanelShell";

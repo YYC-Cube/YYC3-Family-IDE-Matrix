@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @file: SnapshotDiff.test.ts
  * @description: 快照比较功能完整测试套件
@@ -215,7 +214,11 @@ describe('任务2.2: 快照比较功能', () => {
       timestamp: Date.now(),
       files,
       metadata: {
-        totalFiles: files.length,
+        id,
+        label: `Snapshot ${id}`,
+        createdAt: 0,
+        totalChars: 0,
+        fileCount: files.length,
         totalLines: files.reduce((sum, f) => sum + f.content.split('\n').length, 0)
       }
     });
@@ -367,7 +370,7 @@ describe('任务2.2: 快照比较功能', () => {
         files: [
           { path: 'file1.ts', content: 'Old content', hash: 'old123' }
         ],
-        metadata: { totalFiles: 1, totalLines: 1 }
+        metadata: { id: 'old', label: 'meta', createdAt: 0, fileCount: 1, totalChars: 1, totalLines: 1 }
       };
 
       const newSnapshot: Snapshot = {
@@ -378,7 +381,7 @@ describe('任务2.2: 快照比较功能', () => {
           { path: 'file1.ts', content: 'New content', hash: 'new456' },
           { path: 'file2.ts', content: 'Added file', hash: 'added789' }
         ],
-        metadata: { totalFiles: 2, totalLines: 2 }
+        metadata: { id: 'new', label: 'meta', createdAt: 0, fileCount: 2, totalChars: 2, totalLines: 2 }
       };
 
       testDiff = engine.compareSnapshots(oldSnapshot, newSnapshot);
@@ -430,7 +433,7 @@ describe('任务2.2: 快照比较功能', () => {
         files: [
           { path: 'file.ts', content: '<script>alert("XSS")</script>', hash: 'old' }
         ],
-        metadata: { totalFiles: 1, totalLines: 1 }
+        metadata: { id: 'test', label: 'meta', createdAt: 0, fileCount: 1, totalChars: 1, totalLines: 1 }
       };
 
       const newSnapshot: Snapshot = {
@@ -440,7 +443,7 @@ describe('任务2.2: 快照比较功能', () => {
         files: [
           { path: 'file.ts', content: '<div>Safe content</div>', hash: 'new' }
         ],
-        metadata: { totalFiles: 1, totalLines: 1 }
+        metadata: { id: 'test2', label: 'meta', createdAt: 0, fileCount: 1, totalChars: 1, totalLines: 1 }
       };
 
       const diff = engine.compareSnapshots(oldSnapshot, newSnapshot);
@@ -473,7 +476,7 @@ describe('任务2.2: 快照比较功能', () => {
         label: 'Empty',
         timestamp: Date.now(),
         files: [],
-        metadata: { totalFiles: 0, totalLines: 0 }
+        metadata: { id: 'empty', label: 'meta', createdAt: 0, fileCount: 0, totalChars: 0, totalLines: 0 }
       };
 
       const result = engine.compareSnapshots(emptySnapshot, emptySnapshot);
@@ -501,7 +504,7 @@ describe('任务2.2: 快照比较功能', () => {
         label: 'Old',
         timestamp: Date.now(),
         files: createFiles(100),
-        metadata: { totalFiles: 100, totalLines: 100 }
+        metadata: { id: 'old', label: 'meta', createdAt: 0, fileCount: 100, totalChars: 100, totalLines: 100 }
       };
 
       const newSnapshot: Snapshot = {
@@ -509,7 +512,7 @@ describe('任务2.2: 快照比较功能', () => {
         label: 'New',
         timestamp: Date.now(),
         files: createFiles(100, 'Modified '),
-        metadata: { totalFiles: 100, totalLines: 100 }
+        metadata: { id: 'new', label: 'meta', createdAt: 0, fileCount: 100, totalChars: 100, totalLines: 100 }
       };
 
       const start = performance.now();
@@ -577,7 +580,7 @@ describe('任务2.2: 快照比较功能', () => {
           { path: 'index.ts', content: 'console.warn("Hello");', hash: 'hash1' },
           { path: 'utils.ts', content: 'export function add(a, b) { return a + b; }', hash: 'hash2' }
         ],
-        metadata: { totalFiles: 2, totalLines: 2 }
+        metadata: { id: 'v1', label: 'meta', createdAt: 0, fileCount: 2, totalChars: 2, totalLines: 2 }
       };
 
       const newSnapshot: Snapshot = {
@@ -589,7 +592,7 @@ describe('任务2.2: 快照比较功能', () => {
           { path: 'utils.ts', content: 'export function add(a, b) { return a + b; }', hash: 'hash2' },
           { path: 'new.ts', content: '// New file', hash: 'hash4' }
         ],
-        metadata: { totalFiles: 3, totalLines: 3 }
+        metadata: { id: 'v2', label: 'meta', createdAt: 0, fileCount: 3, totalChars: 3, totalLines: 3 }
       };
 
       // 2. 比较快照

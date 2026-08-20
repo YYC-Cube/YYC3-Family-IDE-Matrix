@@ -61,9 +61,6 @@ export default defineConfig({
       "build",
       ".next",
       "coverage",
-      "snapshot/**",        // 旧位置重导出目录，排除避免重复测
-      "agent/**",           // 旧位置重导出目录
-      "model-settings/**",  // 旧位置重导出目录
       "**/*.d.ts",
     ],
 

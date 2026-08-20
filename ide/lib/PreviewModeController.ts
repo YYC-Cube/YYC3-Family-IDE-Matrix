@@ -26,7 +26,7 @@
 // ================================================================
 
 import type { PreviewMode } from "../types/previewTypes";
-import { logger } from "../services/logger";
+import { logger } from "./logger";
 
 /**
  * 预览模式控制器

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck — TODO(P0-1): React 19 + lucide-react 类型兼容性问题，待上游修复
 /**
  * @file CopyButton.tsx
  * @description 通用复制到剪贴板按钮组件
@@ -9,7 +8,7 @@
 
 import React, { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
-import { copyToClipboard } from '../utils/clipboard'
+import { copyToClipboard } from '../../utils/clipboard'
 
 export function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @file: SnapshotViewController.test.ts
  * @description: SnapshotViewController单元测试

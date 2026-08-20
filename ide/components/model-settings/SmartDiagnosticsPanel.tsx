@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck — TODO(P0-1): React 19 + lucide-react 类型兼容性问题，待上游修复
 /**
  * @file SmartDiagnosticsPanel.tsx
  * @description 智能连接诊断面板 — 一键检测所有模型连通性，显示延迟趋势与 AI 建议
@@ -13,7 +12,7 @@ import {
   Cpu, Activity as ActivityIcon, Wifi, Clock,
   RefreshCw, Lightbulb, Bug,
 } from 'lucide-react'
-import type { ProviderDef } from '../constants/providers'
+import type { ProviderDef } from '../../services/llm/providers'
 import type { DiagnosticResult } from './types'
 import { LatencyTrendChart } from './LatencyTrendChart'
 

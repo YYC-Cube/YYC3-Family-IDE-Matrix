@@ -1,4 +1,3 @@
-// @ts-nocheck — TODO(P0-1): React 19 + lucide-react 类型兼容性问题，需升级 lucide-react 或调整 tsconfig JSX 配置后移除
 /**
  * @file: LazySandpack.tsx
  * @description: Sandpack 预览懒加载包装器，减少首屏 bundle 大小

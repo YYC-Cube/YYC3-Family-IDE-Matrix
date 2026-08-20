@@ -337,17 +337,30 @@ class ErrorReportingService {
       clearInterval(this.flushTimer);
       this.flushTimer = null;
     }
+    // 审计 Q3：移除全局监听（原实现仅清定时器，HMR/重建后旧实例持续捕获）
+    if (this.onErrorHandler) {
+      window.removeEventListener("error", this.onErrorHandler);
+      this.onErrorHandler = null;
+    }
+    if (this.onRejectionHandler) {
+      window.removeEventListener("unhandledrejection", this.onRejectionHandler);
+      this.onRejectionHandler = null;
+    }
+    this.globalHandlersInstalled = false;
     this.flush(); // 上报剩余事件
     this.initialized = false;
   }
 
   // ── 全局异常捕获 ──
 
+  private onErrorHandler: ((event: globalThis.ErrorEvent) => void) | null = null;
+  private onRejectionHandler: ((event: globalThis.PromiseRejectionEvent) => void) | null = null;
+
   private installGlobalHandlers(): void {
     if (this.globalHandlersInstalled) return;
 
-    // window.onerror
-    window.addEventListener("error", (event) => {
+    // window.onerror（句柄留存供 destroy 移除 —— 审计 Q3 监听器泄漏修复）
+    this.onErrorHandler = (event) => {
       this.captureError(event.error || new Error(event.message), {
         category: "unhandled",
         severity: "error",
@@ -357,10 +370,11 @@ class ErrorReportingService {
           colno: event.colno,
         },
       });
-    });
+    };
+    window.addEventListener("error", this.onErrorHandler);
 
     // unhandledrejection
-    window.addEventListener("unhandledrejection", (event) => {
+    this.onRejectionHandler = (event) => {
       const error =
         event.reason instanceof Error
           ? event.reason
@@ -370,7 +384,8 @@ class ErrorReportingService {
         severity: "error",
         context: { type: "unhandledrejection" },
       });
-    });
+    };
+    window.addEventListener("unhandledrejection", this.onRejectionHandler);
 
     this.globalHandlersInstalled = true;
   }
@@ -448,7 +463,7 @@ class ErrorReportingService {
     if (this.config.deduplication) {
       const lastSeen = this.recentFingerprints.get(fingerprint);
       if (lastSeen && Date.now() - lastSeen < this.config.deduplicationWindow) {
-        logger.warn('去重跳过: ${fingerprint}');
+        logger.warn(`去重跳过: ${fingerprint}`);
         return null;
       }
       this.recentFingerprints.set(fingerprint, Date.now());

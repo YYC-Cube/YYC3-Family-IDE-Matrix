@@ -134,7 +134,7 @@ export class DataImporter {
       }
     }
 
-    logger.warn('Imported ${count} localStorage items');
+    logger.warn(`Imported ${count} localStorage items`);
     return count;
   }
 

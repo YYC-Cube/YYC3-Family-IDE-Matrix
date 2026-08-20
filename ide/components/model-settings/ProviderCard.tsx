@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck — TODO(P0-1): React 19 + lucide-react 类型兼容性问题，待上游修复
 /**
  * @file ProviderCard.tsx
  * @description AI 模型服务商卡片组件 — 支持 API Key 配置、模型管理、连通性检测
@@ -10,10 +9,10 @@
 import React, { useState } from 'react'
 import {
   CheckCircle2, AlertCircle, Loader2, ChevronDown, ChevronRight,
-  Edit3, Check, ExternalLink, Eye, EyeOff, ArrowRight,
+  Edit3, Check, ExternalLink, Eye, EyeOff, ArrowRight, XCircle,
   Zap, MinusCircle, PlusCircle, Activity, FileCode2, Trash2, X,
 } from 'lucide-react'
-import type { ProviderDef, ModelDef } from '../constants/providers'
+import type { ProviderDef, ModelDef } from '../../services/llm/providers'
 import type { DiagnosticResult } from './types'
 import { CopyButton } from './CopyButton'
 

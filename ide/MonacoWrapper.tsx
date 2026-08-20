@@ -21,7 +21,7 @@ import { useScrollSyncStore } from "./stores/useScrollSyncStore";
 import { usePreviewStore } from "./stores/usePreviewStore";
 import { useEditorRegistry } from "./stores/useEditorRegistry";
 import { errorReporting } from "./services/ErrorReportingService";
-import { configureMonacoEnvironment } from "./MonacoWorkerManager";
+import { configureMonacoEnvironment } from "./lib/MonacoWorkerManager";
 import { registerAIInlineCompletionProvider } from "./services/AICompletionService";
 
 // Configure Monaco to use local resources instead of CDN

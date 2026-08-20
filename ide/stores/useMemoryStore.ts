@@ -16,12 +16,14 @@
 
 import { create } from 'zustand'
 import { openDB, type IDBPDatabase } from 'idb'
-import { logger } from "../services/logger";
+import { logger } from "../lib/logger";
 
 // ── Types ──
 
 export type MemoryCategory = 'project' | 'patterns' | 'debug' | 'preferences' | 'conversation'
-export type AgentRole = 'planner' | 'coder' | 'tester' | 'reviewer'
+import type { AgentRole } from "../types/agent";
+
+export type { AgentRole };
 
 export interface MemoryItem {
   id: string

@@ -11,7 +11,7 @@
  * brief: 布局编辑的决策核心 —— 全部为纯函数，便于单测与未来持久化/撤销
  */
 
-import type { LayoutNode, PanelId, SplitDirection } from "./PanelManagerContext";
+import type { LayoutNode, PanelId, SplitDirection } from "./types";
 
 let nodeSeq = 0;
 export function genNodeId(prefix = "node"): string {

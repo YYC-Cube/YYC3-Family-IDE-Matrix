@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck — TODO(P0-1): React 19 + lucide-react 类型兼容性问题，待上游修复
 /**
  * @file MCPConfigPanel.tsx
  * @description MCP Server 配置面板 — 支持 JSON 导入导出、Server 启用/禁用

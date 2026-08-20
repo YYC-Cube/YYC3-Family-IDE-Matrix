@@ -14,7 +14,7 @@
  */
 
 import type { ITheme } from '@xterm/xterm'
-import { logger } from "../services/logger";
+import { logger } from "../lib/logger";
 
 // YYC³ IDE 主题配置接口（假设的格式）
 interface YYC3ThemeConfig {
@@ -199,7 +199,7 @@ export function convertIDEToXtermTheme(
 ): ITheme {
 
   if (!themeConfig || !themeConfig.colors) {
-    logger.info('使用预设主题: ${fallbackTheme}');
+    logger.info(`使用预设主题: ${fallbackTheme}`);
     return { ...XTERM_THEMES[fallbackTheme] }
   }
 

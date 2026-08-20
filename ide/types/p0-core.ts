@@ -94,6 +94,12 @@ export interface Snapshot {
   metadata: SnapshotMetadata;
   /** 快照文件列表 */
   files: SnapshotFile[];
+  /** 快照 ID（审计 Batch C：归档测试与业务语义均携带，类型原缺失） */
+  id?: string;
+  /** 快照标签 */
+  label?: string;
+  /** 创建时间戳 */
+  timestamp?: number;
 }
 
 /**

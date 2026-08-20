@@ -16,7 +16,7 @@
 
 import { create } from "zustand";
 import type { IPCMessage, IPCMessageType } from "../types/multi-instance";
-import { logger } from "../services/logger";
+import { logger } from "../lib/logger";
 
 const IPC_CHANNEL_NAME = "yyc3-multi-instance";
 

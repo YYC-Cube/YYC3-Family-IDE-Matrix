@@ -19,6 +19,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import type { LayoutNode, SplitDirection, PanelId } from "./types";
 import {
   insertPanelBeside,
   removeNode,
@@ -30,32 +31,7 @@ import {
 
 // ── 类型（与归档 PanelManager 同构）──
 
-export type SplitDirection = "horizontal" | "vertical";
-
-export type PanelId =
-  | "ai"
-  | "files"
-  | "code"
-  | "preview"
-  | "terminal"
-  | "git"
-  | "agents"
-  | "market"
-  | "knowledge"
-  | "rag"
-  | "collab"
-  | "ops"
-  | (string & {}); // 开放联合：允许业务扩展面板 id，同时保留已知 id 的补全
-
-export interface LayoutNode {
-  id: string;
-  type: "leaf" | "split";
-  panelId?: PanelId;
-  direction?: SplitDirection;
-  children?: LayoutNode[];
-  size?: number; // percentage
-}
-
+export type { LayoutNode, SplitDirection, PanelId } from "./types";
 // ── 布局预设（归档版同构）──
 
 const DEFAULT_LAYOUT: LayoutNode = {

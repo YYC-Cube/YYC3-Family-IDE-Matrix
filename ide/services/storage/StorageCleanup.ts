@@ -222,7 +222,7 @@ export class StorageCleanup {
         result.cleanedLocalStorage = sessionsToRemove.length;
       }
 
-      logger.warn('Would clean ${sessionsToRemove.length} chat sessions');
+      logger.warn(`Would clean ${sessionsToRemove.length} chat sessions`);
 
     } catch (e) {
       result.errors.push(`Chat history cleanup error: ${(e as Error).message}`);
@@ -265,7 +265,7 @@ export class StorageCleanup {
         result.cleanedSnapshots = snapshotsToDelete.length;
       }
 
-      logger.warn('Would clean ${snapshotsToDelete.length} snapshots');
+      logger.warn(`Would clean ${snapshotsToDelete.length} snapshots`);
 
     } catch (e) {
       result.errors.push(`Snapshot cleanup error: ${(e as Error).message}`);
@@ -346,7 +346,7 @@ export class StorageCleanup {
         result.cleanedProjects = emptyProjects.length;
       }
 
-      logger.warn('Would clean ${emptyProjects.length} empty projects');
+      logger.warn(`Would clean ${emptyProjects.length} empty projects`);
 
     } catch (e) {
       result.errors.push(`Empty project cleanup error: ${(e as Error).message}`);

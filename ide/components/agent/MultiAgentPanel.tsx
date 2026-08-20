@@ -62,7 +62,7 @@ import { useI18n } from "../../i18n"
 
 // ── Types ──
 
-type AgentRole = "planner" | "coder" | "tester" | "reviewer"
+import type { AgentRole } from "../../types/agent";
 type AgentStatus = "idle" | "running" | "waiting" | "completed" | "error"
 type TaskStage = "analysis" | "planning" | "coding" | "testing" | "review" | "complete"
 
