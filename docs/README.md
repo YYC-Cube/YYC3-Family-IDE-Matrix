@@ -20,6 +20,7 @@
 | [`architecture.md`](architecture.md) | 分层原则 / 依赖图 / 域清单 / 约束 | 架构师 / 全体 |
 | [`developer-guide.md`](developer-guide.md) | 环境搭建 / 代码规范 / 核心模块 / 调试 / 测试 / 部署 | 开发者 |
 | [`visualization-spec.md`](visualization-spec.md) | 主题令牌 / 图表契约 / 性能 / 测试（§1-§12） | 前端工程师 / 设计师 |
+| [`evolution-plan.md`](evolution-plan.md) | 功能演进实施方案 / 安全必修 / 质量攻坚 / Phase 路线图 | 技术负责人 |
 
 ## 相关文档（仓库其他位置）
 

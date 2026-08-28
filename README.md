@@ -147,6 +147,7 @@ YYC3-Family-IDE-Matrix/
 | 架构设计 | [`docs/architecture.md`](docs/architecture.md) | 分层原则 / 依赖图 / 域清单 / 约束 |
 | 开发者指南 | [`docs/developer-guide.md`](docs/developer-guide.md) | 环境搭建 / 代码规范 / 调试 / 部署 / 核心模块 |
 | 可视化规范 | [`docs/visualization-spec.md`](docs/visualization-spec.md) | 主题令牌 / 图表契约 / 性能 / 测试（§1-§12） |
+| 功能演进 | [`docs/evolution-plan.md`](docs/evolution-plan.md) | 安全必修 / 质量攻坚 / Phase 路线图 |
 | 回迁路线图 | [`archive/MIGRATION.md`](archive/MIGRATION.md) | 批次状态 / 回迁铁律 / 审计修复矩阵 |
 | 协作服务端 | [`ide/collab-server/README.md`](ide/collab-server/README.md) | y-websocket 兼容服务端 / TTL / 持久化 |
 | 组件库参考 | [`ide/components/visualization/README.md`](ide/components/visualization/README.md) | 图表 / 主题 / 校验 快速参考 |
