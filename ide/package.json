@@ -16,7 +16,9 @@
     "test:ui": "vitest --ui",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "collab:server": "node collab-server/server.mjs"
+    "collab:server": "node collab-server/server.mjs",
+    "electron:dev": "NODE_ENV=development electron electron/main.js",
+    "electron:build": "pnpm build && electron-builder --dir"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
@@ -24,6 +26,7 @@
     "pnpm": ">=8.0.0"
   },
   "dependencies": {
+    "@codesandbox/sandpack-react": "^2.20.0",
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
@@ -86,5 +89,6 @@
       "vite": "^6.4.3",
       "esbuild": "^0.25.0"
     }
-  }
+  },
+  "main": "electron/main.js"
 }

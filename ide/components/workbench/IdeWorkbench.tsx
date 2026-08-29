@@ -20,9 +20,9 @@
  * ```
  */
 
-import { Suspense, lazy, useCallback, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useMemo, useRef, useState } from "react";
 import type { ComponentType } from "react";
-import { Boxes } from "lucide-react";
+import { Boxes, FileCode } from "lucide-react";
 
 import {
   PanelManagerProvider,
@@ -36,6 +36,10 @@ import { ModelRegistryProvider } from "../agent/ModelRegistry";
 import { SandboxedTerminalPanel } from "../terminal/TerminalPanel";
 import AgentMarket from "../agent/AgentMarket";
 import CollabPanel from "../../CollabPanel";
+import FileExplorer from "./FileExplorer";
+import SandpackPreview from "../../SandpackPreview";
+import EditorTabs from "./EditorTabs";
+import { useFileStoreZustand } from "../../stores/useFileStoreZustand";
 import { preloadMonaco } from "../../LazyMonaco";
 import type { CollabService } from "../../services/collab";
 
@@ -45,35 +49,51 @@ const MonacoWrapper = lazy(() => import("../../MonacoWrapper"));
 // ── Monaco 编辑面板（桥接 nodeId 契约 ↔ MonacoWrapper props）──
 
 function MonacoPanel({ nodeId }: { nodeId: string }) {
-  const [code, setCode] = useState(
-    [
-      "// YYC³ IDE Workbench — Monaco × PanelShell 组装完成",
-      'const greeting = "Hello, YYC³ Family!";',
-      "",
-      "console.log(greeting);",
-      "",
-    ].join("\n"),
-  );
+  const { fileContents, currentFilePath, updateFile } = useFileStoreZustand();
+
+  const content = currentFilePath ? fileContents[currentFilePath] ?? "" : "";
+  const fileName = currentFilePath?.split("/").pop() ?? "untitled";
 
   return (
-    <Suspense
-      fallback={
-        <div
-          data-testid="monaco-skeleton"
-          className="flex size-full items-center justify-center bg-[var(--ide-bg)] text-[0.65rem] text-slate-600"
+    <div className="flex size-full flex-col">
+      <EditorTabs />
+      <div className="min-h-0 flex-1">
+        <Suspense
+          fallback={
+            <div
+              data-testid="monaco-skeleton"
+              className="flex size-full items-center justify-center bg-[var(--ide-bg)] text-[0.65rem] text-slate-600"
+            >
+              Monaco 分片加载中…
+            </div>
+          }
         >
-          Monaco 分片加载中…
-        </div>
-      }
-    >
-      <MonacoWrapper
-        filePath={`${nodeId}/main.tsx`}
-        value={code}
-        onChange={(v) => setCode(v ?? "")}
-        height="100%"
-        minimap={false}
-      />
-    </Suspense>
+          {currentFilePath ? (
+            <MonacoWrapper
+              filePath={currentFilePath}
+              value={content}
+              onChange={(v) => updateFile(currentFilePath, v ?? "")}
+              height="100%"
+              minimap={false}
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center bg-[var(--ide-bg)] text-[0.7rem] text-slate-600">
+              <div className="flex flex-col items-center gap-2">
+                <FileCode className="h-8 w-8 text-slate-700" />
+                <span>从左侧文件浏览器打开文件</span>
+              </div>
+            </div>
+          )}
+        </Suspense>
+      </div>
+      {/* 状态栏 */}
+      <div className="flex h-6 flex-shrink-0 items-center gap-3 border-t border-[var(--ide-border-faint)] bg-[var(--ide-bg-elevated)] px-3 text-[0.58rem] text-slate-600">
+        <span>{currentFilePath ?? "—"}</span>
+        <span>{fileName.split(".").pop()?.toUpperCase() ?? "TXT"}</span>
+        <span>{content.split("\n").length} 行</span>
+        <span>{content.length} 字符</span>
+      </div>
+    </div>
   );
 }
 
@@ -141,14 +161,16 @@ const WORKBENCH_LAYOUT: LayoutNode = {
   type: "split",
   direction: "horizontal",
   children: [
-    { id: "editor", type: "leaf", panelId: "code", size: 55 },
+    { id: "files", type: "leaf", panelId: "files", size: 18 },
+    { id: "editor", type: "leaf", panelId: "code", size: 47 },
     {
       id: "right",
       type: "split",
       direction: "vertical",
       children: [
         { id: "term", type: "leaf", panelId: "terminal", size: 55 },
-        { id: "market", type: "leaf", panelId: "market", size: 45 },
+        { id: "market", type: "leaf", panelId: "market", size: 25 },
+        { id: "preview", type: "leaf", panelId: "preview", size: 20 },
       ],
     },
   ],
@@ -159,12 +181,34 @@ export default function IdeWorkbench({
   initialLayout = WORKBENCH_LAYOUT,
 }: IdeWorkbenchProps) {
   // 面板注册表：panelId → 真实组件（nodeId 契约统一）
+  // 初始化项目文件（首次挂载）
+  const fileStore = useFileStoreZustand.getState();
+  const { initializeProject, fileContents } = fileStore;
+  const initialized = useRef(false);
+  if (!initialized.current && Object.keys(fileContents).length === 0) {
+    initializeProject({
+      "src/App.tsx": [
+        "// YYC³ IDE — 多文件编辑",
+        'export function App() {',
+        '  return <div className="p-4 text-slate-200">Hello YYC³!</div>;',
+        "}",
+        "",
+      ].join("\n"),
+      "src/index.css": "/* 全局样式 */\n",
+      "package.json": JSON.stringify({ name: "yyc3-workspace", version: "0.1.0" }, null, 2),
+      "README.md": "# YYC³ Workspace\n\n多文件编辑 + 实时预览\n",
+    }, "src/App.tsx");
+    initialized.current = true;
+  }
+
   const registry = useMemo(
     () =>
       ({
         code: MonacoPanel,
+        files: FileExplorer,
         terminal: SandboxedTerminalPanel,
         market: AgentMarket as ComponentType<{ nodeId: string }>,
+        preview: SandpackPreview as ComponentType<{ nodeId: string }>,
         collab: ({ nodeId }: { nodeId: string }) => (
           <CollabPanel nodeId={nodeId} service={collabService} />
         ),

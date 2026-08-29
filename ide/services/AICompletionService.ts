@@ -21,6 +21,7 @@ import {
   getChatEndpoint
 } from "./llm";
 import { YYC3_CODEGEN_SYSTEM_PROMPT, isYYC3Model } from "../constants/prompts/yyc3-codegen";
+import { smartChatCompletion } from "./llm/proxyAdapter";
 
 interface CompletionCache {
   prefix: string;
@@ -184,29 +185,20 @@ class AICompletionServiceImpl {
             stream: false,
           };
 
-          const res = await fetch(endpoint, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(body),
-            signal: abortController.signal,
-          });
+          // Phase 3 P3-3：经 proxyAdapter 真发送（代理优先 → 直发回退）
+          const reply = await smartChatCompletion(
+            config,
+            modelId,
+            [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: prompt },
+            ],
+            { temperature, maxTokens: MAX_COMPLETION_TOKENS },
+          );
 
-          if (!res.ok) {
-            this.stats.errors++;
-            resolve(null);
-            return;
-          }
+          let content = this.cleanCompletion(reply || "", prefix);
 
-          const data = await res.json();
-          let content = "";
 
-          if (config.id === "ollama") {
-            content = (data as any).message?.content || "";
-          } else {
-            content = (data as any).choices?.[0]?.message?.content || "";
-          }
-
-          content = this.cleanCompletion(content, prefix);
 
           if (!content) {
             resolve(null);

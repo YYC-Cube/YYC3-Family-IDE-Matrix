@@ -58,7 +58,7 @@ describe("IdeWorkbench 组装", () => {
     expect(screen.getByText("智能编程助手")).toBeDefined();
     // 工具栏品牌与面板计数
     expect(screen.getByText("Workbench")).toBeDefined();
-    expect(screen.getByText(/3 面板/)).toBeDefined();
+    expect(screen.getByText(/5 面板/)).toBeDefined();
   });
 
   it("预设切换到 AI 工作区：布局重排为 ai+code+preview", async () => {
@@ -74,7 +74,7 @@ describe("IdeWorkbench 组装", () => {
     // ai-workspace 预设：ai 40% | code+preview 右分
     expect(screen.getByText("AI 对话")).toBeDefined();
     expect(screen.getByText("代码")).toBeDefined();
-    expect(screen.getByText("预览")).toBeDefined();
+    expect(screen.getAllByText("预览").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByTestId("monaco-panel")).toBeDefined(); // code 叶子仍在
   });
 
@@ -83,7 +83,9 @@ describe("IdeWorkbench 组装", () => {
     await act(async () => {
       await new Promise((r) => setTimeout(r, 50));
     });
-    const floatBtn = screen.getAllByTitle("浮出为窗口")[0];
+    // 找 code 面板的浮出按钮（面板顺序：files, code, terminal, market）
+    const codeSlot = document.querySelector("[data-panel-id='code']") as HTMLElement;
+    const floatBtn = codeSlot?.querySelector("button[title='浮出为窗口']") as HTMLElement;
     fireEvent.click(floatBtn);
 
     const floating = document.querySelector("[data-floating-id]") as HTMLElement;
@@ -97,7 +99,7 @@ describe("IdeWorkbench 组装", () => {
     render(<IdeWorkbench />);
     // 默认布局不含 collab 面板——切到 designer 预设也不含；
     // 验证注册表已包含 collab 能力：浮出按钮经由注册表工作正常即可
-    expect(screen.getAllByTitle("浮出为窗口").length).toBeGreaterThanOrEqual(3);
+    expect(screen.getAllByTitle("浮出为窗口").length).toBeGreaterThanOrEqual(5);
   });
 
   it("注入 collabService 时 CollabPanel 消费（经 provider 内联通）", async () => {

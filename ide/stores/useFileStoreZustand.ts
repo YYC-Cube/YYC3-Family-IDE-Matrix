@@ -159,7 +159,7 @@ const actions: FileStoreActions = {
 // 兼容 zustand API 的 Store 对象
 // ================================================================
 
-function useFileStoreZustand<T>(selector?: (state: FileStore) => T): T {
+function useFileStoreZustand<T = FileStore>(selector?: (state: FileStore) => T): T {
   if (selector) {
     return selector({ ...state, ...actions });
   }
