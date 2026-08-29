@@ -2,9 +2,9 @@
   file: docs/README.md
   description: docs/ 文档中心索引
   author: YanYuCloudCube Team <admin@0379.email>
-  version: v2.0.0
+  version: v3.0.0
   created: 2026-08-20
-  updated: 2026-08-20
+  updated: 2026-08-28
   status: active
   tags: [docs,index]
 -->
@@ -17,18 +17,25 @@
 
 | 文档 | 内容 | 目标读者 |
 | --- | --- | --- |
-| [`architecture.md`](architecture.md) | 分层原则 / 依赖图 / 域清单 / 约束 | 架构师 / 全体 |
-| [`developer-guide.md`](developer-guide.md) | 环境搭建 / 代码规范 / 核心模块 / 调试 / 测试 / 部署 | 开发者 |
+| [`architecture.md`](architecture.md) | 分层原则 / 依赖图 / 域清单 / 构建配置 / 约束 | 架构师 / 全体 |
+| [`developer-guide.md`](developer-guide.md) | 环境搭建 / 代码规范 / **10 个核心模块** / 可观测性 / 测试 / 部署 | 开发者 |
 | [`visualization-spec.md`](visualization-spec.md) | 主题令牌 / 图表契约 / 性能 / 测试（§1-§12） | 前端工程师 / 设计师 |
-| [`evolution-plan.md`](evolution-plan.md) | 功能演进实施方案 / 安全必修 / 质量攻坚 / Phase 路线图 | 技术负责人 |
+| [`evolution-plan.md`](evolution-plan.md) | Phase 1-3 ✅ 全部完成 / 能力矩阵 / 性能预算 / 下一步建议 | 技术负责人 |
+
+## 文档更新日志
+
+| 日期 | 变更 |
+| --- | --- |
+| 2026-08-28 | v3.0：Phase 1-3 全部完成后同步更新——新增多文件编辑/Sandpack/AI补全/代理适配/口令派生/审计持久化/Electron 脚手架等 10 个新模块文档 |
+| 2026-08-20 | v2.0：文档架构重构（README 精简 + docs/ 4 文件） |
 
 ## 相关文档（仓库其他位置）
 
 | 文档 | 位置 | 内容 |
 | --- | --- | --- |
-| 项目总览 | [`../README.md`](../README.md) | 快速开始 / 仓库结构 |
+| 项目总览 | [`../README.md`](../README.md) | 快速开始 / 仓库结构 / 核心能力域 |
 | 回迁路线图 | [`../archive/MIGRATION.md`](../archive/MIGRATION.md) | 批次状态 / 回迁铁律 / 审计修复矩阵 |
-| 协作服务端 | [`../ide/collab-server/README.md`](../ide/collab-server/README.md) | y-websocket 兼容 / TTL / 持久化 |
+| 协作服务端 | [`../ide/collab-server/README.md`](../ide/collab-server/README.md) | y-websocket 兼容 / TTL / 持久化 / 鉴权 |
 | 组件库参考 | [`../ide/components/visualization/README.md`](../ide/components/visualization/README.md) | 图表 / 主题 / 校验 快速参考 |
 
 > **归档说明**：2026-03 版 IDE 单体快照（405 个源文件）已于 2026-08-20

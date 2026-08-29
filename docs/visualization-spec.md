@@ -2,9 +2,9 @@
   file: docs/visualization-spec.md
   description: YYC³ 可视化体系设计规范 §1-§12
   author: YanYuCloudCube Team <admin@0379.email>
-  version: v1.1.0
+  version: v1.2.0
   created: 2026-08-19
-  updated: 2026-08-20
+  updated: 2026-08-28
   status: active
   tags: [docs,visualization,architecture,spec]
 -->
@@ -843,6 +843,71 @@ function TokenUsagePanel({ raw }: { raw: TokenUsage[] }) {
 | **M5 生态** | v3.0 | 插件市场自定义图表类型 + 主题商店 | 2027 Q1 |
 
 ---
+
+
+## §13 多文件编辑可视化（Phase 3 新增）
+
+### 13.1 文件树视觉体系
+
+FileExplorer 采用面板宿主 Cyberpunk-88 令牌体系：
+
+| 视觉元素 | 令牌 | 说明 |
+| --- | --- | --- |
+| 文件树背景 | `--ide-bg` (#0d1117) | 与编辑器统一 |
+| 目录图标 | cyan-400/70 | FolderOpen / Folder |
+| 当前文件 | `bg-cyan-600/20 + text-cyan-300` | 选中高亮 |
+| 悬停 | `bg-white/5` | 微弱反馈 |
+| 搜索边框 | `--ide-border-mid` | 搜索框 |
+
+### 13.2 文件类型语义色
+
+| 扩展名 | 颜色 | 图标 |
+| --- | --- | --- |
+| `.ts` `.tsx` | blue-400 | FileCode |
+| `.js` `.jsx` | yellow-400 | FileCode |
+| `.json` | amber-400 | FileJson |
+| `.css` `.scss` | pink-400 | FileType |
+| `.html` | orange-400 | FileCode |
+| `.md` | slate-400 | FileText |
+| `.yml` `.yaml` | purple-400 | Braces |
+| 其他 | slate-500 | File |
+
+### 13.3 编辑器 Tab 栏
+
+| 状态 | 视觉 |
+| --- | --- |
+| 当前 Tab | `bg-[--ide-bg] + text-slate-200 + border-top`（与编辑器无缝） |
+| 非当前 | `text-slate-500 + hover:bg-white/5` |
+| 关闭按钮 | `hidden → group-hover:block`（悬停显示） |
+| 语言色点 | 6px Circle（与文件类型色一致） |
+
+### 13.4 编辑器状态栏
+
+底部 24px 状态栏展示当前文件元数据：
+
+```
+[文件路径] [语言] [行数] [字符数]
+```
+
+使用 `--ide-bg-elevated` 背景 + `--ide-border-faint` 上边框。
+
+### 13.5 Sandpack 预览面板
+
+| 属性 | 值 |
+| --- | --- |
+| 面板标题 | "预览" + Eye 图标（emerald-400/70） |
+| 文件浏览器 | 隐藏在 md 以下（`hidden md:block w-40`） |
+| 主题 | Sandpack dark |
+| 重编译模式 | delayed 500ms |
+| 预览操作栏 | 刷新（有）/ Navigator（无）/ CodeSandbox 外链（无） |
+
+### 13.6 空态设计
+
+| 面板 | 空态 | 引导 |
+| --- | --- | --- |
+| Monaco 编辑器 | FileCode 图标 + "从左侧文件浏览器打开文件" | 文字引导 |
+| Sandpack 预览 | Eye 图标 + "从文件浏览器创建文件开始预览" | 文字引导 |
+| 文件浏览器 | "项目为空（新建文件开始）" | 新建按钮 |
 
 ## 📚 相关文档
 
