@@ -33,6 +33,45 @@ const PERSIST_DIR = process.env.PERSIST_DIR ?? "./collab-server/data";
 /** 持久化写盘防抖 */
 const PERSIST_DEBOUNCE_MS = 2_000;
 
+// ── 安全配置（Phase 1 P1-4 · 审计 R1）──
+/** Origin 白名单（逗号分隔；空 = 允许所有，仅开发模式） */
+const ALLOWED_ORIGINS = (process.env.COLLAB_ALLOWED_ORIGINS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+/** 连接 token（空 = 不校验，仅开发模式） */
+const AUTH_TOKEN = process.env.COLLAB_AUTH_TOKEN ?? "";
+/** WebSocket 消息大小上限（字节） */
+const MAX_PAYLOAD = Number(process.env.COLLAB_MAX_PAYLOAD ?? 1_048_576); // 1MB
+/** 最大房间数 */
+const MAX_ROOMS = Number(process.env.COLLAB_MAX_ROOMS ?? 100);
+/** 每 IP 连接速率限制（每分钟） */
+const RATE_LIMIT_PER_MIN = Number(process.env.COLLAB_RATE_LIMIT ?? 30);
+
+// 连接速率限制（简单令牌桶：IP → 时间戳数组）
+const connTracker = new Map();
+function isRateLimited(ip) {
+  const now = Date.now();
+  const windowStart = now - 60_000;
+  const stamps = (connTracker.get(ip) ?? []).filter((t) => t > windowStart);
+  if (stamps.length >= RATE_LIMIT_PER_MIN) {
+    connTracker.set(ip, stamps);
+    return true;
+  }
+  stamps.push(now);
+  connTracker.set(ip, stamps);
+  return false;
+}
+// 定期清理过期 IP 记录
+setInterval(() => {
+  const cutoff = Date.now() - 120_000;
+  for (const [ip, stamps] of connTracker) {
+    const alive = stamps.filter((t) => t > cutoff);
+    if (alive.length === 0) connTracker.delete(ip);
+    else connTracker.set(ip, alive);
+  }
+}, 120_000).unref?.();
+
 const MESSAGE_SYNC = 0;
 const MESSAGE_AWARENESS = 1;
 const MESSAGE_QUERY_AWARENESS = 3;
@@ -284,15 +323,48 @@ const server = createServer((req, res) => {
   res.writeHead(404).end();
 });
 
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server, maxPayload: MAX_PAYLOAD });
 
 wss.on("connection", (conn, request) => {
+  // ── 安全检查链（Phase 1 P1-4 · 审计 R1）──
+
+  // 1) Origin 白名单
+  const origin = request.headers.origin;
+  if (ALLOWED_ORIGINS.length > 0 && (!origin || !ALLOWED_ORIGINS.includes(origin))) {
+    console.warn(`[collab-server] 拒绝连接: Origin "${origin}" 不在白名单`);
+    conn.close(4001, "Origin not allowed");
+    return;
+  }
+
+  // 2) 连接 token
   const url = new URL(request.url ?? "/", `http://${request.headers.host}`);
-  // 房间名：路径段或 ?room= 查询参数（客户端 WebsocketProvider(serverUrl, room, doc)
-  // 的 room 会作为路径拼接）
+  if (AUTH_TOKEN) {
+    const token = url.searchParams.get("token") ?? request.headers["x-collab-token"];
+    if (token !== AUTH_TOKEN) {
+      console.warn("[collab-server] 拒绝连接: token 无效");
+      conn.close(4003, "Invalid token");
+      return;
+    }
+  }
+
+  // 3) 速率限制
+  const ip = request.socket.remoteAddress ?? "unknown";
+  if (isRateLimited(ip)) {
+    console.warn(`[collab-server] 拒绝连接: IP ${ip} 速率超限`);
+    conn.close(4008, "Rate limited");
+    return;
+  }
+
+  // 4) 房间数上限
   const roomName = decodeURIComponent(
     url.searchParams.get("room") ?? url.pathname.replace(/^\/+/, "") ?? "default",
   ) || "default";
+  if (!docs.has(roomName) && docs.size >= MAX_ROOMS) {
+    console.warn(`[collab-server] 拒绝连接: 房间数已达上限 ${MAX_ROOMS}`);
+    conn.close(4013, "Too many rooms");
+    return;
+  }
+
   conn.origin = `ws-${Math.random().toString(36).slice(2, 10)}`;
   setupWSConnection(conn, getRoomDoc(roomName));
 });

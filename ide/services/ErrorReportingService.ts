@@ -237,47 +237,124 @@ class LocalTransport implements ErrorTransport {
 class SentryTransport implements ErrorTransport {
   name = "SentryTransport";
   private dsn: string;
+  private ingestUrl: string;
 
   constructor(dsn: string) {
     this.dsn = dsn;
+    // 解析 Sentry DSN → ingest endpoint
+    // 格式：https://<publicKey>@<host>/<projectId>
+    try {
+      const url = new URL(dsn);
+      const projectId = url.pathname.replace(/\/$/, "");
+      this.ingestUrl = `${url.protocol}//${url.host}/api/${projectId}/store/`;
+    } catch {
+      this.ingestUrl = dsn; // 兜底：当原始 URL 用
+    }
   }
 
   async send(
     events: ErrorEvent[],
   ): Promise<{ success: boolean; failedIds?: string[] }> {
-    // ⚠️ 生产环境替换为真实 Sentry SDK 调用：
-    //
-    //   import * as Sentry from "@sentry/react"
-    //   events.forEach(evt => {
-    //     Sentry.captureException(new Error(evt.message), {
-    //       fingerprint: [evt.fingerprint],
-    //       tags: { category: evt.category, route: evt.route },
-    //       extra: evt.context,
-    //       level: evt.severity,
-    //     })
-    //   })
-    //
-    // 当前为模拟实现 — 打印到控制台并模拟 HTTP 请求
     const failedIds: string[] = [];
+
     for (const event of events) {
       try {
-        console.warn(
-          `[Sentry] 📡 上报事件 → DSN: ${this.dsn.slice(0, 30)}...`,
-          {
-            id: event.id,
-            severity: event.severity,
-            category: event.category,
-            message: event.message.slice(0, 100),
-            route: event.route,
-            fingerprint: event.fingerprint,
+        // Sentry Store API（无 SDK 轻量上报）
+        await fetch(this.ingestUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Sentry-Auth": `Sentry sentry_version=7, sentry_key=${this.extractKey()}`,
           },
-        );
-        // 真实场景: await fetch(sentryIngestUrl, { method: 'POST', body: ... })
+          body: JSON.stringify(this.toSentryEvent(event)),
+        });
       } catch {
         failedIds.push(event.id);
       }
     }
+
     return { success: failedIds.length === 0, failedIds };
+  }
+
+  private extractKey(): string {
+    try {
+      return new URL(this.dsn).username || "unknown";
+    } catch {
+      return "unknown";
+    }
+  }
+
+  /** ErrorEvent → Sentry Store API 格式 */
+  private toSentryEvent(event: ErrorEvent): Record<string, unknown> {
+    return {
+      event_id: event.id.replace(/[^a-f0-9]/g, "").slice(0, 32) || undefined,
+      timestamp: new Date(event.timestamp).toISOString(),
+      platform: "javascript",
+      environment: event.environment,
+      release: event.environment,
+      level: this.mapSeverity(event.severity),
+      logger: "yyc3-ide",
+      message: {
+        formatted: event.message,
+      },
+      exception: event.stack
+        ? {
+            values: [
+              {
+                type: event.category,
+                value: event.message,
+                stacktrace: {
+                  frames: this.parseStack(event.stack),
+                },
+              },
+            ],
+          }
+        : undefined,
+      tags: {
+        category: event.category,
+      },
+      extra: {
+        ...event.context,
+        breadcrumbs: event.breadcrumbs?.map((b) => ({
+          timestamp: b.timestamp,
+          category: b.category,
+          message: b.message,
+          type: b.type,
+        })),
+      },
+      fingerprint: event.fingerprint ? [event.fingerprint] : undefined,
+      
+    };
+  }
+
+  private mapSeverity(severity: string): string {
+    const map: Record<string, string> = {
+      fatal: "fatal",
+      error: "error",
+      warning: "warning",
+      info: "info",
+      debug: "debug",
+    };
+    return map[severity] ?? "error";
+  }
+
+  /** 简易 stack parser → Sentry frames */
+  private parseStack(stack: string): Array<Record<string, unknown>> {
+    return stack
+      .split("\n")
+      .filter((line) => line.trim().startsWith("at "))
+      .slice(0, 20)
+      .map((line) => {
+        const match = line.match(/at\s+(?:(\S+)\s+)?\(?(.+?):(\d+):(\d+)\)?/);
+        if (!match) return { filename: line.trim() };
+        return {
+          function: match[1] ?? "<anonymous>",
+          filename: match[2],
+          lineno: parseInt(match[3], 10),
+          colno: parseInt(match[4], 10),
+        };
+      })
+      .reverse(); // Sentry 期望最外层帧在前
   }
 }
 

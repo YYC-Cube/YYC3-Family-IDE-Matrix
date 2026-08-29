@@ -1,0 +1,12 @@
+# Security & Performance Headers (Phase 1 P1-3 · 审计 R3)
+# 用于 Netlify / Cloudflare Pages / nginx 参考配置
+# 放置在 dist/ 根目录自动生效（Netlify）或手动配置（nginx）
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' ws://localhost:* wss://*; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self';
+  Cross-Origin-Opener-Policy: same-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
