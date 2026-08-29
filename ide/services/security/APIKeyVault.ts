@@ -158,7 +158,81 @@ class APIKeyVault {
     await this.initEncryptionKey();
   }
 
+  // ── Phase 2 P2-2 密钥口令派生（审计 A1/M4）──
+  //
+  // 原实现：AES 密钥机器随机生成 → base64 裸存 sessionStorage（与密文同源同机）
+  // 新实现：
+  //   Mode A（用户口令）：PBKDF2(userPassphrase, salt, 310000) → 非导出 CryptoKey
+  //     → 密钥不落盘、不可导出，只有输入正确口令才能解密
+  //   Mode B（降级兼容）：无口令时走原路径（机器随机+sessionStorage）
+  //     → 仅开发模式；生产 UI 应强制要求口令
+  //
+  // 非导出 CryptoKey（extractable: false）即使 XSS 也无法读取原始密钥字节。
+
+  private vaultSalt: ArrayBuffer | null = null;
+
+  /**
+   * 使用用户口令解锁保险库（PBKDF2 派生 → 非导出 CryptoKey）
+   * 必须在 init() 之前或之后调用；成功后 encryptionKey 不可导出。
+   */
+  async unlockWithPassphrase(passphrase: string): Promise<boolean> {
+    if (!passphrase || passphrase.length < 4) {
+      throw new Error('口令至少 4 个字符');
+    }
+
+    // 获取或生成盐（盐持久化在 localStorage，与密钥分离）
+    const SALT_KEY = 'yyc3-vault-salt';
+    const storedSalt = localStorage.getItem(SALT_KEY);
+    if (storedSalt) {
+      this.vaultSalt = Uint8Array.from(atob(storedSalt), c => c.charCodeAt(0)).buffer as ArrayBuffer;
+    } else {
+      this.vaultSalt = crypto.getRandomValues(new Uint8Array(16)).buffer as ArrayBuffer;
+      const saltBytes = new Uint8Array(this.vaultSalt);
+      const saltB64 = btoa(String.fromCharCode(...saltBytes));
+      localStorage.setItem(SALT_KEY, saltB64);
+    }
+
+    // PBKDF2 派生（310,000 轮，OWASP 2024 推荐）
+    const enc = new TextEncoder();
+    const passwordKey = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(passphrase),
+      'PBKDF2',
+      false,
+      ['deriveBits', 'deriveKey']
+    );
+
+    // 派生为非导出 AES-GCM 256 密钥
+    this.encryptionKey = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: this.vaultSalt, iterations: 310_000, hash: 'SHA-256' },
+      passwordKey,
+      { name: 'AES-GCM', length: 256 },
+      false, // extractable: false → 即使 XSS 也无法导出密钥
+      ['encrypt', 'decrypt']
+    );
+
+    // 清除旧模式密钥（如果有的话）
+    sessionStorage.removeItem('yyc3-vault-key');
+    localStorage.removeItem('yyc3-vault-salt');
+    return true;
+  }
+
+  /** 检查保险库是否已用口令解锁（非导出密钥模式） */
+  isUnlockedWithPassphrase(): boolean {
+    return this.encryptionKey !== null && sessionStorage.getItem('yyc3-vault-key') === null;
+  }
+
+  /** 锁定保险库（清除内存密钥） */
+  lock(): void {
+    this.encryptionKey = null;
+    this.vaultSalt = null;
+  }
+
   private async initEncryptionKey(): Promise<void> {
+    // Phase 2 P2-2：如果已有口令派生的密钥，跳过旧路径
+    if (this.encryptionKey) return;
+
+    // 旧路径（降级兼容，无口令模式）
     const storedKey = sessionStorage.getItem('yyc3-vault-key');
 
     if (storedKey) {
@@ -173,7 +247,7 @@ class APIKeyVault {
     } else {
       this.encryptionKey = await crypto.subtle.generateKey(
         { name: 'AES-GCM', length: 256 },
-        true,
+        true, // 旧模式需要导出（存储到 sessionStorage）
         ['encrypt', 'decrypt']
       );
 
@@ -334,6 +408,7 @@ class APIKeyVault {
     if (!this.db) await this.init();
     await this.db!.clear(STORE_NAME);
     sessionStorage.removeItem('yyc3-vault-key');
+    localStorage.removeItem('yyc3-vault-salt');
     this.encryptionKey = null;
   }
 

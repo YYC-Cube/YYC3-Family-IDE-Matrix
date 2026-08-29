@@ -1,0 +1,60 @@
+# Dependabot 配置 — Phase 2 P2-3 供应链门禁
+# 自动检测依赖漏洞并创建 PR
+
+version: 2
+
+updates:
+  # npm/pnpm 依赖
+  - package-ecosystem: "npm"
+    directory: "/ide"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    # 安全更新优先
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    # 自动合并安全补丁（可选——保守起见暂不开启）
+    # assignees:
+    #   - "YYC-Cube"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps(dev)"
+    # 按语义版本分组
+    groups:
+      # 安全更新自动分组
+      security-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+          - "minor"
+      # 大版本更新单独 PR
+      major-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+  # GitHub Actions 版本
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "github-actions"
+      - "security"
+    commit-message:
+      prefix: "ci"
+
+  # Docker（如果后续有 Dockerfile）
+  # - package-ecosystem: "docker"
+  #   directory: "/ide"
+  #   schedule:
+  #     interval: "weekly"

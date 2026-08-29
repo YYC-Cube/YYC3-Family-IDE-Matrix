@@ -24,6 +24,42 @@ import type {
 } from "./types";
 
 const AUDIT_LIMIT = 500;
+// ── Phase 2 P2-4 审计持久化（IndexedDB append-only）──
+
+const AUDIT_DB_NAME = "yyc3_terminal_audit";
+const AUDIT_STORE = "audit_log";
+let auditDBPromise: Promise<IDBDatabase> | null = null;
+
+function getAuditDB(): Promise<IDBDatabase> {
+  if (auditDBPromise) return auditDBPromise;
+  auditDBPromise = new Promise((resolve, reject) => {
+    if (typeof indexedDB === "undefined") {
+      reject(new Error("IndexedDB not available"));
+      return;
+    }
+    const req = indexedDB.open(AUDIT_DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(AUDIT_STORE)) {
+        db.createObjectStore(AUDIT_STORE, { keyPath: "seq", autoIncrement: true });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return auditDBPromise;
+}
+
+async function persistAuditEntry(entry: AuditEntry): Promise<void> {
+  const db = await getAuditDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(AUDIT_STORE, "readwrite");
+    tx.objectStore(AUDIT_STORE).add(entry); // append-only（autoIncrement key）
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 
 /** shell 元字符（审计 H1）：出现在完整命令行即拒绝 */
 const SHELL_METACHAR_RE = /[;|&$`<>()\r\n]/;
@@ -106,11 +142,38 @@ export class SandboxPolicy {
     this.usage.set(sessionKey, stamps);
   }
 
-  /** 写审计（环形） */
+  /** 写审计（Phase 2 P2-4：内存环形 + IndexedDB append-only 双写） */
   audit(entry: Omit<AuditEntry, "timestamp">): void {
-    this.auditLog.push({ ...entry, timestamp: Date.now() });
+    const full: AuditEntry = { ...entry, timestamp: Date.now() };
+
+    // 1) 内存环形（原有——低延迟查询）
+    this.auditLog.push(full);
     if (this.auditLog.length > AUDIT_LIMIT) {
       this.auditLog.splice(0, this.auditLog.length - AUDIT_LIMIT);
+    }
+
+    // 2) IndexedDB 持久化（异步、append-only、不阻塞主线程）
+    void persistAuditEntry(full).catch(() => {
+      // 持久化失败不阻断命令执行（审计降级：仅内存）
+    });
+  }
+
+  /**
+   * 从 IndexedDB 读取持久化审计日志（Phase 2 P2-4）
+   * 刷新/重启后仍可查询——满足安全合规「不可抵赖」要求
+   */
+  async getPersistentAuditLog(limit = 200): Promise<AuditEntry[]> {
+    try {
+      const db = await getAuditDB();
+      const tx = db.transaction(AUDIT_STORE, "readonly");
+      const store = tx.objectStore(AUDIT_STORE);
+      const count = await new Promise<number>((res, rej) => { const r = store.count(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+      const start = Math.max(0, count - limit);
+      const results = await store.getAll(IDBKeyRange.bound(start, count));
+      const entries = (results as unknown) as AuditEntry[];
+      return entries.reverse(); // 新→旧
+    } catch {
+      return []; // IndexedDB 不可用时返回空
     }
   }
 
