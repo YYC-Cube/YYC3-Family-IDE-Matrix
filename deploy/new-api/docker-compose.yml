@@ -1,0 +1,58 @@
+# YYC³ Matrix 生产 LLM 代理 — new-api + nginx 路由翻译
+#
+# 架构（proxyAdapter 兼容）:
+#   浏览器 proxyFetch → nginx :3001  →  new-api :3000  →  上游 Provider（zhipu/dashscope/deepseek/ollama…）
+#   URL 形状: {base}/{providerId}/v1/chat/completions       （Matrix ProxyService 约定）
+#   翻译后:              /v1/chat/completions               （new-api OpenAI 兼容端点）
+#   API Key 仅存服务端（.env NEW_API_KEY），浏览器零密钥暴露 — 审计 R2 目标达成
+#
+# 用法:
+#   cp .env.example .env && 填入 NEW_API_KEY
+#   docker compose up -d
+#   curl http://localhost:3001/api/proxy/health   # 健康检查（IDE 代理探测同款路径）
+
+services:
+  new-api:
+    image: calciumion/new-api:latest
+    container_name: yyc3-new-api
+    restart: unless-stopped
+    expose:
+      - "3000"
+    volumes:
+      - new-api-data:/data
+    environment:
+      TZ: Asia/Shanghai
+      # SQLite 落盘 /data；切 MySQL 时改 SQL_DSN
+      # SQL_DSN: "root:123456@tcp(mysql:3306)/new-api"
+      REDIS_CONN_STRING: redis://redis:6379
+      # 全局票据限速（秒/请求数），0 关闭
+      GLOBAL_API_RATE_LIMIT: "180/60"
+      GLOBAL_WEB_RATE_LIMIT: "60/60"
+      # 初始 root 密码（首登后立即修改）
+      INIT_ROOT_PASSWORD: ${INIT_ROOT_PASSWORD:-ChangeMe_2026}
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: yyc3-llm-proxy
+    restart: unless-stopped
+    depends_on:
+      - new-api
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template:ro
+    environment:
+      NEW_API_KEY: ${NEW_API_KEY:?请在 .env 中设置 NEW_API_KEY}
+      PROXY_AUTH_TOKEN: ${PROXY_AUTH_TOKEN:-}
+      NEW_API_UPSTREAM: new-api:3000
+
+  redis:
+    image: redis:7-alpine
+    container_name: yyc3-new-api-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+volumes:
+  new-api-data:
+  redis-data:

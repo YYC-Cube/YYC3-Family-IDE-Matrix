@@ -67,6 +67,7 @@
     "coverage",
     "node_modules",
     "electron/main.js",
+    "electron/preload.js",
     "collab-server",
     "*.d.ts"
   ]
