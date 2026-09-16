@@ -384,7 +384,7 @@ export default function MonacoWrapper({
       onMount={handleMount}
       theme={isCyber ? CYBER_THEME_NAME : NAVY_THEME_NAME}
       loading={
-        <div className="size-full flex items-center justify-center bg-[var(--ide-bg)]">
+        <div className="size-full flex items-center justify-center bg-(--ide-bg)">
           <div className="flex items-center gap-2 text-slate-600 text-[0.72rem]">
             <div className="w-4 h-4 border-2 border-sky-500/30 border-t-sky-500 rounded-full animate-spin" />
             <span>加载编辑器...</span>

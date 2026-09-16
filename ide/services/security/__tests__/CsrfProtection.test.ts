@@ -8,9 +8,7 @@
  * @license: MIT
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-vi.stubGlobal("location", { origin: "http://localhost:3200" });
+import { beforeEach, describe, expect, it } from "vitest";
 
 describe("CsrfProtectionService", () => {
   let service: any;

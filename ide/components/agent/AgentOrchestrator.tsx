@@ -220,7 +220,7 @@ export default function AgentOrchestrator({ nodeId }: { nodeId: string }) {
   const selected = workflow.nodes.find((n) => n.id === selectedNode);
 
   return (
-    <div className="panel-host-root size-full flex flex-col bg-[var(--ide-bg)]">
+    <div className="panel-host-root size-full flex flex-col bg-(--ide-bg)">
       <PanelHeader
         nodeId={nodeId}
         panelId="agents"
@@ -250,7 +250,7 @@ export default function AgentOrchestrator({ nodeId }: { nodeId: string }) {
       </PanelHeader>
 
       {/* Workflow info */}
-      <div className="flex-shrink-0 px-3 py-1.5 border-b border-[var(--ide-border-dim)] flex items-center gap-2">
+      <div className="shrink-0 px-3 py-1.5 border-b border-(--ide-border-dim) flex items-center gap-2">
         <span className="text-[0.72rem] text-slate-300">{workflow.name}</span>
         <div className="flex-1" />
         <span
@@ -274,12 +274,12 @@ export default function AgentOrchestrator({ nodeId }: { nodeId: string }) {
 
       {/* Node Palette */}
       {showNodePalette && (
-        <div className="flex-shrink-0 px-2 py-2 border-b border-[var(--ide-border-faint)] grid grid-cols-4 gap-1">
+        <div className="shrink-0 px-2 py-2 border-b border-(--ide-border-faint) grid grid-cols-4 gap-1">
           {NODE_TYPES.map((nt) => (
             <button
               key={nt.type}
               onClick={() => addNode(nt.type)}
-              className="flex flex-col items-center gap-1 p-1.5 rounded border border-dashed border-[var(--ide-border-faint)] hover:border-sky-600/40 hover:bg-sky-900/10 transition-colors"
+              className="flex flex-col items-center gap-1 p-1.5 rounded border border-dashed border-(--ide-border-faint) hover:border-sky-600/40 hover:bg-sky-900/10 transition-colors"
             >
               <nt.icon className={`w-3.5 h-3.5 ${nt.color}`} />
               <span className="text-[0.55rem] text-slate-500">{nt.label}</span>
@@ -336,13 +336,13 @@ export default function AgentOrchestrator({ nodeId }: { nodeId: string }) {
               onClick={() => setSelectedNode(node.id)}
               className={`absolute cursor-pointer rounded-lg border transition-all ${
                 selectedNode === node.id
-                  ? "border-sky-500/60 bg-[var(--ide-bg-elevated)] shadow-lg shadow-sky-500/10"
-                  : "border-[var(--ide-border-dim)] bg-[var(--ide-bg-dark)] hover:border-[var(--ide-border)]"
+                  ? "border-sky-500/60 bg-(--ide-bg-elevated) shadow-lg shadow-sky-500/10"
+                  : "border-(--ide-border-dim) bg-(--ide-bg-dark) hover:border-(--ide-border)"
               }`}
               style={{ left: node.x, top: node.y, width: 150, minHeight: 50 }}
             >
               <div className="flex items-center gap-1.5 px-2 py-1.5">
-                <Icon className={`w-3.5 h-3.5 ${nt.color} flex-shrink-0`} />
+                <Icon className={`w-3.5 h-3.5 ${nt.color} shrink-0`} />
                 <span className="text-[0.65rem] text-slate-300 flex-1 truncate">
                   {node.label}
                 </span>
@@ -371,7 +371,7 @@ export default function AgentOrchestrator({ nodeId }: { nodeId: string }) {
 
       {/* Node Inspector */}
       {selected && (
-        <div className="flex-shrink-0 border-t border-[var(--ide-border-dim)] px-3 py-2 bg-[var(--ide-bg-dark)] max-h-[35%] overflow-y-auto">
+        <div className="shrink-0 border-t border-(--ide-border-dim) px-3 py-2 bg-(--ide-bg-dark) max-h-[35%] overflow-y-auto">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[0.72rem] text-slate-300">
               {selected.label}
@@ -388,7 +388,7 @@ export default function AgentOrchestrator({ nodeId }: { nodeId: string }) {
               <label className="text-[0.58rem] text-slate-600 block mb-1">
                 模型配置
               </label>
-              <select className="w-full px-2 py-1 bg-[var(--ide-bg)] border border-[var(--ide-border-mid)] rounded text-[0.68rem] text-slate-300 outline-none">
+              <select className="w-full px-2 py-1 bg-(--ide-bg) border border-(--ide-border-mid) rounded text-[0.68rem] text-slate-300 outline-none">
                 <option value="">选择模型...</option>
                 {models
                   .filter((m) =>
@@ -412,7 +412,7 @@ export default function AgentOrchestrator({ nodeId }: { nodeId: string }) {
               <input
                 value={val}
                 readOnly
-                className="flex-1 px-1.5 py-0.5 bg-[var(--ide-bg)] border border-[var(--ide-border-dim)] rounded text-[0.62rem] text-slate-400 outline-none"
+                className="flex-1 px-1.5 py-0.5 bg-(--ide-bg) border border-(--ide-border-dim) rounded text-[0.62rem] text-slate-400 outline-none"
               />
             </div>
           ))}

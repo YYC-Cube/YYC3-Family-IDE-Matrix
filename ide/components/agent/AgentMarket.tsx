@@ -211,7 +211,7 @@ export default function AgentMarket({ nodeId }: { nodeId: string }) {
   });
 
   return (
-    <div className="panel-host-root size-full flex flex-col bg-[var(--ide-bg)]">
+    <div className="panel-host-root size-full flex flex-col bg-(--ide-bg)">
       <PanelHeader
         nodeId={nodeId}
         panelId="market"
@@ -220,7 +220,7 @@ export default function AgentMarket({ nodeId }: { nodeId: string }) {
       />
 
       {/* Tab switcher */}
-      <div className="flex-shrink-0 flex border-b border-[var(--ide-border-dim)]">
+      <div className="shrink-0 flex border-b border-(--ide-border-dim)">
         <button
           onClick={() => setActiveTab("agents")}
           className={`flex-1 py-1.5 text-[0.68rem] transition-colors ${activeTab === "agents" ? "text-sky-400 border-b border-sky-500" : "text-slate-600"}`}
@@ -238,8 +238,8 @@ export default function AgentMarket({ nodeId }: { nodeId: string }) {
       </div>
 
       {/* Search */}
-      <div className="flex-shrink-0 px-3 py-2 border-b border-[var(--ide-border-faint)]">
-        <div className="flex items-center gap-1.5 bg-[var(--ide-bg-elevated)] border border-[var(--ide-border-mid)] rounded px-2 py-1">
+      <div className="shrink-0 px-3 py-2 border-b border-(--ide-border-faint)">
+        <div className="flex items-center gap-1.5 bg-(--ide-bg-elevated) border border-(--ide-border-mid) rounded px-2 py-1">
           <Search className="w-3 h-3 text-slate-600" />
           <input
             value={searchQuery}
@@ -253,12 +253,12 @@ export default function AgentMarket({ nodeId }: { nodeId: string }) {
       {activeTab === "agents" ? (
         <>
           {/* Categories */}
-          <div className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 overflow-x-auto border-b border-[var(--ide-border-subtle)]">
+          <div className="shrink-0 flex items-center gap-1 px-3 py-1.5 overflow-x-auto border-b border-(--ide-border-subtle)">
             {CATEGORIES.map((c) => (
               <button
                 key={c}
                 onClick={() => setSelectedCategory(c)}
-                className={`flex-shrink-0 px-2 py-0.5 rounded text-[0.62rem] transition-colors ${selectedCategory === c ? "bg-sky-600/30 text-sky-300" : "text-slate-600 hover:text-slate-400 hover:bg-white/5"}`}
+                className={`shrink-0 px-2 py-0.5 rounded text-[0.62rem] transition-colors ${selectedCategory === c ? "bg-sky-600/30 text-sky-300" : "text-slate-600 hover:text-slate-400 hover:bg-white/5"}`}
               >
                 {c}
               </button>
@@ -271,11 +271,11 @@ export default function AgentMarket({ nodeId }: { nodeId: string }) {
               return (
                 <div
                   key={agent.id}
-                  className="border border-[var(--ide-border-faint)] rounded-lg p-2.5 hover:border-[var(--ide-border-mid)] transition-colors"
+                  className="border border-(--ide-border-faint) rounded-lg p-2.5 hover:border-(--ide-border-mid) transition-colors"
                 >
                   <div className="flex items-start gap-2.5">
                     <div
-                      className={`w-9 h-9 rounded-lg ${agent.color} flex items-center justify-center flex-shrink-0`}
+                      className={`w-9 h-9 rounded-lg ${agent.color} flex items-center justify-center shrink-0`}
                     >
                       <Icon className="w-4 h-4 text-white" />
                     </div>
@@ -327,7 +327,7 @@ export default function AgentMarket({ nodeId }: { nodeId: string }) {
                           ),
                         )
                       }
-                      className={`flex-shrink-0 px-2 py-1 rounded text-[0.62rem] transition-colors ${agent.installed ? "bg-slate-800 text-slate-500 hover:bg-red-900/30 hover:text-red-400" : "bg-sky-600/30 text-sky-300 hover:bg-sky-600/50"}`}
+                      className={`shrink-0 px-2 py-1 rounded text-[0.62rem] transition-colors ${agent.installed ? "bg-slate-800 text-slate-500 hover:bg-red-900/30 hover:text-red-400" : "bg-sky-600/30 text-sky-300 hover:bg-sky-600/50"}`}
                     >
                       {agent.installed ? "卸载" : "安装"}
                     </button>
@@ -343,7 +343,7 @@ export default function AgentMarket({ nodeId }: { nodeId: string }) {
           {plugins.map((plugin) => (
             <div
               key={plugin.id}
-              className="flex items-center gap-2.5 border border-[var(--ide-border-faint)] rounded-lg p-2.5"
+              className="flex items-center gap-2.5 border border-(--ide-border-faint) rounded-lg p-2.5"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
@@ -369,7 +369,7 @@ export default function AgentMarket({ nodeId }: { nodeId: string }) {
                     ),
                   )
                 }
-                className={`w-9 h-5 rounded-full transition-colors flex-shrink-0 ${plugin.enabled ? "bg-sky-600" : "bg-slate-700"}`}
+                className={`w-9 h-5 rounded-full transition-colors shrink-0 ${plugin.enabled ? "bg-sky-600" : "bg-slate-700"}`}
               >
                 <div
                   className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${plugin.enabled ? "translate-x-4.5" : "translate-x-0.5"}`}

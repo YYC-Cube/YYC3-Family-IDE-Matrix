@@ -36,19 +36,22 @@ interface SignedRequest {
   token: string;
 }
 
-const DEFAULT_CONFIG: CsrfConfig = {
-  tokenLength: 32,
-  tokenTtlMs: 3600000,
-  allowedOrigins: [
-    window.location.origin,
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://localhost:3200",
-  ],
-  headerName: "X-CSRF-Token",
-  cookieName: "yyc3_csrf_token",
-  rotateOnUse: true,
-};
+/** 惰性默认配置：window.location 在 SSR/测试 vm 语境下可能不可用，避免模块加载期求值 */
+function getDefaultConfig(): CsrfConfig {
+  return {
+    tokenLength: 32,
+    tokenTtlMs: 3600000,
+    allowedOrigins: [
+      typeof window !== "undefined" ? window.location.origin : "http://localhost:3200",
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "http://localhost:3200",
+    ],
+    headerName: "X-CSRF-Token",
+    cookieName: "yyc3_csrf_token",
+    rotateOnUse: true,
+  };
+}
 
 /** 常数时间字符串比较（防时序侧信道；审计 M3 修复） */
 function timingSafeEqual(a: string, b: string): boolean {
@@ -70,7 +73,7 @@ class CsrfProtectionService {
   private readonly NONCE_TTL_MS = 300000;
 
   constructor(config?: Partial<CsrfConfig>) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = { ...getDefaultConfig(), ...config };
     this.initializeToken();
   }
 

@@ -33,7 +33,7 @@ export default function EditorTabs() {
   if (recentFiles.length === 0) return null;
 
   return (
-    <div className="flex h-8 flex-shrink-0 items-center gap-0.5 overflow-x-auto border-b border-[var(--ide-border-dim)] bg-[var(--ide-bg-elevated)] px-1">
+    <div className="flex h-8 shrink-0 items-center gap-0.5 overflow-x-auto border-b border-(--ide-border-dim) bg-(--ide-bg-elevated) px-1">
       {recentFiles.map((path) => {
         const isCurrent = path === currentFilePath;
         const fileName = path.split("/").pop() ?? path;
@@ -44,7 +44,7 @@ export default function EditorTabs() {
             key={path}
             className={`group flex h-6 items-center gap-1 rounded-t px-2 text-[0.65rem] transition-colors cursor-pointer select-none ${
               isCurrent
-                ? "bg-[var(--ide-bg)] text-slate-200 border-t border-x border-[var(--ide-border-mid)]"
+                ? "bg-(--ide-bg) text-slate-200 border-t border-x border-(--ide-border-mid)"
                 : "text-slate-500 hover:bg-white/5"
             }`}
             onClick={() => openFile(path)}

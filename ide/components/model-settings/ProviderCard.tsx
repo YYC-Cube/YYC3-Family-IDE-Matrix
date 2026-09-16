@@ -69,8 +69,8 @@ export function ProviderCard({
   return (
     <div className={`rounded-xl border overflow-hidden transition-all ${
       hasActiveModel
-        ? 'border-indigo-500/25 bg-indigo-500/[0.02]'
-        : 'border-white/[0.06] bg-white/[0.02]'
+        ? 'border-indigo-500/25 bg-indigo-500/20'
+        : 'border-white/60 bg-white/20'
     }`}
       style={{
         boxShadow: hasActiveModel
@@ -79,7 +79,7 @@ export function ProviderCard({
       }}
     >
       {/* Header */}
-      <button onClick={onToggle} className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-all">
+      <button onClick={onToggle} className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/20 transition-all">
         <div className={`w-8 h-8 rounded-lg ${provider.colorBg} border ${provider.colorBorder} flex items-center justify-center`}>
           <Icon className={`w-4 h-4 ${provider.color}`} />
         </div>
@@ -114,7 +114,7 @@ export function ProviderCard({
 
       {/* Expanded content */}
       {expanded && (
-        <div className="px-4 pb-4 space-y-3 border-t border-white/[0.04]">
+        <div className="px-4 pb-4 space-y-3 border-t border-white/40">
           {/* API Endpoint */}
           <div className="pt-3 space-y-1.5">
             <div className="flex items-center justify-between">
@@ -122,7 +122,7 @@ export function ProviderCard({
               <div className="flex items-center gap-1">
                 {!editingUrl ? (
                   <button onClick={() => { setEditingUrl(true); setUrlDraft(activeUrl) }}
-                    className="text-[9px] text-white/20 hover:text-white/50 px-1.5 py-0.5 rounded hover:bg-white/[0.04] transition-all"
+                    className="text-[9px] text-white/20 hover:text-white/50 px-1.5 py-0.5 rounded hover:bg-white/40 transition-all"
                   >
                     <Edit3 className="w-3 h-3 inline mr-1" />编辑
                   </button>
@@ -134,7 +134,7 @@ export function ProviderCard({
                       <Check className="w-3 h-3 inline mr-0.5" />保存
                     </button>
                     <button onClick={() => setEditingUrl(false)}
-                      className="text-[9px] text-white/20 hover:text-white/50 px-1.5 py-0.5 rounded hover:bg-white/[0.04] transition-all"
+                      className="text-[9px] text-white/20 hover:text-white/50 px-1.5 py-0.5 rounded hover:bg-white/40 transition-all"
                     >
                       取消
                     </button>
@@ -147,10 +147,10 @@ export function ProviderCard({
               <input
                 value={urlDraft}
                 onChange={e => setUrlDraft(e.target.value)}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[11px] text-white/70 font-mono focus:outline-none focus:border-indigo-500/40"
+                className="w-full bg-white/40 border border-white/80 rounded-lg px-3 py-2 text-[11px] text-white/70 font-mono focus:outline-none focus:border-indigo-500/40"
               />
             ) : (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/20 border border-white/40">
                 <span className="text-[11px] text-white/40 font-mono truncate flex-1">{activeUrl}</span>
               </div>
             )}
@@ -180,7 +180,7 @@ export function ProviderCard({
                     value={apiKey}
                     onChange={e => onApiKeyChange(e.target.value)}
                     placeholder={provider.apiKeyPlaceholder}
-                    className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 pr-8 text-[11px] text-white/70 font-mono focus:outline-none focus:border-indigo-500/40 placeholder:text-white/10"
+                    className="w-full bg-white/40 border border-white/80 rounded-lg px-3 py-2 pr-8 text-[11px] text-white/70 font-mono focus:outline-none focus:border-indigo-500/40 placeholder:text-white/10"
                   />
                   <button
                     onClick={() => setShowKey(p => !p)}
@@ -205,7 +205,7 @@ export function ProviderCard({
               <label className="text-[10px] text-white/30 uppercase tracking-wider">模型列表</label>
               <button
                 onClick={() => setAddingModel(true)}
-                className="flex items-center gap-1 text-[9px] text-white/25 hover:text-white/50 px-1.5 py-0.5 rounded hover:bg-white/[0.04] transition-all"
+                className="flex items-center gap-1 text-[9px] text-white/25 hover:text-white/50 px-1.5 py-0.5 rounded hover:bg-white/40 transition-all"
               >
                 <PlusCircle className="w-3 h-3" /> 添加模型
               </button>
@@ -219,8 +219,8 @@ export function ProviderCard({
                 return (
                   <div key={model.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all group ${
                     isActive
-                      ? 'bg-indigo-500/[0.08] border border-indigo-500/25'
-                      : 'bg-white/[0.01] hover:bg-white/[0.03] border border-transparent'
+                      ? 'bg-indigo-500/80 border border-indigo-500/25'
+                      : 'bg-white/10 hover:bg-white/30 border border-transparent'
                   }`}>
                     <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                       isActive ? 'bg-indigo-400' :
@@ -237,7 +237,7 @@ export function ProviderCard({
                             当前使用
                           </span>
                         )}
-                        {model.contextWindow && <span className="text-[8px] text-white/15 bg-white/[0.03] px-1 py-0.5 rounded">{model.contextWindow}</span>}
+                        {model.contextWindow && <span className="text-[8px] text-white/15 bg-white/30 px-1 py-0.5 rounded">{model.contextWindow}</span>}
                       </div>
                       <div className="text-[9px] text-white/20 truncate">{model.description}</div>
                     </div>
@@ -283,8 +283,8 @@ export function ProviderCard({
                 return (
                   <div key={`imported-${model.name}`} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all group ${
                     isActive
-                      ? 'bg-indigo-500/[0.08] border border-indigo-500/25'
-                      : 'bg-amber-500/[0.02] hover:bg-amber-500/[0.05] border border-transparent'
+                      ? 'bg-indigo-500/80 border border-indigo-500/25'
+                      : 'bg-amber-500/20 hover:bg-amber-500/50 border border-transparent'
                   }`}>
                     <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                       isActive ? 'bg-indigo-400' : 'bg-amber-400/60'
@@ -297,7 +297,7 @@ export function ProviderCard({
                             当前使用
                           </span>
                         )}
-                        <span className="text-[8px] text-amber-400/30 bg-amber-500/[0.06] px-1 py-0.5 rounded border border-amber-500/10">已导入</span>
+                        <span className="text-[8px] text-amber-400/30 bg-amber-500/60 px-1 py-0.5 rounded border border-amber-500/10">已导入</span>
                       </div>
                       <div className="text-[9px] text-white/15 truncate font-mono">{model.endpoint}</div>
                     </div>
@@ -339,7 +339,7 @@ export function ProviderCard({
 
             {/* Add model form */}
             {addingModel && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-indigo-500/20 bg-indigo-500/[0.03]">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-indigo-500/20 bg-indigo-500/30">
                 <input
                   value={newModelId}
                   onChange={e => setNewModelId(e.target.value)}
@@ -386,7 +386,7 @@ export function ProviderCard({
                 href={provider.docsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] text-white/25 hover:text-white/50 hover:bg-white/[0.04] transition-all border border-white/[0.04]"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] text-white/25 hover:text-white/50 hover:bg-white/40 transition-all border border-white/40"
               >
                 <FileCode2 className="w-3 h-3" /> API 文档
               </a>
@@ -403,7 +403,7 @@ export function ProviderCard({
 
           {/* Diagnostic error details */}
           {Object.entries(diagnostics).filter(([, d]) => d.status === 'error').map(([modelId, diag]) => (
-            <div key={modelId} className="px-3 py-2 rounded-lg bg-red-500/[0.04] border border-red-500/10 space-y-1">
+            <div key={modelId} className="px-3 py-2 rounded-lg bg-red-500/40 border border-red-500/10 space-y-1">
               <div className="flex items-center gap-1.5">
                 <XCircle className="w-3 h-3 text-red-400/60" />
                 <span className="text-[10px] text-red-400/70">{diag.modelName}</span>

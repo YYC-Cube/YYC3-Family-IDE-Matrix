@@ -21,7 +21,7 @@ import { useFileStoreZustand } from "../../stores/useFileStoreZustand";
 
 function FileIcon({ path }: { path: string }) {
   const ext = path.split(".").pop()?.toLowerCase();
-  const cls = "h-3.5 w-3.5 flex-shrink-0";
+  const cls = "h-3.5 w-3.5 shrink-0";
   switch (ext) {
     case "ts": case "tsx":
       return <FileCode className={`${cls} text-blue-400`} />;
@@ -191,7 +191,7 @@ export default function FileExplorer({ nodeId }: { nodeId: string }) {
   }, [currentFilePath, deleteFile]);
 
   return (
-    <div className="panel-host-root flex size-full flex-col bg-[var(--ide-bg)]">
+    <div className="panel-host-root flex size-full flex-col bg-(--ide-bg)">
       <PanelHeader
         nodeId={nodeId}
         panelId="files"
@@ -216,8 +216,8 @@ export default function FileExplorer({ nodeId }: { nodeId: string }) {
       </PanelHeader>
 
       {/* 搜索 */}
-      <div className="flex-shrink-0 px-2 py-1.5 border-b border-[var(--ide-border-faint)]">
-        <div className="flex items-center gap-1.5 bg-[var(--ide-bg-elevated)] border border-[var(--ide-border-mid)] rounded px-2 py-1">
+      <div className="shrink-0 px-2 py-1.5 border-b border-(--ide-border-faint)">
+        <div className="flex items-center gap-1.5 bg-(--ide-bg-elevated) border border-(--ide-border-mid) rounded px-2 py-1">
           <Search className="h-3 w-3 text-slate-600" />
           <input
             value={search}
@@ -250,7 +250,7 @@ export default function FileExplorer({ nodeId }: { nodeId: string }) {
       </div>
 
       {/* 状态栏 */}
-      <div className="flex-shrink-0 border-t border-[var(--ide-border-faint)] px-2 py-1">
+      <div className="shrink-0 border-t border-(--ide-border-faint) px-2 py-1">
         <span className="text-[0.55rem] text-slate-600">
           {paths.length} 文件 · {currentFilePath ? `当前: ${currentFilePath.split("/").pop()}` : "无选中"}
         </span>

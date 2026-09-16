@@ -91,7 +91,7 @@ export function PanelShell({ className = "" }: { className?: string }) {
 
   return (
     <div
-      className={`panel-host-root relative size-full min-h-0 bg-[var(--ide-bg)] ${className}`}
+      className={`panel-host-root relative size-full min-h-0 bg-(--ide-bg) ${className}`}
     >
       <LayoutRenderer node={target} />
       <FloatingLayer />
@@ -145,13 +145,13 @@ function FloatingWindow({ floating }: { floating: FloatingPanelState }) {
     <div
       data-floating-id={floating.id}
       data-panel-id={floating.panelId}
-      className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-lg border border-[var(--ide-border-mid)] bg-[var(--ide-bg)] shadow-2xl shadow-black/50"
+      className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-lg border border-(--ide-border-mid) bg-(--ide-bg) shadow-2xl shadow-black/50"
       style={{ left: floating.x, top: floating.y, width: floating.w, height: floating.h, zIndex: floating.z }}
       onMouseDown={() => focusFloating(floating.id)}
     >
       <div
         onMouseDown={onHeaderPointerDown}
-        className="flex h-7 flex-shrink-0 cursor-move items-center gap-1 border-b border-[var(--ide-border-dim)] bg-[var(--ide-bg-elevated)] px-2 select-none"
+        className="flex h-7 shrink-0 cursor-move items-center gap-1 border-b border-(--ide-border-dim) bg-(--ide-bg-elevated) px-2 select-none"
       >
         <GripVertical className="h-3 w-3 text-slate-600" />
         <span className="truncate text-[0.68rem] font-medium text-slate-400">{title}</span>
@@ -265,7 +265,7 @@ function Divider({
     <div
       ref={containerRef}
       onMouseDown={onPointerDown}
-      className={`flex-shrink-0 bg-[var(--ide-border-mid)] hover:bg-cyan-500/60 transition-colors ${horizontal ? "w-1 cursor-col-resize" : "h-1 cursor-row-resize"
+      className={`shrink-0 bg-(--ide-border-mid) hover:bg-cyan-500/60 transition-colors ${horizontal ? "w-1 cursor-col-resize" : "h-1 cursor-row-resize"
         }`}
       data-testid={`divider-${parentId}-${index}`}
     />
@@ -308,7 +308,7 @@ function PanelSlot({ nodeId, panelId }: { nodeId: string; panelId?: PanelId }) {
 
   return (
     <div
-      className="flex size-full min-h-0 min-w-0 flex-col border border-[var(--ide-border-faint)]"
+      className="flex size-full min-h-0 min-w-0 flex-col border border-(--ide-border-faint)"
       data-node-id={nodeId}
       data-panel-id={panelId}
       onDragOver={(e) => e.preventDefault()}
@@ -317,7 +317,7 @@ function PanelSlot({ nodeId, panelId }: { nodeId: string; panelId?: PanelId }) {
       <div
         draggable
         onDragStart={onDragStart}
-        className="flex h-7 flex-shrink-0 cursor-grab items-center gap-1 border-b border-[var(--ide-border-dim)] bg-[var(--ide-bg-elevated)] px-2 select-none"
+        className="flex h-7 shrink-0 cursor-grab items-center gap-1 border-b border-(--ide-border-dim) bg-(--ide-bg-elevated) px-2 select-none"
       >
         <span className="truncate text-[0.68rem] font-medium text-slate-400">
           {title}

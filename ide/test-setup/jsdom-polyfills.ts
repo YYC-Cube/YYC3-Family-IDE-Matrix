@@ -43,6 +43,17 @@ if (typeof globalThis.ResizeObserver === "undefined") {
   globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
 }
 
+// ── WebCrypto polyfill（jsdom 的 crypto 无 subtle；vmThreads 池下模块
+//    运行于 VM 上下文，裸 crypto 不再回落 Node webcrypto，必须显式补齐）──
+import { webcrypto } from "node:crypto";
+if (typeof crypto !== "undefined" && typeof crypto.subtle === "undefined") {
+  Object.defineProperty(globalThis, "crypto", {
+    value: webcrypto,
+    configurable: true,
+    writable: true,
+  });
+}
+
 // ── RTL 组件卸载清理（避免跨用例 DOM 泄漏）──
 afterEach(() => {
   cleanup();

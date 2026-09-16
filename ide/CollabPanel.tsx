@@ -225,7 +225,7 @@ export default function CollabPanel({
   };
 
   return (
-    <div className="panel-host-root size-full flex flex-col bg-[var(--ide-bg)]">
+    <div className="panel-host-root size-full flex flex-col bg-(--ide-bg)">
       <PanelHeader
         nodeId={nodeId}
         panelId="collab"
@@ -243,7 +243,7 @@ export default function CollabPanel({
       </PanelHeader>
 
       {/* Status bar */}
-      <div className="flex-shrink-0 px-3 py-2 border-b border-[var(--ide-border-dim)] flex items-center gap-3">
+      <div className="shrink-0 px-3 py-2 border-b border-(--ide-border-dim) flex items-center gap-3">
         <div className="flex items-center gap-1">
           <Users className="w-3 h-3 text-slate-500" />
           <span className="text-[0.65rem] text-slate-400">
@@ -267,7 +267,7 @@ export default function CollabPanel({
       </div>
 
       {/* Tabs */}
-      <div className="flex-shrink-0 flex border-b border-[var(--ide-border-dim)]">
+      <div className="shrink-0 flex border-b border-(--ide-border-dim)">
         {[
           { key: "users", label: "协作者", icon: Users },
           { key: "activity", label: "动态", icon: Clock },
@@ -288,7 +288,7 @@ export default function CollabPanel({
         {activeTab === "users" && (
           <div className="p-2 space-y-1">
             {/* User avatars strip */}
-            <div className="flex items-center gap-1 px-1 pb-2 border-b border-[var(--ide-border-subtle)] mb-2">
+            <div className="flex items-center gap-1 px-1 pb-2 border-b border-(--ide-border-subtle) mb-2">
               {users
                 .filter((u) => u.status !== "offline")
                 .map((u) => (
@@ -312,7 +312,7 @@ export default function CollabPanel({
             {users.map((u) => (
               <div
                 key={u.id}
-                className="rounded-lg border border-[var(--ide-border-faint)] p-2 hover:border-[var(--ide-border-mid)] transition-colors"
+                className="rounded-lg border border-(--ide-border-faint) p-2 hover:border-(--ide-border-mid) transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <div
@@ -373,7 +373,7 @@ export default function CollabPanel({
                   className="flex items-start gap-2 px-2 py-1.5 rounded hover:bg-white/3 transition-colors"
                 >
                   <Icon
-                    className={`w-3 h-3 ${evConfig.color} flex-shrink-0 mt-0.5`}
+                    className={`w-3 h-3 ${evConfig.color} shrink-0 mt-0.5`}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="text-[0.65rem]">
@@ -395,13 +395,13 @@ export default function CollabPanel({
 
         {activeTab === "permissions" && (
           <div className="p-2 space-y-1.5">
-            <div className="px-2 py-1.5 text-[0.62rem] text-slate-600 border-b border-dashed border-[var(--ide-border-subtle)]">
+            <div className="px-2 py-1.5 text-[0.62rem] text-slate-600 border-b border-dashed border-(--ide-border-subtle)">
               权限管理
             </div>
             {users.map((u) => (
               <div
                 key={u.id}
-                className="flex items-center gap-2 px-2 py-1.5 rounded border border-[var(--ide-border-faint)]"
+                className="flex items-center gap-2 px-2 py-1.5 rounded border border-(--ide-border-faint)"
               >
                 <span className="text-[0.62rem]">{u.avatar}</span>
                 <span className="text-[0.65rem] text-slate-300 flex-1">
@@ -409,7 +409,7 @@ export default function CollabPanel({
                 </span>
                 <select
                   defaultValue={u.role}
-                  className="px-1.5 py-0.5 bg-[var(--ide-bg)] border border-[var(--ide-border-dim)] rounded text-[0.6rem] text-slate-400 outline-none"
+                  className="px-1.5 py-0.5 bg-(--ide-bg) border border-(--ide-border-dim) rounded text-[0.6rem] text-slate-400 outline-none"
                 >
                   <option value="owner">所有者</option>
                   <option value="editor">编辑者</option>
@@ -417,9 +417,9 @@ export default function CollabPanel({
                 </select>
               </div>
             ))}
-            <div className="mt-3 px-2 py-2 border border-dashed border-[var(--ide-border-faint)] rounded text-center">
+            <div className="mt-3 px-2 py-2 border border-dashed border-(--ide-border-faint) rounded text-center">
               <p className="text-[0.62rem] text-slate-600">冲突解决策略</p>
-              <select className="mt-1 px-2 py-1 bg-[var(--ide-bg)] border border-[var(--ide-border-mid)] rounded text-[0.65rem] text-slate-300 outline-none">
+              <select className="mt-1 px-2 py-1 bg-(--ide-bg) border border-(--ide-border-mid) rounded text-[0.65rem] text-slate-300 outline-none">
                 <option>OT (Operational Transform)</option>
                 <option>CRDT (最终一致性)</option>
                 <option>手动合并</option>
@@ -430,7 +430,7 @@ export default function CollabPanel({
       </div>
 
       {/* Connection footer */}
-      <div className="flex-shrink-0 border-t border-[var(--ide-border-faint)] px-3 py-1.5 flex items-center gap-2 text-[0.55rem] text-slate-700">
+      <div className="shrink-0 border-t border-(--ide-border-faint) px-3 py-1.5 flex items-center gap-2 text-[0.55rem] text-slate-700">
         {isConnected ? (
           <Wifi className="w-2.5 h-2.5 text-emerald-500" />
         ) : (

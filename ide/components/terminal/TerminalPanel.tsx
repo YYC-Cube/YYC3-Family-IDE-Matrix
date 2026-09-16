@@ -237,7 +237,7 @@ export default function TerminalPanel({
   }, [write]);
 
   return (
-    <div className="panel-host-root size-full flex flex-col bg-[var(--ide-bg)]">
+    <div className="panel-host-root size-full flex flex-col bg-(--ide-bg)">
       <PanelHeader
         nodeId={nodeId}
         panelId="terminal"

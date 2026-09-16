@@ -21,9 +21,9 @@
  * notes: 不要升级 Vitest 到 2.x+，否则与 Vite 5 可能触发 ERR_PACKAGE_PATH_NOT_EXPORTED
  */
 
-import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react() as never],
@@ -37,6 +37,10 @@ export default defineConfig({
   test: {
     // 全局环境: jsdom (后续测 React 组件需 DOM)
     environment: "jsdom",
+
+    // vmThreads 池：jsdom 每文件创建一次 → 每 worker 一次复用，
+    // 消除 51 次 jsdom 实例化（占测试耗时 51%）的瓶颈
+    pool: "vmThreads",
 
     // 全局 setup：jsdom Blob/File .text() polyfill + RTL cleanup
     setupFiles: ["./test-setup/jsdom-polyfills.ts"],

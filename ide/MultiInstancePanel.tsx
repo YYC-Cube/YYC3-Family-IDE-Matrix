@@ -204,14 +204,14 @@ function CreateDialog({
 }) {
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-lg">
-      <div className="bg-[var(--ide-bg-panel,#0d1b2a)] border border-[var(--ide-border,#1b2b3a)] rounded-lg p-4 w-[280px] shadow-2xl">
+      <div className="bg-[var(--ide-bg-panel,#0d1b2a)] border border-[var(--ide-border,#1b2b3a)] rounded-lg p-4 w-70 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <span className="text-[var(--ide-text-primary,#e0e6ed)] text-[13px]">
             {title}
           </span>
           <button
             onClick={onClose}
-            className="text-[var(--ide-text-secondary)] hover:text-white"
+            className="text-(--ide-text-secondary) hover:text-white"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -220,13 +220,13 @@ function CreateDialog({
         <div className="flex justify-end gap-2 mt-4">
           <button
             onClick={onClose}
-            className="px-3 py-1.5 text-[12px] rounded bg-white/5 text-[var(--ide-text-secondary)] hover:bg-white/10"
+            className="px-3 py-1.5 text-[12px] rounded bg-white/5 text-(--ide-text-secondary) hover:bg-white/10"
           >
             取消
           </button>
           <button
             onClick={onConfirm}
-            className="px-3 py-1.5 text-[12px] rounded bg-[var(--ide-accent,#00e5ff)]/20 text-[var(--ide-accent,#00e5ff)] hover:bg-[var(--ide-accent)]/30"
+            className="px-3 py-1.5 text-[12px] rounded bg-[var(--ide-accent,#00e5ff)]/20 text-[var(--ide-accent,#00e5ff)] hover:bg-(--ide-accent)/30"
           >
             创建
           </button>
@@ -301,7 +301,7 @@ function WindowsTab() {
                 <div className="text-[10px] text-[var(--ide-text-secondary,#8899aa)] flex items-center gap-1">
                   <span style={{ color: meta.color }}>{meta.label}</span>
                   {inst.isMain && (
-                    <span className="px-1 py-0.5 bg-[var(--ide-accent,#00e5ff)]/20 text-[var(--ide-accent)] rounded text-[9px]">
+                    <span className="px-1 py-0.5 bg-[var(--ide-accent,#00e5ff)]/20 text-(--ide-accent) rounded text-[9px]">
                       主
                     </span>
                   )}
@@ -347,13 +347,13 @@ function WindowsTab() {
         >
           <div className="space-y-3">
             <div>
-              <label className="text-[11px] text-[var(--ide-text-secondary)] block mb-1">
+              <label className="text-[11px] text-(--ide-text-secondary) block mb-1">
                 窗口类型
               </label>
               <select
                 value={newType}
                 onChange={(e) => setNewType(e.target.value as WindowType)}
-                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-[var(--ide-text-primary)] text-[12px] border border-[var(--ide-border)] rounded px-2 py-1.5"
+                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-(--ide-text-primary) text-[12px] border border-(--ide-border) rounded px-2 py-1.5"
               >
                 {Object.entries(WINDOW_TYPE_META).map(([key, meta]) => (
                   <option key={key} value={key}>
@@ -363,14 +363,14 @@ function WindowsTab() {
               </select>
             </div>
             <div>
-              <label className="text-[11px] text-[var(--ide-text-secondary)] block mb-1">
+              <label className="text-[11px] text-(--ide-text-secondary) block mb-1">
                 窗口标题
               </label>
               <input
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 placeholder="可选，默认自动生成"
-                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-[var(--ide-text-primary)] text-[12px] border border-[var(--ide-border)] rounded px-2 py-1.5 placeholder:text-[var(--ide-text-secondary)]/50"
+                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-(--ide-text-primary) text-[12px] border border-(--ide-border) rounded px-2 py-1.5 placeholder:text-(--ide-text-secondary)/50"
               />
             </div>
           </div>
@@ -437,7 +437,7 @@ function WorkspacesTab() {
     <div className="relative flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--ide-border,#1b2b3a)]">
-        <span className="text-[11px] text-[var(--ide-text-secondary)] uppercase tracking-wider">
+        <span className="text-[11px] text-(--ide-text-secondary) uppercase tracking-wider">
           工作区 ({filtered.length})
         </span>
         <ActionBtn
@@ -449,13 +449,13 @@ function WorkspacesTab() {
 
       {/* Search */}
       <div className="px-3 py-2">
-        <div className="flex items-center gap-1 bg-[var(--ide-bg-deep,#060d1a)] border border-[var(--ide-border)] rounded px-2 py-1">
-          <Search className="w-3 h-3 text-[var(--ide-text-secondary)]" />
+        <div className="flex items-center gap-1 bg-[var(--ide-bg-deep,#060d1a)] border border-(--ide-border) rounded px-2 py-1">
+          <Search className="w-3 h-3 text-(--ide-text-secondary)" />
           <input
             value={filter.search || ""}
             onChange={(e) => updateFilter({ search: e.target.value })}
             placeholder="搜索工作区..."
-            className="flex-1 bg-transparent text-[12px] text-[var(--ide-text-primary)] placeholder:text-[var(--ide-text-secondary)]/50 outline-none"
+            className="flex-1 bg-transparent text-[12px] text-(--ide-text-primary) placeholder:text-(--ide-text-secondary)/50 outline-none"
           />
         </div>
       </div>
@@ -463,7 +463,7 @@ function WorkspacesTab() {
       {/* List */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
         {filtered.length === 0 && (
-          <div className="text-center py-8 text-[var(--ide-text-secondary)] text-[12px]">
+          <div className="text-center py-8 text-(--ide-text-secondary) text-[12px]">
             暂无工作区
           </div>
         )}
@@ -483,10 +483,10 @@ function WorkspacesTab() {
               <div className="flex items-center gap-2">
                 <span style={{ color: meta.color }}>{meta.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-[var(--ide-text-primary)] truncate">
+                  <div className="text-[12px] text-(--ide-text-primary) truncate">
                     {ws.name}
                   </div>
-                  <div className="text-[10px] text-[var(--ide-text-secondary)] flex items-center gap-1.5">
+                  <div className="text-[10px] text-(--ide-text-secondary) flex items-center gap-1.5">
                     <span style={{ color: meta.color }}>{meta.label}</span>
                     <span>·</span>
                     <span>{ws.sessionIds.length} 会话</span>
@@ -530,25 +530,25 @@ function WorkspacesTab() {
         >
           <div className="space-y-3">
             <div>
-              <label className="text-[11px] text-[var(--ide-text-secondary)] block mb-1">
+              <label className="text-[11px] text-(--ide-text-secondary) block mb-1">
                 工作区名称
               </label>
               <input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="输入名称..."
-                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-[var(--ide-text-primary)] text-[12px] border border-[var(--ide-border)] rounded px-2 py-1.5 placeholder:text-[var(--ide-text-secondary)]/50"
+                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-(--ide-text-primary) text-[12px] border border-(--ide-border) rounded px-2 py-1.5 placeholder:text-(--ide-text-secondary)/50"
                 autoFocus
               />
             </div>
             <div>
-              <label className="text-[11px] text-[var(--ide-text-secondary)] block mb-1">
+              <label className="text-[11px] text-(--ide-text-secondary) block mb-1">
                 工作区类型
               </label>
               <select
                 value={newType}
                 onChange={(e) => setNewType(e.target.value as WorkspaceType)}
-                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-[var(--ide-text-primary)] text-[12px] border border-[var(--ide-border)] rounded px-2 py-1.5"
+                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-(--ide-text-primary) text-[12px] border border-(--ide-border) rounded px-2 py-1.5"
               >
                 {Object.entries(WORKSPACE_TYPE_META).map(([key, meta]) => (
                   <option key={key} value={key}>
@@ -605,7 +605,7 @@ function SessionsTab() {
   return (
     <div className="relative flex flex-col h-full">
       <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--ide-border,#1b2b3a)]">
-        <span className="text-[11px] text-[var(--ide-text-secondary)] uppercase tracking-wider">
+        <span className="text-[11px] text-(--ide-text-secondary) uppercase tracking-wider">
           会话 ({sessions.length})
         </span>
         <ActionBtn
@@ -617,7 +617,7 @@ function SessionsTab() {
 
       <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
         {sessions.length === 0 && (
-          <div className="text-center py-8 text-[var(--ide-text-secondary)] text-[12px]">
+          <div className="text-center py-8 text-(--ide-text-secondary) text-[12px]">
             暂无会话
           </div>
         )}
@@ -637,10 +637,10 @@ function SessionsTab() {
               <div className="flex items-center gap-2">
                 <span style={{ color: meta.color }}>{meta.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-[var(--ide-text-primary)] truncate">
+                  <div className="text-[12px] text-(--ide-text-primary) truncate">
                     {sess.name}
                   </div>
-                  <div className="text-[10px] text-[var(--ide-text-secondary)] flex items-center gap-1.5">
+                  <div className="text-[10px] text-(--ide-text-secondary) flex items-center gap-1.5">
                     <span style={{ color: meta.color }}>{meta.label}</span>
                     <span>·</span>
                     <span
@@ -693,25 +693,25 @@ function SessionsTab() {
         >
           <div className="space-y-3">
             <div>
-              <label className="text-[11px] text-[var(--ide-text-secondary)] block mb-1">
+              <label className="text-[11px] text-(--ide-text-secondary) block mb-1">
                 会话名称
               </label>
               <input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="输入名称..."
-                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-[var(--ide-text-primary)] text-[12px] border border-[var(--ide-border)] rounded px-2 py-1.5 placeholder:text-[var(--ide-text-secondary)]/50"
+                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-(--ide-text-primary) text-[12px] border border-(--ide-border) rounded px-2 py-1.5 placeholder:text-(--ide-text-secondary)/50"
                 autoFocus
               />
             </div>
             <div>
-              <label className="text-[11px] text-[var(--ide-text-secondary)] block mb-1">
+              <label className="text-[11px] text-(--ide-text-secondary) block mb-1">
                 会话类型
               </label>
               <select
                 value={newType}
                 onChange={(e) => setNewType(e.target.value as SessionType)}
-                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-[var(--ide-text-primary)] text-[12px] border border-[var(--ide-border)] rounded px-2 py-1.5"
+                className="w-full bg-[var(--ide-bg-deep,#060d1a)] text-(--ide-text-primary) text-[12px] border border-(--ide-border) rounded px-2 py-1.5"
               >
                 {Object.entries(SESSION_TYPE_META).map(([key, meta]) => (
                   <option key={key} value={key}>
@@ -757,7 +757,7 @@ function IPCTab() {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--ide-border,#1b2b3a)]">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-[var(--ide-text-secondary)] uppercase tracking-wider">
+          <span className="text-[11px] text-(--ide-text-secondary) uppercase tracking-wider">
             IPC 通信
           </span>
           <span
@@ -782,7 +782,7 @@ function IPCTab() {
 
       {/* Instance ID */}
       <div className="px-3 py-1.5 border-b border-[var(--ide-border,#1b2b3a)]">
-        <div className="text-[10px] text-[var(--ide-text-secondary)]">
+        <div className="text-[10px] text-(--ide-text-secondary)">
           实例 ID:{" "}
           <code className="text-[var(--ide-accent,#00e5ff)]">
             {instanceId.slice(0, 8)}...
@@ -793,7 +793,7 @@ function IPCTab() {
       {/* Message Log */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {messageLog.length === 0 && (
-          <div className="text-center py-8 text-[var(--ide-text-secondary)] text-[12px]">
+          <div className="text-center py-8 text-(--ide-text-secondary) text-[12px]">
             暂无消息记录
           </div>
         )}
@@ -802,8 +802,8 @@ function IPCTab() {
             key={msg.id}
             className="p-1.5 rounded bg-white/3 border border-[var(--ide-border,#1b2b3a)]/50 text-[10px]"
           >
-            <div className="flex items-center gap-1 text-[var(--ide-text-secondary)]">
-              <span className="px-1 py-0.5 bg-[var(--ide-accent,#00e5ff)]/10 text-[var(--ide-accent)] rounded text-[9px]">
+            <div className="flex items-center gap-1 text-(--ide-text-secondary)">
+              <span className="px-1 py-0.5 bg-[var(--ide-accent,#00e5ff)]/10 text-(--ide-accent) rounded text-[9px]">
                 {msg.type}
               </span>
               <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
@@ -835,7 +835,7 @@ export default function MultiInstancePanel() {
             className={`flex items-center gap-1.5 px-3 py-2 text-[11px] transition-colors ${
               activeTab === tab.id
                 ? "text-[var(--ide-accent,#00e5ff)] border-b-2 border-[var(--ide-accent,#00e5ff)]"
-                : "text-[var(--ide-text-secondary,#8899aa)] hover:text-[var(--ide-text-primary)]"
+                : "text-[var(--ide-text-secondary,#8899aa)] hover:text-(--ide-text-primary)"
             }`}
           >
             {tab.icon}

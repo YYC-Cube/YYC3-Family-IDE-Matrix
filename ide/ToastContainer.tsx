@@ -74,13 +74,13 @@ function ToastItem({
         ${visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"}
       `}
     >
-      <Icon className={`w-4 h-4 flex-shrink-0 mt-0.5 ${config.color}`} />
+      <Icon className={`w-4 h-4 shrink-0 mt-0.5 ${config.color}`} />
       <p className="flex-1 text-sm text-slate-200 leading-relaxed whitespace-pre-line">
         {toast.message}
       </p>
       <button
         onClick={handleDismiss}
-        className="flex-shrink-0 p-0.5 rounded hover:bg-white/10 transition-colors"
+        className="shrink-0 p-0.5 rounded hover:bg-white/10 transition-colors"
       >
         <X className="w-3.5 h-3.5 text-slate-500" />
       </button>

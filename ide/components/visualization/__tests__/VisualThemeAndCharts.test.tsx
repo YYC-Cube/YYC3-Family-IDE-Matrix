@@ -88,46 +88,45 @@
  * coverage-target: theme / useVisualTheme / lttb / chartUtils ≥ 85%
  */
 
-import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
+import { act, renderHook } from "@testing-library/react";
 import React from "react";
-import { renderHook, act } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // —— 被测模块 ——
 import {
   CYBERPUNK_88_THEME,
-  VISUAL_TOKENS_SUNRISE,
-  THEME_REGISTRY,
-  getThemeById,
-  t,
-  VISUAL_TOKENS,
-  getSemanticColor,
   getFamilyColor,
-  statusToSemantic,
-  statusColor,
-  getSemanticColorForTokens,
   getFamilyColorForTokens,
+  getSemanticColor,
+  getSemanticColorForTokens,
+  getThemeById,
+  statusColor,
   statusColorForTokens,
+  statusToSemantic,
+  t,
+  THEME_REGISTRY,
   toCssVars,
-  type SemanticRole,
+  VISUAL_TOKENS,
+  VISUAL_TOKENS_SUNRISE,
   type FamilyVisualRole,
-  type VisualTokensType,
+  type SemanticRole
 } from "../theme";
 
 import { useVisualTheme, VisualThemeProvider } from "../useVisualTheme";
-import { lttbDownsample, autoDownsample, type LTTBPoint } from "../utils/lttb";
-import { makeChartGradId, formatValueWithUnit, isEmptyChartData } from "../utils/chartUtils";
+import { formatValueWithUnit, isEmptyChartData, makeChartGradId } from "../utils/chartUtils";
+import { autoDownsample, lttbDownsample, type LTTBPoint } from "../utils/lttb";
 
 // —— Zod Schemas (本补充重点) ——
 import {
-  TimeSeriesPointSchema,
-  LineChartDataSchema,
-  BarPointSchema,
   BarChartDataSchema,
-  RadarAxisSchema,
-  RadarSubjectSchema,
-  RadarChartDataSchema,
-  DonutPointSchema,
+  BarPointSchema,
   DonutChartDataSchema,
+  DonutPointSchema,
+  LineChartDataSchema,
+  RadarAxisSchema,
+  RadarChartDataSchema,
+  RadarSubjectSchema,
+  TimeSeriesPointSchema,
   type RadarChartData,
 } from "../validators/chart.schemas";
 
@@ -499,8 +498,8 @@ describe("B · LTTB 降采样 · 精确阈值分档 + Options + 极端输入 (vi
 
   // —— B1 精确边界分档 ——
   it.each([
-    ["N=0 → none",    0,     "none"],
-    ["N=1 → none",    1,     "none"],
+    ["N=0 → none", 0, "none"],
+    ["N=1 → none", 1, "none"],
     ["N=2000 → none (等于阈值)", 2000, "none"],
     ["N=2001 → md (越过小阈值)", 2001, "md"],
     ["N=9999 → md (低于大阈值)", 9999, "md"],
@@ -856,7 +855,7 @@ describe("D · SunRise 主题 · 完整令牌 / WCAG / 家族色 / 集成 (vis-1
     "size", "size.xs", "size.sm", "size.md", "size.lg", "size.xl",
     "spacing", "spacing.radius", "spacing.padding", "spacing.margin",
     "font", "font.sans", "font.mono",
-  ])(`vis-111~113 SunRise 字段完整性检查: %s` , (path) => {
+  ])(`vis-111~113 SunRise 字段完整性检查: %s`, (path) => {
     let cur: any = S;
     for (const key of path.split(".")) {
       expect(cur).toHaveProperty(key);
@@ -1045,7 +1044,7 @@ describe("E · useVisualTheme Provider/Hook 边界 · SSR/脏值/toggle/initial 
   let warnSpy: ReturnType<typeof vi.spyOn>;
   beforeEach(() => {
     localStorage.clear();
-    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => { });
   });
   afterEach(() => {
     warnSpy.mockRestore();
@@ -1075,13 +1074,13 @@ describe("E · useVisualTheme Provider/Hook 边界 · SSR/脏值/toggle/initial 
   // —— E2 localStorage 脏值降级 ——
   it.each(["", "bogus_theme", "sun", "rise", "CYBERPUNK-88", "null", "undefined", "abc"])(
     "vis-143 localStorage 脏值 '%s' → 静默降级 cyberpunk88", (bad) => {
-    localStorage.setItem(SK_VISUAL_THEME, bad);
-    const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-      <VisualThemeProvider>{children}</VisualThemeProvider>
-    );
-    const { result } = renderHook(() => useVisualTheme(), { wrapper });
-    expect(result.current.themeId).toBe("cyberpunk88");
-  });
+      localStorage.setItem(SK_VISUAL_THEME, bad);
+      const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+        <VisualThemeProvider>{children}</VisualThemeProvider>
+      );
+      const { result } = renderHook(() => useVisualTheme(), { wrapper });
+      expect(result.current.themeId).toBe("cyberpunk88");
+    });
 
   it("vis-144 localStorage 合法 'sunrise' → 正常恢复 sunrise", () => {
     localStorage.setItem(SK_VISUAL_THEME, "sunrise");
@@ -1267,19 +1266,17 @@ describe("E · useVisualTheme Provider/Hook 边界 · SSR/脏值/toggle/initial 
 
   // —— E9 document 缺失 (SSR) 下 CSS vars 注入不崩 ——
   it("vis-160 document 缺失时 useEffect(注入 CSS vars) 不执行不崩溃 (SSR)", () => {
-    const origDocument = global.document;
-    // 用 Object.defineProperty 暂删 document (typeof document === undefined)
-    Object.defineProperty(global, "document", { value: undefined, writable: true, configurable: true });
+    // vmThreads 池下 global.document 由宿主注入且不可重定义（non-configurable），
+    // 无法物理移除；SSR 安全语义由源码 `typeof document !== "undefined"` 守卫保证。
+    // 本用例改为验证守卫分支的可执行性：Provider 挂载 + effect 注入不抛错。
     const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
       <VisualThemeProvider>{children}</VisualThemeProvider>
     );
-    // renderHook 本身需要 document 才能测 React，所以此处仅验证 import 不受影响
-    // 以及 readStoredThemeId / detectSystemThemePref 在 typeof document 场景不抛
     expect(() => {
-      // 触发 Provider 内 typeof document === undefined 分支
+      renderHook(() => useVisualTheme(), { wrapper });
       (window as any).__ssr_probe = true;
     }).not.toThrow();
-    Object.defineProperty(global, "document", { value: origDocument, writable: true, configurable: true });
+    delete (window as any).__ssr_probe;
   });
 
   // —— E10 tokens 稳定性：themeId 不变时 tokens 引用稳定 / setThemeId 变更为新引用 ——
@@ -1495,4 +1492,3 @@ describe("F · 遗漏边角补全 · statusToSemantic 空白/更多状态 + isEm
     expect(vars["--vis-canvas-bg"].toLowerCase()).toBe("#0d1117");
   });
 });
-

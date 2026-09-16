@@ -58,13 +58,13 @@ export function ProxyConfigPanel() {
       <div className="flex items-center gap-2">
         <Network className="w-4 h-4 text-indigo-400" />
         <span className="text-[12px] text-white/70">代理服务配置</span>
-        <span className="text-[9px] text-white/20 bg-white/[0.03] px-1.5 py-0.5 rounded">
+        <span className="text-[9px] text-white/20 bg-white/30 px-1.5 py-0.5 rounded">
           {config.enabled ? '已启用' : '未启用'}
         </span>
       </div>
 
       {/* Enable toggle */}
-      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 space-y-4"
+      <div className="rounded-xl border border-white/60 bg-white/20 p-4 space-y-4"
         style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)' }}
       >
         <div className="flex items-center justify-between">
@@ -75,7 +75,7 @@ export function ProxyConfigPanel() {
             </div>
           </div>
           <button onClick={() => handleSave({ enabled: !config.enabled })} className="shrink-0">
-            <div className={`w-10 h-5 rounded-full transition-all ${config.enabled ? 'bg-indigo-500/40' : 'bg-white/[0.08]'}`}>
+            <div className={`w-10 h-5 rounded-full transition-all ${config.enabled ? 'bg-indigo-500/40' : 'bg-white/80'}`}>
               <div className={`w-4.5 h-4.5 rounded-full transition-all mt-[1px] ${
                 config.enabled ? 'bg-indigo-400 ml-[21px]' : 'bg-white/25 ml-[1px]'
               }`} style={{ width: '18px', height: '18px' }} />
@@ -91,7 +91,7 @@ export function ProxyConfigPanel() {
               value={config.baseUrl}
               onChange={e => handleSave({ baseUrl: e.target.value })}
               placeholder="http://localhost:3001/api/proxy"
-              className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[11px] text-white/70 font-mono focus:outline-none focus:border-indigo-500/40 placeholder:text-white/10"
+              className="flex-1 bg-white/40 border border-white/80 rounded-lg px-3 py-2 text-[11px] text-white/70 font-mono focus:outline-none focus:border-indigo-500/40 placeholder:text-white/10"
             />
             <button
               onClick={handleHealthCheck}
@@ -105,7 +105,7 @@ export function ProxyConfigPanel() {
 
           {/* Health result */}
           {healthStatus === 'healthy' && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/[0.05] border border-emerald-500/15">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/50 border border-emerald-500/15">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400/70" />
               <span className="text-[10px] text-emerald-400/70">代理服务正常</span>
               {healthLatency != null && <span className="text-[9px] text-emerald-400/40">{healthLatency}ms</span>}
@@ -113,7 +113,7 @@ export function ProxyConfigPanel() {
             </div>
           )}
           {healthStatus === 'unhealthy' && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/[0.05] border border-red-500/15">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/50 border border-red-500/15">
               <XCircle className="w-3.5 h-3.5 text-red-400/70" />
               <span className="text-[10px] text-red-400/70">连接失败</span>
               <span className="text-[9px] text-white/25 ml-auto truncate max-w-[200px]">{healthError}</span>
@@ -131,7 +131,7 @@ export function ProxyConfigPanel() {
             value={config.authToken || ''}
             onChange={e => handleSave({ authToken: e.target.value })}
             placeholder="可选：代理服务器认证令牌"
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[11px] text-white/70 font-mono focus:outline-none focus:border-indigo-500/40 placeholder:text-white/10"
+            className="w-full bg-white/40 border border-white/80 rounded-lg px-3 py-2 text-[11px] text-white/70 font-mono focus:outline-none focus:border-indigo-500/40 placeholder:text-white/10"
           />
           <div className="text-[9px] text-white/15">
             此 Token 用于前端与代理服务器之间的认证（非 LLM API Key）
@@ -146,7 +146,7 @@ export function ProxyConfigPanel() {
               type="number"
               value={config.timeout}
               onChange={e => handleSave({ timeout: parseInt(e.target.value) || 30000 })}
-              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-2.5 py-1.5 text-[10px] text-white/60 font-mono focus:outline-none focus:border-indigo-500/30"
+              className="w-full bg-white/40 border border-white/60 rounded-lg px-2.5 py-1.5 text-[10px] text-white/60 font-mono focus:outline-none focus:border-indigo-500/30"
             />
           </div>
           <div className="space-y-1">
@@ -157,7 +157,7 @@ export function ProxyConfigPanel() {
               onChange={e => handleSave({ retries: parseInt(e.target.value) || 2 })}
               min={0}
               max={5}
-              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-2.5 py-1.5 text-[10px] text-white/60 font-mono focus:outline-none focus:border-indigo-500/30"
+              className="w-full bg-white/40 border border-white/60 rounded-lg px-2.5 py-1.5 text-[10px] text-white/60 font-mono focus:outline-none focus:border-indigo-500/30"
             />
           </div>
           <div className="space-y-1">
@@ -166,7 +166,7 @@ export function ProxyConfigPanel() {
               type="number"
               value={config.rateLimitPerMin}
               onChange={e => handleSave({ rateLimitPerMin: parseInt(e.target.value) || 60 })}
-              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-2.5 py-1.5 text-[10px] text-white/60 font-mono focus:outline-none focus:border-indigo-500/30"
+              className="w-full bg-white/40 border border-white/60 rounded-lg px-2.5 py-1.5 text-[10px] text-white/60 font-mono focus:outline-none focus:border-indigo-500/30"
             />
           </div>
         </div>
@@ -175,7 +175,7 @@ export function ProxyConfigPanel() {
         <div className="flex items-center gap-2 pt-1">
           <button
             onClick={() => { handleSave(DEFAULT_PROXY_CONFIG); setHealthStatus('idle') }}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] text-white/25 hover:text-white/50 hover:bg-white/[0.04] transition-all border border-white/[0.04]"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] text-white/25 hover:text-white/50 hover:bg-white/40 transition-all border border-white/40"
           >
             <RotateCcw className="w-3 h-3" /> 重置默认
           </button>
@@ -183,7 +183,7 @@ export function ProxyConfigPanel() {
       </div>
 
       {/* Architecture diagram & template */}
-      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 space-y-3"
+      <div className="rounded-xl border border-white/60 bg-white/20 p-4 space-y-3"
         style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)' }}
       >
         <div className="flex items-center justify-between">
@@ -193,13 +193,13 @@ export function ProxyConfigPanel() {
           </div>
           <button
             onClick={() => setShowTemplate(!showTemplate)}
-            className="text-[9px] text-white/25 hover:text-white/50 px-2 py-1 rounded hover:bg-white/[0.04] transition-all"
+            className="text-[9px] text-white/25 hover:text-white/50 px-2 py-1 rounded hover:bg-white/40 transition-all"
           >
             {showTemplate ? '收起' : '展开'} Cloudflare Worker 模板
           </button>
         </div>
 
-        <div className="text-[10px] text-white/30 font-mono px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+        <div className="text-[10px] text-white/30 font-mono px-3 py-2 rounded-lg bg-white/20 border border-white/40">
           <pre className="whitespace-pre text-[9px] leading-relaxed">{`Frontend (Browser)  ──▶  Proxy Server  ──▶  LLM Provider
    ↑ CORS OK               ↑ Keys Stored       ↑ No CORS
    ↑ No API Keys            ↑ Rate Limit        ↑ Bearer Auth
@@ -217,13 +217,13 @@ export function ProxyConfigPanel() {
               <span className="text-[10px] text-indigo-400/50">Cloudflare Worker 参考实现</span>
               <button
                 onClick={handleCopyTemplate}
-                className="flex items-center gap-1 px-2 py-1 rounded text-[9px] text-white/25 hover:text-white/50 hover:bg-white/[0.04] transition-all"
+                className="flex items-center gap-1 px-2 py-1 rounded text-[9px] text-white/25 hover:text-white/50 hover:bg-white/40 transition-all"
               >
                 {templateCopied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                 {templateCopied ? '已复制' : '复制代码'}
               </button>
             </div>
-            <pre className="text-[9px] text-white/30 font-mono bg-black/20 border border-white/[0.04] rounded-lg p-3 max-h-[200px] overflow-y-auto leading-relaxed whitespace-pre-wrap break-all">
+            <pre className="text-[9px] text-white/30 font-mono bg-black/20 border border-white/40 rounded-lg p-3 max-h-[200px] overflow-y-auto leading-relaxed whitespace-pre-wrap break-all">
               {PROXY_SERVER_TEMPLATE.trim()}
             </pre>
           </div>
@@ -231,7 +231,7 @@ export function ProxyConfigPanel() {
       </div>
 
       {/* Info tip */}
-      <div className="px-4 py-2.5 rounded-xl bg-indigo-500/[0.03] border border-indigo-500/10 flex items-start gap-2">
+      <div className="px-4 py-2.5 rounded-xl bg-indigo-500/30 border border-indigo-500/10 flex items-start gap-2">
         <Lightbulb className="w-3.5 h-3.5 text-indigo-400/50 shrink-0 mt-0.5" />
         <div className="text-[10px] text-white/25">
           <strong className="text-indigo-400/40">提示：</strong>启用代理后，API Key 将仅存储在代理服务器的环境变量中，前端不再需要配置各服务商的 API Key。

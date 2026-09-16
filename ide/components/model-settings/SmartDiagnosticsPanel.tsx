@@ -71,7 +71,7 @@ export function SmartDiagnosticsPanel({
           { label: '在线', value: String(onlineModels), icon: Wifi, color: 'text-emerald-400' },
           { label: '平均延迟', value: avgLatency ? `${avgLatency}ms` : '-', icon: Clock, color: 'text-amber-400' },
         ].map(card => (
-          <div key={card.label} className="p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] text-center">
+          <div key={card.label} className="p-3 rounded-xl border border-white/60 bg-white/20 text-center">
             <card.icon className={`w-4 h-4 ${card.color} mx-auto mb-1`} />
             <div className={`text-[16px] ${card.color}`}>{card.value}</div>
             <div className="text-[9px] text-white/20 mt-0.5">{card.label}</div>
@@ -111,10 +111,10 @@ export function SmartDiagnosticsPanel({
               return (
                 <div key={model.id} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all group ${
                   isActive
-                    ? 'bg-indigo-500/[0.06] border border-indigo-500/20'
-                    : diag.status === 'success' ? 'bg-emerald-500/[0.03] border border-emerald-500/10 hover:border-emerald-500/20' :
-                    diag.status === 'error' ? 'bg-red-500/[0.03] border border-red-500/10' :
-                    'bg-white/[0.01] border border-white/[0.04]'
+                    ? 'bg-indigo-500/60 border border-indigo-500/20'
+                    : diag.status === 'success' ? 'bg-emerald-500/30 border border-emerald-500/10 hover:border-emerald-500/20' :
+                    diag.status === 'error' ? 'bg-red-500/30 border border-red-500/10' :
+                    'bg-white/10 border border-white/40'
                 }`}>
                   {isActive ? <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> :
                    diag.status === 'success' ? <CheckCircle2 className="w-3 h-3 text-emerald-400/60 shrink-0" /> :
@@ -150,7 +150,7 @@ export function SmartDiagnosticsPanel({
 
       {/* AI suggestions */}
       {errorModels > 0 && (
-        <div className="rounded-xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-orange-500/[0.02] p-4 space-y-2">
+        <div className="rounded-xl border border-amber-500/15 bg-gradient-to-br from-amber-500/40 to-orange-500/[0.02] p-4 space-y-2">
           <div className="flex items-center gap-2">
             <Lightbulb className="w-4 h-4 text-amber-400" />
             <span className="text-[12px] text-amber-400/80">AI 诊断建议</span>

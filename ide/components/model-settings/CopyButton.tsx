@@ -22,7 +22,7 @@ export function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="p-1 rounded text-white/15 hover:text-white/40 hover:bg-white/[0.05] transition-all shrink-0"
+      className="p-1 rounded text-white/15 hover:text-white/40 hover:bg-white/50 transition-all shrink-0"
       title={copied ? '已复制' : '复制'}
     >
       {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}

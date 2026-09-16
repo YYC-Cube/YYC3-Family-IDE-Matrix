@@ -51,7 +51,7 @@ export default function SandpackPreview({ nodeId }: { nodeId: string }) {
 
   if (Object.keys(files).length === 0) {
     return (
-      <div className="panel-host-root flex size-full flex-col bg-[var(--ide-bg)]">
+      <div className="panel-host-root flex size-full flex-col bg-(--ide-bg)">
         <PanelHeader
           nodeId={nodeId}
           panelId="preview"
@@ -69,7 +69,7 @@ export default function SandpackPreview({ nodeId }: { nodeId: string }) {
   }
 
   return (
-    <div className="panel-host-root flex size-full flex-col bg-[var(--ide-bg)]">
+    <div className="panel-host-root flex size-full flex-col bg-(--ide-bg)">
       <PanelHeader
         nodeId={nodeId}
         panelId="preview"
@@ -92,7 +92,7 @@ export default function SandpackPreview({ nodeId }: { nodeId: string }) {
           }}
         >
           <div className="flex size-full">
-            <div className="hidden w-40 border-r border-[var(--ide-border-faint)] md:block">
+            <div className="hidden w-40 border-r border-(--ide-border-faint) md:block">
               <SandpackFileExplorer style={{ height: "100%", fontSize: "0.65rem" }} />
             </div>
             <div className="min-w-0 flex-1">

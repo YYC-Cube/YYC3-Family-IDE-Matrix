@@ -57,7 +57,7 @@ export function PanelHeader({
     <div
       data-node-id={nodeId}
       data-panel-id={panelId}
-      className="flex-shrink-0 flex items-center gap-1.5 h-7 px-2.5 border-b border-[var(--ide-border-dim)] bg-[var(--ide-bg-elevated)]"
+      className="shrink-0 flex items-center gap-1.5 h-7 px-2.5 border-b border-(--ide-border-dim) bg-(--ide-bg-elevated)"
     >
       {icon}
       <span className="text-[0.68rem] text-slate-400 font-medium truncate">

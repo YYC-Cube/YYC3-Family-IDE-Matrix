@@ -202,7 +202,7 @@ function ColumnRatioEditor({ ratios, onChange }: ColumnRatioEditorProps) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-1 text-[0.52rem] text-[var(--ide-text-dim)]">
+      <div className="flex items-center gap-1 text-[0.52rem] text-(--ide-text-dim)">
         <Settings2 className="w-3 h-3" />
         栏宽比例
       </div>
@@ -215,15 +215,15 @@ function ColumnRatioEditor({ ratios, onChange }: ColumnRatioEditorProps) {
               max={80}
               value={ratio}
               onChange={(e) => handleRatioChange(index, parseInt(e.target.value) || 10)}
-              className="w-10 bg-[var(--ide-bg-inset)] border border-[var(--ide-border-dim)] rounded px-1 py-0.5 text-[0.6rem] text-center text-[var(--ide-text-primary)] outline-none focus:border-[var(--ide-accent)]"
+              className="w-10 bg-(--ide-bg-inset) border border-(--ide-border-dim) rounded px-1 py-0.5 text-[0.6rem] text-center text-(--ide-text-primary) outline-none focus:border-(--ide-accent)"
             />
             {index < ratios.length - 1 && (
-              <span className="text-[0.5rem] text-[var(--ide-text-dim)]">:</span>
+              <span className="text-[0.5rem] text-(--ide-text-dim)">:</span>
             )}
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-1 h-2 rounded overflow-hidden bg-[var(--ide-bg-inset)]">
+      <div className="flex items-center gap-1 h-2 rounded overflow-hidden bg-(--ide-bg-inset)">
         {ratios.map((ratio, index) => (
           <div
             key={index}
@@ -337,21 +337,21 @@ export default function LayoutPresetsEnhanced() {
             }}
           />
 
-          <div className="absolute right-0 top-full mt-1 bg-[var(--ide-bg-elevated)] border border-[var(--ide-border)] rounded-lg shadow-xl z-50 w-[280px] overflow-hidden">
-            <div className="px-3 py-1.5 border-b border-[var(--ide-border-faint)] flex items-center justify-between">
-              <span className="text-[0.62rem] text-[var(--ide-text-muted)]">
+          <div className="absolute right-0 top-full mt-1 bg-(--ide-bg-elevated) border border-(--ide-border) rounded-lg shadow-xl z-50 w-70 overflow-hidden">
+            <div className="px-3 py-1.5 border-b border-(--ide-border-faint) flex items-center justify-between">
+              <span className="text-[0.62rem] text-(--ide-text-muted)">
                 布局预设
               </span>
               <button
                 onClick={() => setMenuOpen(false)}
                 className="w-4 h-4 rounded flex items-center justify-center hover:bg-white/5"
               >
-                <X className="w-3 h-3 text-[var(--ide-text-dim)]" />
+                <X className="w-3 h-3 text-(--ide-text-dim)" />
               </button>
             </div>
 
-            <div className="max-h-[400px] overflow-y-auto">
-              <div className="px-2 py-1 text-[0.52rem] text-[var(--ide-text-dim)]">
+            <div className="max-h-100 overflow-y-auto">
+              <div className="px-2 py-1 text-[0.52rem] text-(--ide-text-dim)">
                 内置预设
               </div>
               {BUILTIN_PRESETS.map((preset) => {
@@ -360,14 +360,14 @@ export default function LayoutPresetsEnhanced() {
                   <button
                     key={preset.id}
                     onClick={() => handleLoadBuiltin(preset)}
-                    className="w-full flex items-start gap-2 px-3 py-2 text-left hover:bg-white/[0.04] transition-colors"
+                    className="w-full flex items-start gap-2 px-3 py-2 text-left hover:bg-white/40 transition-colors"
                   >
-                    <Icon className="w-4 h-4 text-sky-400/60 mt-0.5 flex-shrink-0" />
+                    <Icon className="w-4 h-4 text-sky-400/60 mt-0.5 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-[0.65rem] text-[var(--ide-text-secondary)]">
+                      <div className="text-[0.65rem] text-(--ide-text-secondary)">
                         {preset.name}
                       </div>
-                      <div className="text-[0.52rem] text-[var(--ide-text-dim)] truncate">
+                      <div className="text-[0.52rem] text-(--ide-text-dim) truncate">
                         {preset.description}
                       </div>
                       <div className="flex items-center gap-0.5 mt-1">
@@ -389,21 +389,21 @@ export default function LayoutPresetsEnhanced() {
 
               {savedPresets.length > 0 && (
                 <>
-                  <div className="px-2 py-1 text-[0.52rem] text-[var(--ide-text-dim)] border-t border-[var(--ide-border-faint)] mt-1 pt-1.5">
+                  <div className="px-2 py-1 text-[0.52rem] text-(--ide-text-dim) border-t border-(--ide-border-faint) mt-1 pt-1.5">
                     我的预设 ({savedPresets.length})
                   </div>
                   {savedPresets.map((preset) => (
                     <div
                       key={preset.id}
-                      className="px-3 py-2 hover:bg-white/[0.04] transition-colors"
+                      className="px-3 py-2 hover:bg-white/40 transition-colors"
                     >
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleLoadSaved(preset)}
                           className="flex-1 flex items-center gap-2 text-left"
                         >
-                          <FolderOpen className="w-4 h-4 text-emerald-400/60 flex-shrink-0" />
-                          <span className="text-[0.65rem] text-[var(--ide-text-secondary)] truncate">
+                          <FolderOpen className="w-4 h-4 text-emerald-400/60 shrink-0" />
+                          <span className="text-[0.65rem] text-(--ide-text-secondary) truncate">
                             {preset.name}
                           </span>
                         </button>
@@ -412,7 +412,7 @@ export default function LayoutPresetsEnhanced() {
                           className="w-5 h-5 rounded flex items-center justify-center hover:bg-white/5 transition-colors"
                           title="编辑比例"
                         >
-                          <Pencil className="w-3 h-3 text-[var(--ide-text-dim)]" />
+                          <Pencil className="w-3 h-3 text-(--ide-text-dim)" />
                         </button>
                         <button
                           onClick={() => handleDelete(preset.id)}
@@ -441,7 +441,7 @@ export default function LayoutPresetsEnhanced() {
                             </button>
                             <button
                               onClick={() => setEditMode(null)}
-                              className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded bg-white/5 text-[var(--ide-text-dim)] text-[0.55rem] hover:bg-white/10 transition-colors"
+                              className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded bg-white/5 text-(--ide-text-dim) text-[0.55rem] hover:bg-white/10 transition-colors"
                             >
                               <X className="w-3 h-3" />
                               取消
@@ -455,7 +455,7 @@ export default function LayoutPresetsEnhanced() {
               )}
             </div>
 
-            <div className="border-t border-[var(--ide-border-faint)]">
+            <div className="border-t border-(--ide-border-faint)">
               {saveMode ? (
                 <div className="p-3 space-y-2">
                   <input
@@ -465,7 +465,7 @@ export default function LayoutPresetsEnhanced() {
                     onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                     placeholder="预设名称..."
                     autoFocus
-                    className="w-full bg-[var(--ide-bg-inset)] border border-[var(--ide-border-dim)] rounded px-2 py-1.5 text-[0.62rem] text-[var(--ide-text-primary)] placeholder:text-[var(--ide-text-dim)] outline-none focus:border-[var(--ide-accent)]"
+                    className="w-full bg-(--ide-bg-inset) border border-(--ide-border-dim) rounded px-2 py-1.5 text-[0.62rem] text-(--ide-text-primary) placeholder:text-(--ide-text-dim) outline-none focus:border-(--ide-accent)"
                   />
                   <ColumnRatioEditor
                     ratios={currentRatios}
@@ -485,7 +485,7 @@ export default function LayoutPresetsEnhanced() {
                         setSaveMode(false)
                         setSaveName('')
                       }}
-                      className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded bg-white/5 text-[var(--ide-text-dim)] text-[0.6rem] hover:bg-white/10 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded bg-white/5 text-(--ide-text-dim) text-[0.6rem] hover:bg-white/10 transition-colors"
                     >
                       <X className="w-3 h-3" />
                       取消

@@ -186,11 +186,11 @@ function SnapshotDiffModalInner({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-[90vw] max-w-[1200px] h-[80vh] bg-[var(--ide-bg-elevated)] border border-[var(--ide-border)] rounded-xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="w-[90vw] max-w-[1200px] h-[80vh] bg-(--ide-bg-elevated) border border-(--ide-border) rounded-xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="h-10 bg-[var(--ide-bg-dark)] border-b border-[var(--ide-border-faint)] flex items-center px-4 gap-3 flex-shrink-0">
-          <Layers className="w-4 h-4 text-[var(--ide-accent)]" />
-          <span className="text-[0.75rem] text-[var(--ide-text-secondary)]">
+        <div className="h-10 bg-(--ide-bg-dark) border-b border-(--ide-border-faint) flex items-center px-4 gap-3 shrink-0">
+          <Layers className="w-4 h-4 text-(--ide-accent)" />
+          <span className="text-[0.75rem] text-(--ide-text-secondary)">
             快照差异对比
           </span>
 
@@ -202,7 +202,7 @@ function SnapshotDiffModalInner({
             <span className="flex items-center gap-1 text-[0.6rem] text-red-400">
               <Minus className="w-3 h-3" /> {stats.removed}
             </span>
-            <span className="flex items-center gap-1 text-[0.6rem] text-[var(--ide-text-dim)]">
+            <span className="flex items-center gap-1 text-[0.6rem] text-(--ide-text-dim)">
               <Equal className="w-3 h-3" /> {stats.unchanged}
             </span>
           </div>
@@ -210,13 +210,13 @@ function SnapshotDiffModalInner({
           <div className="flex-1" />
 
           {/* View mode toggle */}
-          <div className="flex items-center gap-0.5 bg-[var(--ide-bg-inset)] rounded p-0.5 border border-[var(--ide-border-faint)]">
+          <div className="flex items-center gap-0.5 bg-(--ide-bg-inset) rounded p-0.5 border border-(--ide-border-faint)">
             <button
               onClick={() => setViewMode("split")}
               className={`px-2 py-0.5 rounded text-[0.6rem] transition-colors ${
                 viewMode === "split"
-                  ? "bg-[var(--ide-accent-bg)] text-[var(--ide-accent)]"
-                  : "text-[var(--ide-text-dim)] hover:text-[var(--ide-text-muted)]"
+                  ? "bg-(--ide-accent-bg) text-(--ide-accent)"
+                  : "text-(--ide-text-dim) hover:text-(--ide-text-muted)"
               }`}
             >
               并列
@@ -225,8 +225,8 @@ function SnapshotDiffModalInner({
               onClick={() => setViewMode("unified")}
               className={`px-2 py-0.5 rounded text-[0.6rem] transition-colors ${
                 viewMode === "unified"
-                  ? "bg-[var(--ide-accent-bg)] text-[var(--ide-accent)]"
-                  : "text-[var(--ide-text-dim)] hover:text-[var(--ide-text-muted)]"
+                  ? "bg-(--ide-accent-bg) text-(--ide-accent)"
+                  : "text-(--ide-text-dim) hover:text-(--ide-text-muted)"
               }`}
             >
               统一
@@ -235,27 +235,27 @@ function SnapshotDiffModalInner({
 
           <button
             onClick={onClose}
-            className="w-6 h-6 rounded flex items-center justify-center text-[var(--ide-text-dim)] hover:text-[var(--ide-text-muted)] hover:bg-white/5"
+            className="w-6 h-6 rounded flex items-center justify-center text-(--ide-text-dim) hover:text-(--ide-text-muted) hover:bg-white/5"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Snapshot selectors */}
-        <div className="h-9 bg-[var(--ide-bg-surface)] border-b border-[var(--ide-border-faint)] flex items-center px-4 gap-2 flex-shrink-0">
+        <div className="h-9 bg-(--ide-bg-surface) border-b border-(--ide-border-faint) flex items-center px-4 gap-2 shrink-0">
           {/* Left selector */}
           <div className="flex items-center gap-1 flex-1">
             <button
               onClick={() => canGoLeft && setLeftIdx(leftIdx - 1)}
               disabled={!canGoLeft}
-              className="w-5 h-5 rounded flex items-center justify-center text-[var(--ide-text-dim)] hover:bg-white/5 disabled:opacity-30"
+              className="w-5 h-5 rounded flex items-center justify-center text-(--ide-text-dim) hover:bg-white/5 disabled:opacity-30"
             >
               <ChevronLeft className="w-3 h-3" />
             </button>
             <select
               value={leftIdx}
               onChange={(e) => setLeftIdx(Number(e.target.value))}
-              className="bg-[var(--ide-bg-elevated)] border border-[var(--ide-border-dim)] rounded px-2 py-0.5 text-[0.6rem] text-[var(--ide-text-secondary)] outline-none flex-1 max-w-[200px]"
+              className="bg-(--ide-bg-elevated) border border-(--ide-border-dim) rounded px-2 py-0.5 text-[0.6rem] text-(--ide-text-secondary) outline-none flex-1 max-w-[200px]"
             >
               {snapshots.map((s, i) => (
                 <option key={s.id} value={i}>
@@ -270,7 +270,7 @@ function SnapshotDiffModalInner({
           {/* Swap button */}
           <button
             onClick={handleSwap}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-[var(--ide-text-dim)] hover:text-[var(--ide-accent)] hover:bg-[var(--ide-accent-bg)] transition-colors"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-(--ide-text-dim) hover:text-(--ide-accent) hover:bg-(--ide-accent-bg) transition-colors"
             title="交换左右"
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
@@ -281,7 +281,7 @@ function SnapshotDiffModalInner({
             <select
               value={rightIdx}
               onChange={(e) => setRightIdx(Number(e.target.value))}
-              className="bg-[var(--ide-bg-elevated)] border border-[var(--ide-border-dim)] rounded px-2 py-0.5 text-[0.6rem] text-[var(--ide-text-secondary)] outline-none flex-1 max-w-[200px]"
+              className="bg-(--ide-bg-elevated) border border-(--ide-border-dim) rounded px-2 py-0.5 text-[0.6rem] text-(--ide-text-secondary) outline-none flex-1 max-w-[200px]"
             >
               {snapshots.map((s, i) => (
                 <option key={s.id} value={i}>
@@ -294,7 +294,7 @@ function SnapshotDiffModalInner({
             <button
               onClick={() => canGoRight && setRightIdx(rightIdx + 1)}
               disabled={!canGoRight}
-              className="w-5 h-5 rounded flex items-center justify-center text-[var(--ide-text-dim)] hover:bg-white/5 disabled:opacity-30"
+              className="w-5 h-5 rounded flex items-center justify-center text-(--ide-text-dim) hover:bg-white/5 disabled:opacity-30"
             >
               <ChevronRight className="w-3 h-3" />
             </button>
@@ -340,7 +340,7 @@ function SplitDiffView({ lines }: { lines: DiffLine[] }) {
   return (
     <div className="flex min-w-0">
       {/* Left pane */}
-      <div className="flex-1 border-r border-[var(--ide-border-faint)]">
+      <div className="flex-1 border-r border-(--ide-border-faint)">
         {leftLines.slice(0, maxLen).map((line, i) => (
           <DiffLineRow key={i} line={line} side="left" />
         ))}
@@ -364,8 +364,8 @@ function DiffLineRow({
 }) {
   if (!line) {
     return (
-      <div className="flex h-[1.6em] bg-[var(--ide-bg-dark)]/30">
-        <span className="w-10 text-right pr-2 text-[var(--ide-text-faint)] select-none opacity-30" />
+      <div className="flex h-[1.6em] bg-(--ide-bg-dark)/30">
+        <span className="w-10 text-right pr-2 text-(--ide-text-faint) select-none opacity-30" />
         <span className="flex-1 px-2" />
       </div>
     );
@@ -383,16 +383,16 @@ function DiffLineRow({
       ? "text-emerald-300"
       : line.type === "removed"
         ? "text-red-300"
-        : "text-[var(--ide-text-secondary)]";
+        : "text-(--ide-text-secondary)";
 
   const lineNum = side === "left" ? line.oldLineNum : line.newLineNum;
 
   return (
     <div className={`flex min-h-[1.6em] ${bgClass}`}>
-      <span className="w-10 text-right pr-2 text-[var(--ide-text-faint)] select-none text-[0.6rem] flex-shrink-0">
+      <span className="w-10 text-right pr-2 text-(--ide-text-faint) select-none text-[0.6rem] shrink-0">
         {lineNum || ""}
       </span>
-      <span className="w-4 flex-shrink-0 text-center text-[0.6rem] select-none opacity-60">
+      <span className="w-4 shrink-0 text-center text-[0.6rem] select-none opacity-60">
         {line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}
       </span>
       <pre
@@ -422,20 +422,20 @@ function UnifiedDiffView({ lines }: { lines: DiffLine[] }) {
             ? "text-emerald-300"
             : line.type === "removed"
               ? "text-red-300"
-              : "text-[var(--ide-text-secondary)]";
+              : "text-(--ide-text-secondary)";
 
         const prefix =
           line.type === "added" ? "+" : line.type === "removed" ? "-" : " ";
 
         return (
           <div key={i} className={`flex min-h-[1.6em] ${bgClass}`}>
-            <span className="w-10 text-right pr-2 text-[var(--ide-text-faint)] select-none text-[0.6rem] flex-shrink-0">
+            <span className="w-10 text-right pr-2 text-(--ide-text-faint) select-none text-[0.6rem] shrink-0">
               {line.oldLineNum || ""}
             </span>
-            <span className="w-10 text-right pr-2 text-[var(--ide-text-faint)] select-none text-[0.6rem] flex-shrink-0">
+            <span className="w-10 text-right pr-2 text-(--ide-text-faint) select-none text-[0.6rem] shrink-0">
               {line.newLineNum || ""}
             </span>
-            <span className="w-4 flex-shrink-0 text-center text-[0.6rem] select-none opacity-60">
+            <span className="w-4 shrink-0 text-center text-[0.6rem] select-none opacity-60">
               {prefix}
             </span>
             <pre

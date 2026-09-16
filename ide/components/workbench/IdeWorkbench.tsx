@@ -62,7 +62,7 @@ function MonacoPanel({ nodeId }: { nodeId: string }) {
           fallback={
             <div
               data-testid="monaco-skeleton"
-              className="flex size-full items-center justify-center bg-[var(--ide-bg)] text-[0.65rem] text-slate-600"
+              className="flex size-full items-center justify-center bg-(--ide-bg) text-[0.65rem] text-slate-600"
             >
               Monaco 分片加载中…
             </div>
@@ -77,7 +77,7 @@ function MonacoPanel({ nodeId }: { nodeId: string }) {
               minimap={false}
             />
           ) : (
-            <div className="flex size-full items-center justify-center bg-[var(--ide-bg)] text-[0.7rem] text-slate-600">
+            <div className="flex size-full items-center justify-center bg-(--ide-bg) text-[0.7rem] text-slate-600">
               <div className="flex flex-col items-center gap-2">
                 <FileCode className="h-8 w-8 text-slate-700" />
                 <span>从左侧文件浏览器打开文件</span>
@@ -87,7 +87,7 @@ function MonacoPanel({ nodeId }: { nodeId: string }) {
         </Suspense>
       </div>
       {/* 状态栏 */}
-      <div className="flex h-6 flex-shrink-0 items-center gap-3 border-t border-[var(--ide-border-faint)] bg-[var(--ide-bg-elevated)] px-3 text-[0.58rem] text-slate-600">
+      <div className="flex h-6 shrink-0 items-center gap-3 border-t border-(--ide-border-faint) bg-(--ide-bg-elevated) px-3 text-[0.58rem] text-slate-600">
         <span>{currentFilePath ?? "—"}</span>
         <span>{fileName.split(".").pop()?.toUpperCase() ?? "TXT"}</span>
         <span>{content.split("\n").length} 行</span>
@@ -113,11 +113,11 @@ function PresetToolbar() {
   );
 
   return (
-    <div className="flex h-8 flex-shrink-0 items-center gap-1.5 border-b border-[var(--ide-border-dim)] bg-[var(--ide-bg-elevated)] px-2">
+    <div className="flex h-8 shrink-0 items-center gap-1.5 border-b border-(--ide-border-dim) bg-(--ide-bg-elevated) px-2">
       <Boxes className="h-3.5 w-3.5 text-cyan-400/80" />
       <span className="text-[0.7rem] font-medium text-slate-300">YYC³</span>
       <span className="text-[0.6rem] text-slate-600">Workbench</span>
-      <div className="mx-2 h-4 w-px bg-[var(--ide-border-mid)]" />
+      <div className="mx-2 h-4 w-px bg-(--ide-border-mid)" />
       {(Object.keys(LAYOUT_PRESETS) as Array<keyof typeof LAYOUT_PRESETS>).map(
         (name) => (
           <button

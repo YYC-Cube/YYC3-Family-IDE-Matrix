@@ -152,11 +152,11 @@ function AgentCard({ agent, selected, onClick }: { agent: Agent; selected: boole
       onClick={onClick}
       className={`w-full text-left rounded-lg border p-2.5 transition-all ${selected
           ? `${cfg.borderColor} ${cfg.bgColor}`
-          : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.1]"
+          : "border-white/60 bg-white/20 hover:bg-white/40 hover:border-white/10"
         }`}
     >
       <div className="flex items-center gap-2">
-        <div className={`w-7 h-7 rounded-lg ${cfg.bgColor} flex items-center justify-center flex-shrink-0`}>
+        <div className={`w-7 h-7 rounded-lg ${cfg.bgColor} flex items-center justify-center shrink-0`}>
           <Icon className={`w-3.5 h-3.5 ${cfg.color}`} />
         </div>
         <div className="flex-1 min-w-0">
@@ -169,10 +169,10 @@ function AgentCard({ agent, selected, onClick }: { agent: Agent; selected: boole
           <p className="text-[0.58rem] text-white/30 truncate mt-0.5">{agent.currentTask}</p>
         </div>
         {agent.status === "running" && (
-          <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+          <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin shrink-0" />
         )}
-        {agent.status === "completed" && <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
-        {agent.status === "error" && <AlertCircle className="w-3 h-3 text-red-400 flex-shrink-0" />}
+        {agent.status === "completed" && <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />}
+        {agent.status === "error" && <AlertCircle className="w-3 h-3 text-red-400 shrink-0" />}
       </div>
       {/* Progress bar */}
       {agent.status === "running" && (
@@ -181,7 +181,7 @@ function AgentCard({ agent, selected, onClick }: { agent: Agent; selected: boole
             <span className="text-[0.5rem] text-white/20">进度</span>
             <span className="text-[0.5rem] text-white/40">{agent.progress}%</span>
           </div>
-          <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+          <div className="h-1 bg-white/60 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${agent.role === "planner" ? "bg-blue-400" :
                   agent.role === "coder" ? "bg-emerald-400" :
@@ -203,21 +203,21 @@ function AgentDetail({ agent }: { agent: Agent }) {
   return (
     <div className="space-y-3 px-3 py-2">
       <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-2">
+        <div className="rounded-lg bg-white/30 border border-white/60 p-2">
           <div className="text-[0.5rem] text-white/25 mb-0.5">已完成任务</div>
           <div className="text-[0.82rem] text-white/80">{agent.tasksCompleted}</div>
         </div>
-        <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-2">
+        <div className="rounded-lg bg-white/30 border border-white/60 p-2">
           <div className="text-[0.5rem] text-white/25 mb-0.5">平均耗时</div>
           <div className="text-[0.82rem] text-white/80">{agent.avgTime}</div>
         </div>
-        <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-2">
+        <div className="rounded-lg bg-white/30 border border-white/60 p-2">
           <div className="text-[0.5rem] text-white/25 mb-0.5">成功率</div>
           <div className={`text-[0.82rem] ${agent.successRate >= 90 ? "text-emerald-400" : "text-amber-400"}`}>
             {agent.successRate}%
           </div>
         </div>
-        <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-2">
+        <div className="rounded-lg bg-white/30 border border-white/60 p-2">
           <div className="text-[0.5rem] text-white/25 mb-0.5">当前状态</div>
           <div className={`text-[0.82rem] ${STATUS_CONFIG[agent.status].color}`}>
             {t(STATUS_CONFIG[agent.status].label)}
@@ -231,10 +231,10 @@ function AgentDetail({ agent }: { agent: Agent }) {
           {agent.status === "running" ? <Pause className="w-2.5 h-2.5" /> : <Play className="w-2.5 h-2.5" />}
           {agent.status === "running" ? t('agent.pause') : t('agent.start')}
         </button>
-        <button className="flex items-center gap-1 px-2 py-1 rounded text-[0.58rem] text-white/30 hover:text-white/50 hover:bg-white/[0.04] transition-all">
+        <button className="flex items-center gap-1 px-2 py-1 rounded text-[0.58rem] text-white/30 hover:text-white/50 hover:bg-white/40 transition-all">
           <RotateCcw className="w-2.5 h-2.5" /> {t('common.restart')}
         </button>
-        <button className="flex items-center gap-1 px-2 py-1 rounded text-[0.58rem] text-white/30 hover:text-white/50 hover:bg-white/[0.04] transition-all">
+        <button className="flex items-center gap-1 px-2 py-1 rounded text-[0.58rem] text-white/30 hover:text-white/50 hover:bg-white/40 transition-all">
           <MessageSquare className="w-2.5 h-2.5" /> {t('common.messages')}
         </button>
       </div>
@@ -263,20 +263,20 @@ function TaskFlowView({ flow }: { flow: TaskFlowNode[] }) {
           const agentCfg = node.agent ? ROLE_CONFIG[node.agent] : null
 
           return (
-            <div key={node.stage} className="flex items-center gap-1 flex-shrink-0">
+            <div key={node.stage} className="flex items-center gap-1 shrink-0">
               {/* Node */}
               <div className={`relative flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${isActive
                   ? "border-blue-500/40 bg-blue-500/10 shadow-lg shadow-blue-500/10"
                   : isCompleted
-                    ? "border-emerald-500/20 bg-emerald-500/[0.05]"
+                    ? "border-emerald-500/20 bg-emerald-500/50"
                     : isError
-                      ? "border-red-500/20 bg-red-500/[0.05]"
-                      : "border-white/[0.06] bg-white/[0.02]"
+                      ? "border-red-500/20 bg-red-500/50"
+                      : "border-white/60 bg-white/20"
                 }`}>
                 {/* Status icon */}
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isActive ? "bg-blue-500/20" :
                     isCompleted ? "bg-emerald-500/20" :
-                      isError ? "bg-red-500/20" : "bg-white/[0.04]"
+                      isError ? "bg-red-500/20" : "bg-white/40"
                   }`}>
                   {isActive && <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />}
                   {isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
@@ -304,7 +304,7 @@ function TaskFlowView({ flow }: { flow: TaskFlowNode[] }) {
               </div>
               {/* Arrow */}
               {i < flow.length - 1 && (
-                <ArrowRight className={`w-3 h-3 flex-shrink-0 ${isCompleted ? "text-emerald-400/40" : "text-white/10"
+                <ArrowRight className={`w-3 h-3 shrink-0 ${isCompleted ? "text-emerald-400/40" : "text-white/10"
                   }`} />
               )}
             </div>
@@ -336,7 +336,7 @@ function CollaborationGraph({ agents, messages }: { agents: Agent[]; messages: A
       </div>
 
       {/* SVG Graph */}
-      <div className="relative w-full h-44 rounded-lg bg-white/[0.02] border border-white/[0.06] overflow-hidden">
+      <div className="relative w-full h-44 rounded-lg bg-white/20 border border-white/60 overflow-hidden">
         {/* Grid background */}
         <svg className="absolute inset-0 w-full h-full opacity-20">
           <defs>
@@ -408,13 +408,13 @@ function CollaborationGraph({ agents, messages }: { agents: Agent[]; messages: A
         {messages.slice(-4).map(msg => {
           const fromCfg = ROLE_CONFIG[msg.from]
           return (
-            <div key={msg.id} className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/[0.02]">
+            <div key={msg.id} className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/20">
               <span className={`text-[0.48rem] px-1 py-0.5 rounded ${fromCfg.bgColor} ${fromCfg.color}`}>
                 {t(fromCfg.label).replace(/Agent$/i, '').trim()}
               </span>
-              <ArrowRight className="w-2.5 h-2.5 text-white/15 flex-shrink-0" />
+              <ArrowRight className="w-2.5 h-2.5 text-white/15 shrink-0" />
               <span className="text-[0.52rem] text-white/30 truncate flex-1">{msg.content}</span>
-              <span className="text-[0.42rem] text-white/15 flex-shrink-0">
+              <span className="text-[0.42rem] text-white/15 shrink-0">
                 {/* 相对时间显示本质上依赖当前时刻 */}
                 {/* eslint-disable-next-line react-hooks/purity */}
                 {Math.round((Date.now() - msg.timestamp) / 1000)}s前
@@ -450,15 +450,15 @@ function TaskQueue({ tasks }: { tasks: ScheduledTask[] }) {
     const agentCfg = ROLE_CONFIG[task.assignedAgent]
     return (
       <div key={task.id} className={`rounded-lg border p-2 transition-all ${task.status === "active"
-          ? "border-blue-500/20 bg-blue-500/[0.04]"
+          ? "border-blue-500/20 bg-blue-500/40"
           : task.status === "completed"
-            ? "border-emerald-500/10 bg-emerald-500/[0.02] opacity-60"
+            ? "border-emerald-500/10 bg-emerald-500/20 opacity-60"
             : task.status === "failed"
-              ? "border-red-500/15 bg-red-500/[0.03]"
-              : "border-white/[0.06] bg-white/[0.02]"
+              ? "border-red-500/15 bg-red-500/30"
+              : "border-white/60 bg-white/20"
         }`}>
         <div className="flex items-center gap-2">
-          <Icon className={`w-3 h-3 flex-shrink-0 ${task.status === "active" ? "text-blue-400" :
+          <Icon className={`w-3 h-3 shrink-0 ${task.status === "active" ? "text-blue-400" :
               task.status === "completed" ? "text-emerald-400" :
                 task.status === "failed" ? "text-red-400" : "text-white/25"
             }`} />
@@ -471,7 +471,7 @@ function TaskQueue({ tasks }: { tasks: ScheduledTask[] }) {
           <span className={`text-[0.48rem] px-1 py-0.5 rounded ${agentCfg.bgColor} ${agentCfg.color}`}>
             {t(agentCfg.label).replace(/Agent$/i, '').trim()}
           </span>
-          <div className="flex-1 h-0.5 bg-white/[0.06] rounded-full overflow-hidden">
+          <div className="flex-1 h-0.5 bg-white/60 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${task.status === "completed" ? "bg-emerald-400" :
                   task.status === "active" ? "bg-blue-400" : "bg-white/10"
@@ -479,7 +479,7 @@ function TaskQueue({ tasks }: { tasks: ScheduledTask[] }) {
               style={{ width: `${task.progress}%` }}
             />
           </div>
-          <span className="text-[0.48rem] text-white/20 flex-shrink-0">
+          <span className="text-[0.48rem] text-white/20 shrink-0">
             <Timer className="w-2.5 h-2.5 inline mr-0.5" />{task.estimatedTime}
           </span>
         </div>
@@ -649,7 +649,7 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
   }, [isRunning, cancelPipeline])
 
   return (
-    <div className="panel-host-root size-full flex flex-col bg-[var(--ide-bg)]">
+    <div className="panel-host-root size-full flex flex-col bg-(--ide-bg)">
       <PanelHeader
         nodeId={nodeId}
         panelId="multi-agent"
@@ -675,7 +675,7 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
       </PanelHeader>
 
       {/* Tab bar */}
-      <div className="flex-shrink-0 flex border-b border-[var(--ide-border-dim)]">
+      <div className="shrink-0 flex border-b border-(--ide-border-dim)">
         {tabs.map(tab => {
           const Icon = tab.icon
           return (
@@ -699,7 +699,7 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
         {activeTab === "status" && (
           <div className="p-2 space-y-2">
             {/* Summary bar */}
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white/[0.02] border border-white/[0.06]">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white/20 border border-white/60">
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-emerald-400" />
                 <span className="text-[0.52rem] text-white/30">
@@ -736,13 +736,13 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
 
             {/* Selected agent detail */}
             {selected && (
-              <div className="border-t border-white/[0.06] mt-2 pt-2">
+              <div className="border-t border-white/60 mt-2 pt-2">
                 <AgentDetail agent={selected} />
               </div>
             )}
 
             {/* ── Pipeline Execution Trigger ── */}
-            <div className="border-t border-white/[0.06] mt-2 pt-2 space-y-2">
+            <div className="border-t border-white/60 mt-2 pt-2 space-y-2">
               <div className="flex items-center gap-1.5 px-1">
                 <Zap className="w-3 h-3 text-amber-400" />
                 <span className="text-[0.58rem] text-white/40">LLM 流水线调度</span>
@@ -753,9 +753,9 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
 
               {/* Pipeline status indicator */}
               {pipelineState.stage !== 'idle' && (
-                <div className={`rounded-lg border p-2 ${pipelineState.stage === 'error' ? 'border-red-500/20 bg-red-500/[0.04]' :
-                    pipelineState.stage === 'completed' ? 'border-emerald-500/20 bg-emerald-500/[0.04]' :
-                      'border-blue-500/20 bg-blue-500/[0.04]'
+                <div className={`rounded-lg border p-2 ${pipelineState.stage === 'error' ? 'border-red-500/20 bg-red-500/40' :
+                    pipelineState.stage === 'completed' ? 'border-emerald-500/20 bg-emerald-500/40' :
+                      'border-blue-500/20 bg-blue-500/40'
                   }`}>
                   <div className="flex items-center gap-1.5">
                     {pipelineState.isStreaming && <Loader2 className="w-3 h-3 text-blue-400 animate-spin" />}
@@ -792,7 +792,7 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
                     onChange={e => setPipelineInput(e.target.value)}
                     placeholder="输入需求描述，启动 Planner→Coder→Tester→Reviewer 四阶段调度..."
                     rows={2}
-                    className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-[0.58rem] text-white/60 placeholder:text-white/15 focus:outline-none focus:border-amber-500/30 resize-none"
+                    className="w-full bg-white/30 border border-white/80 rounded-lg px-2.5 py-1.5 text-[0.58rem] text-white/60 placeholder:text-white/15 focus:outline-none focus:border-amber-500/30 resize-none"
                   />
                   <div className="flex items-center gap-1.5">
                     <button
@@ -836,7 +836,7 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
                   {pipelineState.stage !== 'idle' && (
                     <button
                       onClick={resetPipeline}
-                      className="flex items-center gap-1 px-2 py-1 rounded text-[0.52rem] text-white/25 hover:text-white/40 hover:bg-white/[0.04] transition-all"
+                      className="flex items-center gap-1 px-2 py-1 rounded text-[0.52rem] text-white/25 hover:text-white/40 hover:bg-white/40 transition-all"
                     >
                       <RotateCcw className="w-2.5 h-2.5" /> 重置
                     </button>
@@ -912,7 +912,7 @@ function PersistentMemoryView() {
 
       {/* Search with mode toggle */}
       <div className="flex items-center gap-1.5">
-        <div className="flex-1 flex items-center gap-1.5 bg-white/[0.03] border border-white/[0.06] rounded-lg px-2 py-1">
+        <div className="flex-1 flex items-center gap-1.5 bg-white/30 border border-white/60 rounded-lg px-2 py-1">
           <Search className="w-3 h-3 text-white/20" />
           <input
             value={searchQuery}
@@ -923,9 +923,9 @@ function PersistentMemoryView() {
         </div>
         <button
           onClick={() => setSearchMode(searchMode === "keyword" ? "semantic" : "keyword")}
-          className={`flex-shrink-0 px-1.5 py-1 rounded text-[0.48rem] border transition-all ${searchMode === "semantic"
+          className={`shrink-0 px-1.5 py-1 rounded text-[0.48rem] border transition-all ${searchMode === "semantic"
               ? "bg-violet-500/20 text-violet-400 border-violet-500/20"
-              : "text-white/25 border-white/[0.06] hover:text-white/40"
+              : "text-white/25 border-white/60 hover:text-white/40"
             }`}
           title={searchMode === "semantic" ? "当前：语义搜索（TF-IDF + Cosine）" : "当前：关键词搜索"}
         >
@@ -933,7 +933,7 @@ function PersistentMemoryView() {
         </button>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex-shrink-0 w-6 h-6 rounded flex items-center justify-center text-white/25 hover:text-amber-400 hover:bg-white/[0.04] transition-all"
+          className="shrink-0 w-6 h-6 rounded flex items-center justify-center text-white/25 hover:text-amber-400 hover:bg-white/40 transition-all"
           title="新增记忆"
         >
           <Plus className="w-3 h-3" />
@@ -942,32 +942,32 @@ function PersistentMemoryView() {
 
       {/* Add form */}
       {showAddForm && (
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.03] p-2.5 space-y-2">
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/30 p-2.5 space-y-2">
           <input
             value={newMemory.title}
             onChange={e => setNewMemory(p => ({ ...p, title: e.target.value }))}
             placeholder="记忆标题"
-            className="w-full bg-white/[0.03] border border-white/[0.06] rounded px-2 py-1 text-[0.58rem] text-white/60 placeholder:text-white/15 focus:outline-none"
+            className="w-full bg-white/30 border border-white/60 rounded px-2 py-1 text-[0.58rem] text-white/60 placeholder:text-white/15 focus:outline-none"
           />
           <textarea
             value={newMemory.summary}
             onChange={e => setNewMemory(p => ({ ...p, summary: e.target.value }))}
             placeholder="记忆摘要"
             rows={2}
-            className="w-full bg-white/[0.03] border border-white/[0.06] rounded px-2 py-1 text-[0.58rem] text-white/60 placeholder:text-white/15 focus:outline-none resize-none"
+            className="w-full bg-white/30 border border-white/60 rounded px-2 py-1 text-[0.58rem] text-white/60 placeholder:text-white/15 focus:outline-none resize-none"
           />
           <div className="flex items-center gap-1.5">
             <select
               value={newMemory.category}
               onChange={e => setNewMemory(p => ({ ...p, category: e.target.value as any }))}
-              className="bg-white/[0.03] border border-white/[0.06] rounded px-1.5 py-0.5 text-[0.52rem] text-white/50 focus:outline-none"
+              className="bg-white/30 border border-white/60 rounded px-1.5 py-0.5 text-[0.52rem] text-white/50 focus:outline-none"
             >
               {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
             <select
               value={newMemory.agent}
               onChange={e => setNewMemory(p => ({ ...p, agent: e.target.value as any }))}
-              className="bg-white/[0.03] border border-white/[0.06] rounded px-1.5 py-0.5 text-[0.52rem] text-white/50 focus:outline-none"
+              className="bg-white/30 border border-white/60 rounded px-1.5 py-0.5 text-[0.52rem] text-white/50 focus:outline-none"
             >
               {Object.entries(ROLE_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
@@ -975,7 +975,7 @@ function PersistentMemoryView() {
               value={newMemory.tags}
               onChange={e => setNewMemory(p => ({ ...p, tags: e.target.value }))}
               placeholder="标签(逗号分隔)"
-              className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded px-1.5 py-0.5 text-[0.52rem] text-white/50 placeholder:text-white/15 focus:outline-none"
+              className="flex-1 bg-white/30 border border-white/60 rounded px-1.5 py-0.5 text-[0.52rem] text-white/50 placeholder:text-white/15 focus:outline-none"
             />
           </div>
           <div className="flex items-center gap-1.5">
@@ -1011,9 +1011,9 @@ function PersistentMemoryView() {
 
       {/* Category filter */}
       <div className="flex items-center gap-1 overflow-x-auto">
-        <button onClick={() => setSelectedCategory("all")} className={`flex-shrink-0 px-2 py-0.5 rounded text-[0.52rem] ${selectedCategory === "all" ? "bg-amber-500/20 text-amber-400" : "text-white/25 hover:text-white/40"}`}>全部</button>
+        <button onClick={() => setSelectedCategory("all")} className={`shrink-0 px-2 py-0.5 rounded text-[0.52rem] ${selectedCategory === "all" ? "bg-amber-500/20 text-amber-400" : "text-white/25 hover:text-white/40"}`}>全部</button>
         {Object.entries(CATEGORY_LABELS).map(([key, cfg]) => (
-          <button key={key} onClick={() => setSelectedCategory(key)} className={`flex-shrink-0 px-2 py-0.5 rounded text-[0.52rem] ${selectedCategory === key ? "bg-amber-500/20 text-amber-400" : "text-white/25 hover:text-white/40"}`}>{cfg.label}</button>
+          <button key={key} onClick={() => setSelectedCategory(key)} className={`shrink-0 px-2 py-0.5 rounded text-[0.52rem] ${selectedCategory === key ? "bg-amber-500/20 text-amber-400" : "text-white/25 hover:text-white/40"}`}>{cfg.label}</button>
         ))}
       </div>
 
@@ -1028,18 +1028,18 @@ function PersistentMemoryView() {
           const catCfg = CATEGORY_LABELS[mem.category] || { label: mem.category, color: "text-white/40" }
           const agentCfg = ROLE_CONFIG[mem.agent as AgentRole] || ROLE_CONFIG.planner
           return (
-            <div key={mem.id} className={`group rounded-lg border p-2 transition-all ${mem.pinned ? "border-amber-500/20 bg-amber-500/[0.03]" : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"}`}>
+            <div key={mem.id} className={`group rounded-lg border p-2 transition-all ${mem.pinned ? "border-amber-500/20 bg-amber-500/30" : "border-white/60 bg-white/20 hover:bg-white/40"}`}>
               <div className="flex items-center gap-1.5 mb-1">
-                {mem.pinned && <Pin className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />}
+                {mem.pinned && <Pin className="w-2.5 h-2.5 text-amber-400 shrink-0" />}
                 <span className="text-[0.62rem] text-white/70 flex-1 truncate">{mem.title}</span>
                 {mem._similarity !== undefined && (
                   <span className="text-[0.42rem] px-1 py-0.5 rounded bg-violet-500/15 text-violet-400">
                     {mem._similarity}% 匹配
                   </span>
                 )}
-                <span className={`text-[0.42rem] px-1 py-0.5 rounded bg-white/[0.04] ${catCfg.color}`}>{catCfg.label}</span>
+                <span className={`text-[0.42rem] px-1 py-0.5 rounded bg-white/40 ${catCfg.color}`}>{catCfg.label}</span>
                 <div className="hidden group-hover:flex items-center gap-0.5">
-                  <button onClick={() => togglePin(mem.id)} className="w-4 h-4 rounded flex items-center justify-center hover:bg-white/[0.06]" title={mem.pinned ? "取消置顶" : "置顶"}>
+                  <button onClick={() => togglePin(mem.id)} className="w-4 h-4 rounded flex items-center justify-center hover:bg-white/60" title={mem.pinned ? "取消置顶" : "置顶"}>
                     <Pin className={`w-2.5 h-2.5 ${mem.pinned ? "text-amber-400" : "text-white/20"}`} />
                   </button>
                   <button onClick={() => removeMemory(mem.id)} className="w-4 h-4 rounded flex items-center justify-center hover:bg-red-500/10" title="删除">
@@ -1144,21 +1144,21 @@ function CodePreviewView() {
             <div key={change.id}>
               <button
                 onClick={() => setSelectedId(isSelected ? null : change.id)}
-                className={`w-full text-left rounded-lg border p-2 transition-all ${isSelected ? "border-blue-500/25 bg-blue-500/[0.04]" :
-                    change.status === "accepted" ? "border-emerald-500/15 bg-emerald-500/[0.02]" :
-                      change.status === "rejected" ? "border-red-500/15 bg-red-500/[0.02] opacity-50" :
-                        "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                className={`w-full text-left rounded-lg border p-2 transition-all ${isSelected ? "border-blue-500/25 bg-blue-500/40" :
+                    change.status === "accepted" ? "border-emerald-500/15 bg-emerald-500/20" :
+                      change.status === "rejected" ? "border-red-500/15 bg-red-500/20 opacity-50" :
+                        "border-white/60 bg-white/20 hover:bg-white/40"
                   }`}
               >
                 <div className="flex items-center gap-1.5">
-                  <FileCode2 className={`w-3 h-3 flex-shrink-0 ${change.status === "accepted" ? "text-emerald-400" :
+                  <FileCode2 className={`w-3 h-3 shrink-0 ${change.status === "accepted" ? "text-emerald-400" :
                       change.status === "rejected" ? "text-red-400" : "text-white/30"
                     }`} />
                   <span className="text-[0.58rem] text-white/60 flex-1 truncate font-mono">{change.file.split("/").pop()}</span>
                   <span className="text-[0.45rem] text-emerald-400">+{change.added}</span>
                   <span className="text-[0.45rem] text-red-400">-{change.removed}</span>
-                  {change.status === "accepted" && <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
-                  {change.status === "rejected" && <XCircle className="w-3 h-3 text-red-400 flex-shrink-0" />}
+                  {change.status === "accepted" && <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />}
+                  {change.status === "rejected" && <XCircle className="w-3 h-3 text-red-400 shrink-0" />}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1">
                   <span className={`text-[0.42rem] px-1 py-0.5 rounded ${agentCfg.bgColor} ${agentCfg.color}`}>{t(agentCfg.label).replace(/Agent$/i, '').trim()}</span>
@@ -1169,9 +1169,9 @@ function CodePreviewView() {
 
               {/* Expanded detail */}
               {isSelected && selected && (
-                <div className="mt-1 rounded-lg border border-white/[0.06] bg-white/[0.01] overflow-hidden">
+                <div className="mt-1 rounded-lg border border-white/60 bg-white/10 overflow-hidden">
                   {/* AI explanation */}
-                  <div className="px-3 py-2 border-b border-white/[0.04] bg-white/[0.02]">
+                  <div className="px-3 py-2 border-b border-white/40 bg-white/20">
                     <div className="flex items-center gap-1 mb-1">
                       <Sparkles className="w-3 h-3 text-amber-400" />
                       <span className="text-[0.52rem] text-white/40">AI 变更说明</span>
@@ -1179,7 +1179,7 @@ function CodePreviewView() {
                     <p className="text-[0.55rem] text-white/50">{selected.explanation}</p>
                   </div>
                   {/* Diff view */}
-                  <div className="grid grid-cols-2 divide-x divide-white/[0.04]">
+                  <div className="grid grid-cols-2 divide-x divide-white/40">
                     <div className="p-2">
                       <div className="text-[0.45rem] text-red-400/50 mb-1">原始代码</div>
                       <pre className="text-[0.5rem] text-white/30 font-mono whitespace-pre-wrap">{selected.original}</pre>
@@ -1191,14 +1191,14 @@ function CodePreviewView() {
                   </div>
                   {/* Actions */}
                   {selected.status === "pending" && (
-                    <div className="flex items-center gap-2 px-3 py-2 border-t border-white/[0.04]">
+                    <div className="flex items-center gap-2 px-3 py-2 border-t border-white/40">
                       <button onClick={() => handleAccept(selected.id)} className="flex items-center gap-1 px-2 py-1 rounded text-[0.52rem] bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-all">
                         <Check className="w-2.5 h-2.5" /> 接受
                       </button>
                       <button onClick={() => handleReject(selected.id)} className="flex items-center gap-1 px-2 py-1 rounded text-[0.52rem] bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all">
                         <X className="w-2.5 h-2.5" /> 拒绝
                       </button>
-                      <button className="flex items-center gap-1 px-2 py-1 rounded text-[0.52rem] text-white/25 hover:text-white/40 hover:bg-white/[0.04] transition-all">
+                      <button className="flex items-center gap-1 px-2 py-1 rounded text-[0.52rem] text-white/25 hover:text-white/40 hover:bg-white/40 transition-all">
                         <Send className="w-2.5 h-2.5" /> 请求修改
                       </button>
                     </div>
