@@ -1,0 +1,91 @@
+name: 🐛 缺陷报告 | Bug Report
+description: 报告一个可复现的缺陷 Report a reproducible defect
+title: "[Bug]: "
+labels: ["bug", "status:needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量填写完整，便于快速定位。
+        Thanks for reporting! Please fill in as much detail as possible for fast triage.
+        ⚠️ 请勿粘贴包含 API Key / 令牌的请求体或日志（脱敏后再贴）。
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 所属模块 | Module
+      description: 问题发生在哪个域 Which domain
+      options:
+        - "mod:workbench 多文件编辑 Workbench"
+        - "mod:panel-host 面板宿主 Panel host"
+        - "mod:agent Agent 编排与市场 Agent"
+        - "mod:terminal 终端与沙箱 Terminal & sandbox"
+        - "mod:visualization 可视化体系 Visualization"
+        - "mod:model-settings 模型设置 Model settings"
+        - "mod:plugins 插件系统 Plugins"
+        - "mod:snapshot 快照 Diff Snapshot"
+        - "mod:mcp MCP 服务栈 MCP"
+        - "mod:llm LLM 调用层 LLM"
+        - "mod:context 上下文工程 Context engineering"
+        - "mod:security 安全套件 Security"
+        - "mod:storage 存储与状态 Storage & stores"
+        - "mod:collab 协作 Collab"
+        - "mod:electron 桌面端 Electron"
+        - "mod:infra 基础设施 Infra"
+        - "mod:docs 文档 Docs"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级 | Priority
+      options:
+        - "priority:critical P0 阻断生产"
+        - "priority:high P1 高"
+        - "priority:medium P2 中"
+        - "priority:low P3 低"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤 | Reproduction Steps
+      placeholder: |
+        1. 进入 '...'
+        2. 执行 '...'
+        3. 观察到 '...'
+        1. Go to '...'
+        2. Run '...'
+        3. See '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为 | Expected Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为 | Actual Behavior
+      description: 如含报错请附控制台输出（脱敏后）Attach sanitized console output if applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: env
+    attributes:
+      label: 环境信息 | Environment
+      placeholder: |
+        - OS: [e.g. macOS 15 / Windows 11]
+        - Node: [e.g. 22.11.0]
+        - pnpm: [e.g. 9.0.0]
+        - Browser: [e.g. Chrome 140]
+        - Commit: [e.g. b01367d]
+    validations:
+      required: true

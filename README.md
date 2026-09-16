@@ -2,9 +2,9 @@
   file: README.md
   description: YYC³ Family IDE Matrix · 项目总览与快速上手
   author: YanYuCloudCube Team <admin@0379.email>
-  version: v3.0.0
+  version: v3.1.0
   created: 2026-08-19
-  updated: 2026-08-28
+  updated: 2026-09-16
   status: active
   tags: [docs,overview,quickstart]
 -->
@@ -82,11 +82,21 @@ pnpm electron:dev     # Electron 桌面（可选）
 ```
 YYC3-Family-IDE-Matrix/
 ├── README.md                        # ← 本文档
+├── CONTRIBUTING.md                  # 贡献指南（环境/分支/提交/门禁）
+├── SECURITY.md                      # 安全策略（漏洞报告/安全编码基线）
+├── CODE_OF_CONDUCT.md               # 贡献者公约
+├── CHANGELOG.md                     # 更新日志（Keep a Changelog + SemVer）
+├── LICENSE                          # MIT
 ├── docs/                            # 文档中心
+│   ├── README.md                    # 文档索引
 │   ├── architecture.md              # 架构设计（分层/域清单/依赖图）
 │   ├── developer-guide.md           # 开发者指南（环境/规范/10个核心模块）
 │   ├── visualization-spec.md        # 可视化体系规范（§1-§12）
-│   └── evolution-plan.md            # 功能演进方案（Phase 1-3 ✅）
+│   ├── evolution-plan.md            # 功能演进方案（Phase 1-3 ✅）
+│   ├── CICD.md                      # 流水线详解（门禁/制品/本地等价命令）
+│   ├── LABELS.md                    # 标签规范（类型/优先级/状态/模块）
+│   ├── RELEASE.md                   # 发布流程（SemVer/检查单/回滚）
+│   └── STYLE-GUIDE.md               # 文档风格指南（写作/Mermaid/徽章）
 ├── ide/                             # @yyc3/ide 工作台工程
 │   ├── src/main.tsx                 # 入口（可观测性 + ErrorBoundary）
 │   ├── components/                  # UI 层（8 域）
@@ -118,6 +128,9 @@ YYC3-Family-IDE-Matrix/
     ├── workflows/
     │   ├── ide-test-coverage.yml    # CI 流水线（安全+测试+构建）
     │   └── codeql.yml               # CodeQL 安全扫描
+    ├── ISSUE_TEMPLATE/              # Issue 模板（Bug/Feature/Docs）
+    ├── PULL_REQUEST_TEMPLATE.md     # PR 模板与自检清单
+    ├── labels.json                  # 标签机器可读清单
     └── dependabot.yml               # 依赖自动更新
 ```
 
@@ -128,10 +141,18 @@ YYC3-Family-IDE-Matrix/
 | 文档 | 位置 | 内容 |
 | --- | --- | --- |
 | **本文档** | [`README.md`](README.md) | 项目总览 / 快速开始 |
+| 文档索引 | [`docs/README.md`](docs/README.md) | docs/ 全部文档导航 |
 | 架构设计 | [`docs/architecture.md`](docs/architecture.md) | 分层 / 域清单 / 依赖图 / 约束 |
 | 开发者指南 | [`docs/developer-guide.md`](docs/developer-guide.md) | 10 个核心模块 / 调试 / 部署 |
 | 可视化规范 | [`docs/visualization-spec.md`](docs/visualization-spec.md) | 主题令牌 / 图表契约 / 性能 |
 | 演进方案 | [`docs/evolution-plan.md`](docs/evolution-plan.md) | Phase 1-3 ✅ / 下一步建议 |
+| 流水线详解 | [`docs/CICD.md`](docs/CICD.md) | 门禁标准 / 供应链加固 / 制品 |
+| 标签规范 | [`docs/LABELS.md`](docs/LABELS.md) | 类型 / 优先级 / 状态 / 模块 |
+| 发布流程 | [`docs/RELEASE.md`](docs/RELEASE.md) | SemVer / 检查单 / 回滚 |
+| 风格指南 | [`docs/STYLE-GUIDE.md`](docs/STYLE-GUIDE.md) | 写作 / Mermaid / 徽章规则 |
+| 贡献指南 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | 环境 / 分支 / 提交 / PR 检查单 |
+| 安全策略 | [`SECURITY.md`](SECURITY.md) | 漏洞报告 / 安全编码基线 |
+| 更新日志 | [`CHANGELOG.md`](CHANGELOG.md) | 版本变更历史 |
 | 回迁路线图 | [`archive/MIGRATION.md`](archive/MIGRATION.md) | 批次状态 / 审计修复矩阵 |
 | 协作服务端 | [`ide/collab-server/README.md`](ide/collab-server/README.md) | 部署 / TTL / 持久化 / 鉴权 |
 
@@ -140,7 +161,8 @@ YYC3-Family-IDE-Matrix/
 ## 📝 变更历史
 
 | 版本 | 日期 | 变更 |
-|------|------|------|
+| ------ | ------ | ------ |
+| v3.1.0 | 2026-09-16 | 文档体系补全：新增工程规范文档（CICD/LABELS/RELEASE/STYLE-GUIDE）与仓库治理文档（CONTRIBUTING/SECURITY/CODE_OF_CONDUCT/CHANGELOG/LICENSE）+ Issue/PR 模板与标签清单 |
 | v3.0.0 | 2026-08-28 | Phase 1-3 全部完成：多文件编辑 + Sandpack 预览 + AI 补全 + Electron 脚手架 |
 | v2.0.0 | 2026-08-20 | 文档架构重构：总览精简为导航入口 + docs/ 4 文件 |
 | v1.0.0 | 2026-08-19 | 初始版本 |
