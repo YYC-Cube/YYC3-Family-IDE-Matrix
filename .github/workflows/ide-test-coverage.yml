@@ -100,10 +100,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        node-version: [18.x, 20.x, 22.x]
+        # Vite 8 (rolldown) engines: ^20.19.0 || >=22.12.0 — Node 18 不受支持
+        node-version: [20.x, 22.x]
         exclude:
-          - os: macos-latest
-            node-version: 18.x
           - os: macos-latest
             node-version: 20.x
 
@@ -227,9 +226,16 @@ jobs:
             for (const [filePath, fileData] of Object.entries(data)) {
               if (filePath.endsWith("services/agent/AgentSkills.ts")) {
                 const s = fileData.summary || {};
-                process.stdout.write(`AGENT_STMTS=${s.lines?.pct ?? "N/A"}\n`);
-                process.stdout.write(`AGENT_BRANCH=${s.branches?.pct ?? "N/A"}\n`);
-                process.stdout.write(`AGENT_FUNCS=${s.functions?.pct ?? "N/A"}\n`);
+                const stmts = s.lines?.pct ?? -1;
+                const branch = s.branches?.pct ?? -1;
+                const funcs = s.functions?.pct ?? -1;
+                process.stdout.write(`AGENT_STMTS=${stmts}\n`);
+                process.stdout.write(`AGENT_BRANCH=${branch}\n`);
+                process.stdout.write(`AGENT_FUNCS=${funcs}\n`);
+                // GitHub Actions 表达式不支持三元运算符，状态符号在此预计算
+                process.stdout.write(`AGENT_STMTS_OK=${stmts >= 90}\n`);
+                process.stdout.write(`AGENT_BRANCH_OK=${branch >= 85}\n`);
+                process.stdout.write(`AGENT_FUNCS_OK=${funcs >= 95}\n`);
               }
             }
           ' >> $GITHUB_OUTPUT || true
@@ -243,9 +249,9 @@ jobs:
 
             | 指标 | 实际值 | 阈值 | 状态 |
             |------|--------|------|------|
-            | 🟦 Statements | **${{ steps.parse.outputs.AGENT_STMTS }}%** | ≥ 90% | ${{ (parseFloat(steps.parse.outputs.AGENT_STMTS) >= 90) ? '✅' : '❌' }} |
-            | 🟩 Branches   | **${{ steps.parse.outputs.AGENT_BRANCH }}%** | ≥ 85% | ${{ (parseFloat(steps.parse.outputs.AGENT_BRANCH) >= 85) ? '✅' : '❌' }} |
-            | 🟪 Functions  | **${{ steps.parse.outputs.AGENT_FUNCS }}%** | ≥ 95% | ${{ (parseFloat(steps.parse.outputs.AGENT_FUNCS) >= 95) ? '✅' : '❌' }} |
+            | 🟦 Statements | **${{ steps.parse.outputs.AGENT_STMTS }}%** | ≥ 90% | ${{ steps.parse.outputs.AGENT_STMTS_OK == 'true' && '✅' || '❌' }} |
+            | 🟩 Branches   | **${{ steps.parse.outputs.AGENT_BRANCH }}%** | ≥ 85% | ${{ steps.parse.outputs.AGENT_BRANCH_OK == 'true' && '✅' || '❌' }} |
+            | 🟪 Functions  | **${{ steps.parse.outputs.AGENT_FUNCS }}%** | ≥ 95% | ${{ steps.parse.outputs.AGENT_FUNCS_OK == 'true' && '✅' || '❌' }} |
 
             📎 完整报告: Actions Artifact → 下载 \`coverage-*\` 查看
             > Run: #${{ github.run_number }} · Commit: \`${{ github.event.pull_request.head.sha }}\`

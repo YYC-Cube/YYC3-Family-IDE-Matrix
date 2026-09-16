@@ -183,8 +183,6 @@ interface ColumnRatioEditorProps {
 }
 
 function ColumnRatioEditor({ ratios, onChange }: ColumnRatioEditorProps) {
-  const total = ratios.reduce((a, b) => a + b, 0)
-
   const handleRatioChange = (index: number, value: number) => {
     const newRatios = [...ratios]
     newRatios[index] = Math.max(10, Math.min(80, value))
