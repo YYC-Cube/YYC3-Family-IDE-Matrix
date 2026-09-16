@@ -11,8 +11,8 @@
  * notes: Monaco/xterm 在 jsdom 下不可运行，两者均 mock 为轻量替身
  */
 
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 // Monaco 分片 mock（真实 @monaco-editor/react 在 jsdom 不可运行）
 vi.mock("../../../MonacoWrapper", () => ({
@@ -22,24 +22,34 @@ vi.mock("../../../MonacoWrapper", () => ({
 }));
 
 // xterm 四件套 mock（TerminalPanel 消费）
+// 注：Vitest 5 的 vi.fn() 不可被 new 调用，类替身改用 class 实现
 vi.mock("@xterm/xterm", () => {
   const instance: Record<string, unknown> = {};
-  return {
-    Terminal: vi.fn().mockImplementation(() => ({
-      open: vi.fn(), write: vi.fn(), writeln: vi.fn(), clear: vi.fn(),
-      focus: vi.fn(), onResize: vi.fn(), onTitleChange: vi.fn(), dispose: vi.fn(),
-      loadAddon: vi.fn(),
-      onData: vi.fn((cb: (d: string) => void) => {
-        (instance as { __cb?: (d: string) => void }).__cb = cb;
-      }),
-      unicode: { activeVersion: "11" }, cols: 80, rows: 24,
-    })),
-  };
+  class Terminal {
+    open = vi.fn(); write = vi.fn(); writeln = vi.fn(); clear = vi.fn();
+    focus = vi.fn(); onResize = vi.fn(); onTitleChange = vi.fn(); dispose = vi.fn();
+    loadAddon = vi.fn();
+    onData = vi.fn((cb: (d: string) => void) => {
+      (instance as { __cb?: (d: string) => void }).__cb = cb;
+    });
+    unicode = { activeVersion: "11" }; cols = 80; rows = 24;
+  }
+  return { Terminal };
 });
-vi.mock("@xterm/addon-fit", () => ({ FitAddon: vi.fn().mockImplementation(() => ({ fit: vi.fn() })) }));
-vi.mock("@xterm/addon-web-links", () => ({ WebLinksAddon: vi.fn().mockImplementation(() => ({})) }));
-vi.mock("@xterm/addon-search", () => ({ SearchAddon: vi.fn().mockImplementation(() => ({})) }));
-vi.mock("@xterm/addon-unicode11", () => ({ Unicode11Addon: vi.fn().mockImplementation(() => ({})) }));
+vi.mock("@xterm/addon-fit", () => ({ FitAddon: class { fit = vi.fn(); } }));
+vi.mock("@xterm/addon-web-links", () => ({ WebLinksAddon: class { } }));
+vi.mock("@xterm/addon-search", () => ({ SearchAddon: class { } }));
+vi.mock("@xterm/addon-unicode11", () => ({ Unicode11Addon: class { } }));
+
+// Sandpack 预览 mock：真实 @codesandbox/sandpack-client 的传递依赖
+// static-browser-server 为 CJS，ESM named import 在 Node/vitest 5 下抛
+// SyntaxError；jsdom 本就不运行真实预览，替身即可
+// （SandpackPreview 位于仓库根 ide/，相对本测试目录为 ../../../）
+vi.mock("../../../SandpackPreview", () => ({
+  default: () => (
+    <div data-testid="sandpack-preview">SandpackPreview</div>
+  ),
+}));
 
 import IdeWorkbench from "../IdeWorkbench";
 

@@ -331,7 +331,7 @@ export function ProviderCard({
                   {provider.id === 'ollama' ? (
                     <div className="text-[9px] text-amber-400/30 mt-1">请从「Ollama 本地」标签页导入模型</div>
                   ) : (
-                    <div className="text-[9px] text-white/15 mt-1">点击"添加模型"按钮添加</div>
+                    <div className="text-[9px] text-white/15 mt-1">点击「添加模型」按钮添加</div>
                   )}
                 </div>
               )}

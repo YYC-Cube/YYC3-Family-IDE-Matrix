@@ -14,8 +14,8 @@ import { SnapshotViewController } from "../SnapshotViewController";
 
 describe("SnapshotViewController", () => {
   let controller: SnapshotViewController;
-  let onViewChange: ReturnType<typeof vi.fn>;
-  let onSyncChange: ReturnType<typeof vi.fn>;
+  let onViewChange: Mock;
+  let onSyncChange: Mock;
 
   beforeEach(() => {
     onViewChange = vi.fn();

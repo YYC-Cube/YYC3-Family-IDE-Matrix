@@ -24,7 +24,7 @@ export type PanelId =
   | "rag"
   | "collab"
   | "ops"
-  | (string & {}); // 开放联合：允许业务扩展面板 id，同时保留已知 id 的补全
+  | (string & Record<never, never>); // 开放联合：允许业务扩展面板 id，同时保留已知 id 的补全
 
 export interface LayoutNode {
   id: string;

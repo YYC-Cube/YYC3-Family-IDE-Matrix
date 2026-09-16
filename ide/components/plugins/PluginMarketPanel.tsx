@@ -12,10 +12,9 @@
  * @migrated: 回迁自 archive/ide-monolith-2026-03/PluginMarketPanel.tsx（第二批 · 2026-08-20）
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { pluginManager, type PluginMarketItem, type PluginMarketConfig } from '../../services/plugins/PluginSystem';
-import type { PluginManifest } from '../../types/plugin';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { logger } from "../../services/logger";
+import { pluginManager, type PluginMarketItem } from '../../services/plugins/PluginSystem';
 
 type TabType = 'market' | 'installed' | 'updates';
 type SortBy = 'downloads' | 'rating' | 'name' | 'updated';
@@ -56,23 +55,25 @@ const PluginMarketPanel: React.FC = () => {
   const [installing, setInstalling] = useState<Set<string>>(new Set());
   const [uninstalling, setUninstalling] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    pluginManager.configureMarket({ registryUrl: DEFAULT_REGISTRY_URL });
-    loadPlugins();
-  }, []);
-
   const loadPlugins = useCallback(async (forceRefresh = false) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const plugins = await pluginManager.fetchMarketPlugins(forceRefresh);
       setState(prev => ({ ...prev, plugins, loading: false }));
     } catch (error) {
-      setState(prev => ({ 
-        ...prev, 
-        loading: false, 
-        error: 'Failed to load plugins' 
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Failed to load plugins'
       }));
     }
+  }, []);
+
+  useEffect(() => {
+    pluginManager.configureMarket({ registryUrl: DEFAULT_REGISTRY_URL });
+    // 数据获取模式：异步回调内 setState，非 effect 体内同步调用
+    // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+    void loadPlugins();
   }, []);
 
   const handleInstall = useCallback(async (pluginId: string) => {
@@ -82,9 +83,9 @@ const PluginMarketPanel: React.FC = () => {
       if (result.success) {
         setState(prev => ({
           ...prev,
-          plugins: prev.plugins.map(p => 
-            p.manifest.id === pluginId 
-              ? { ...p, installed: true } 
+          plugins: prev.plugins.map(p =>
+            p.manifest.id === pluginId
+              ? { ...p, installed: true }
               : p
           ),
         }));
@@ -107,13 +108,13 @@ const PluginMarketPanel: React.FC = () => {
       if (success) {
         setState(prev => ({
           ...prev,
-          plugins: prev.plugins.map(p => 
-            p.manifest.id === pluginId 
-              ? { ...p, installed: false, updateAvailable: false } 
+          plugins: prev.plugins.map(p =>
+            p.manifest.id === pluginId
+              ? { ...p, installed: false, updateAvailable: false }
               : p
           ),
-          selectedPlugin: prev.selectedPlugin?.manifest.id === pluginId 
-            ? null 
+          selectedPlugin: prev.selectedPlugin?.manifest.id === pluginId
+            ? null
             : prev.selectedPlugin,
         }));
       }
@@ -133,9 +134,9 @@ const PluginMarketPanel: React.FC = () => {
       if (result.success) {
         setState(prev => ({
           ...prev,
-          plugins: prev.plugins.map(p => 
-            p.manifest.id === pluginId 
-              ? { ...p, updateAvailable: false, manifest: result.plugin!.manifest } 
+          plugins: prev.plugins.map(p =>
+            p.manifest.id === pluginId
+              ? { ...p, updateAvailable: false, manifest: result.plugin!.manifest }
               : p
           ),
         }));
@@ -154,7 +155,7 @@ const PluginMarketPanel: React.FC = () => {
 
     if (state.searchQuery) {
       const query = state.searchQuery.toLowerCase();
-      result = result.filter(p => 
+      result = result.filter(p =>
         p.manifest.name.toLowerCase().includes(query) ||
         p.manifest.description.toLowerCase().includes(query) ||
         p.manifest.author.toLowerCase().includes(query) ||
@@ -206,20 +207,20 @@ const PluginMarketPanel: React.FC = () => {
           borderRadius: '8px',
           marginBottom: '12px',
           cursor: 'pointer',
-          background: state.selectedPlugin?.manifest.id === plugin.manifest.id 
-            ? 'var(--hover-bg, #f5f5f5)' 
+          background: state.selectedPlugin?.manifest.id === plugin.manifest.id
+            ? 'var(--hover-bg, #f5f5f5)'
             : 'transparent',
           transition: 'background 0.2s',
         }}
-        onClick={() => setState(prev => ({ 
-          ...prev, 
-          selectedPlugin: prev.selectedPlugin?.manifest.id === plugin.manifest.id 
-            ? null 
-            : plugin 
+        onClick={() => setState(prev => ({
+          ...prev,
+          selectedPlugin: prev.selectedPlugin?.manifest.id === plugin.manifest.id
+            ? null
+            : plugin
         }))}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-          <div style={{ 
+          <div style={{
             fontSize: '32px',
             width: '48px',
             height: '48px',
@@ -231,14 +232,14 @@ const PluginMarketPanel: React.FC = () => {
           }}>
             {CATEGORY_ICONS[plugin.manifest.category || 'default'] || CATEGORY_ICONS.default}
           </div>
-          
+
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
                 {plugin.manifest.name}
               </h3>
-              <span style={{ 
-                fontSize: '12px', 
+              <span style={{
+                fontSize: '12px',
                 color: 'var(--text-secondary, #666)',
                 background: 'var(--tag-bg, #e8e8e8)',
                 padding: '2px 6px',
@@ -247,8 +248,8 @@ const PluginMarketPanel: React.FC = () => {
                 v{plugin.manifest.version}
               </span>
               {plugin.installed && (
-                <span style={{ 
-                  fontSize: '12px', 
+                <span style={{
+                  fontSize: '12px',
                   color: '#4caf50',
                   background: '#e8f5e9',
                   padding: '2px 6px',
@@ -258,8 +259,8 @@ const PluginMarketPanel: React.FC = () => {
                 </span>
               )}
               {plugin.updateAvailable && (
-                <span style={{ 
-                  fontSize: '12px', 
+                <span style={{
+                  fontSize: '12px',
                   color: '#ff9800',
                   background: '#fff3e0',
                   padding: '2px 6px',
@@ -269,10 +270,10 @@ const PluginMarketPanel: React.FC = () => {
                 </span>
               )}
             </div>
-            
-            <p style={{ 
-              margin: '0 0 8px 0', 
-              fontSize: '14px', 
+
+            <p style={{
+              margin: '0 0 8px 0',
+              fontSize: '14px',
               color: 'var(--text-secondary, #666)',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -280,7 +281,7 @@ const PluginMarketPanel: React.FC = () => {
             }}>
               {plugin.manifest.description}
             </p>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px', color: 'var(--text-tertiary, #999)' }}>
               <span>👤 {plugin.manifest.author}</span>
               <span>📥 {formatNumber(plugin.downloads)}</span>
@@ -357,10 +358,10 @@ const PluginMarketPanel: React.FC = () => {
         </div>
 
         {state.selectedPlugin?.manifest.id === plugin.manifest.id && (
-          <div style={{ 
-            marginTop: '16px', 
-            paddingTop: '16px', 
-            borderTop: '1px solid var(--border-color, #e0e0e0)' 
+          <div style={{
+            marginTop: '16px',
+            paddingTop: '16px',
+            borderTop: '1px solid var(--border-color, #e0e0e0)'
           }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px' }}>
               <div>
@@ -376,15 +377,15 @@ const PluginMarketPanel: React.FC = () => {
                 <strong>发布:</strong> {formatDate(plugin.publishedAt)}
               </div>
             </div>
-            
+
             {plugin.manifest.permissions && plugin.manifest.permissions.length > 0 && (
               <div style={{ marginTop: '12px' }}>
                 <strong style={{ fontSize: '14px' }}>权限:</strong>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
                   {plugin.manifest.permissions.map(perm => (
-                    <span 
+                    <span
                       key={perm}
-                      style={{ 
+                      style={{
                         fontSize: '12px',
                         background: 'var(--tag-bg, #e8e8e8)',
                         padding: '2px 8px',
@@ -403,9 +404,9 @@ const PluginMarketPanel: React.FC = () => {
                 <strong style={{ fontSize: '14px' }}>标签:</strong>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
                   {plugin.manifest.tags.map(tag => (
-                    <span 
+                    <span
                       key={tag}
-                      style={{ 
+                      style={{
                         fontSize: '12px',
                         background: '#e3f2fd',
                         color: '#1976d2',
@@ -422,9 +423,9 @@ const PluginMarketPanel: React.FC = () => {
 
             {plugin.manifest.homepage && (
               <div style={{ marginTop: '12px' }}>
-                <a 
-                  href={plugin.manifest.homepage} 
-                  target="_blank" 
+                <a
+                  href={plugin.manifest.homepage}
+                  target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: '#2196f3', fontSize: '14px' }}
                 >
@@ -439,21 +440,21 @@ const PluginMarketPanel: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      height: '100%', 
-      display: 'flex', 
+    <div style={{
+      height: '100%',
+      display: 'flex',
       flexDirection: 'column',
       background: 'var(--bg-color, #fff)',
     }}>
       {/* Header */}
-      <div style={{ 
-        padding: '16px', 
+      <div style={{
+        padding: '16px',
         borderBottom: '1px solid var(--border-color, #e0e0e0)',
       }}>
         <h2 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: 600 }}>
           插件市场
         </h2>
-        
+
         {/* Search */}
         <div style={{ position: 'relative', marginBottom: '12px' }}>
           <input
@@ -470,10 +471,10 @@ const PluginMarketPanel: React.FC = () => {
               outline: 'none',
             }}
           />
-          <span style={{ 
-            position: 'absolute', 
-            left: '12px', 
-            top: '50%', 
+          <span style={{
+            position: 'absolute',
+            left: '12px',
+            top: '50%',
             transform: 'translateY(-50%)',
             color: 'var(--text-tertiary, #999)',
           }}>
@@ -562,15 +563,15 @@ const PluginMarketPanel: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div style={{ 
-        flex: 1, 
-        overflow: 'auto', 
+      <div style={{
+        flex: 1,
+        overflow: 'auto',
         padding: '16px',
       }}>
         {state.error && (
-          <div style={{ 
-            padding: '12px', 
-            background: '#ffebee', 
+          <div style={{
+            padding: '12px',
+            background: '#ffebee',
             color: '#c62828',
             borderRadius: '4px',
             marginBottom: '12px',
@@ -580,29 +581,29 @@ const PluginMarketPanel: React.FC = () => {
         )}
 
         {state.loading && state.plugins.length === 0 ? (
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             height: '200px',
             color: 'var(--text-secondary, #666)',
           }}>
             加载中...
           </div>
         ) : filteredPlugins.length === 0 ? (
-          <div style={{ 
-            display: 'flex', 
+          <div style={{
+            display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center', 
-            justifyContent: 'center', 
+            alignItems: 'center',
+            justifyContent: 'center',
             height: '200px',
             color: 'var(--text-secondary, #666)',
           }}>
             <span style={{ fontSize: '48px', marginBottom: '12px' }}>📦</span>
             <span>
-              {state.searchQuery 
-                ? `未找到匹配 "${state.searchQuery}" 的插件` 
-                : state.activeTab === 'installed' 
+              {state.searchQuery
+                ? `未找到匹配 "${state.searchQuery}" 的插件`
+                : state.activeTab === 'installed'
                   ? '暂无已安装的插件'
                   : state.activeTab === 'updates'
                     ? '暂无可用更新'

@@ -21,22 +21,28 @@ const workerCache = new Map<string, Worker>();
 const loadedWorkers = new Set<string>();
 const loadingPromises = new Map<string, Promise<Worker>>();
 
+// Vite 8（rolldown）下 new URL('pkg/worker.js', import.meta.url) 的裸包
+// 说明符无法在 worker 打包阶段解析（报 lib/monaco-editor/... UNRESOLVED_ENTRY）。
+// 且 monaco-editor 0.56 的 exports 通配（./* -> esm/vs/*.js）不跨目录，
+// Node resolve 深层 worker 路径全部被挡。
+// 方案：vite.config.ts 增加 monaco-worker:* alias 指向磁盘真实文件，
+// 配合 ?worker&url 出独立 worker chunk（仅构建期解析，运行时为 URL）。
+import cssWorkerUrl from 'monaco-worker:css';
+import editorWorkerUrl from 'monaco-worker:editor';
+import htmlWorkerUrl from 'monaco-worker:html';
+import jsonWorkerUrl from 'monaco-worker:json';
+import tsWorkerUrl from 'monaco-worker:ts';
+
 const workerLoaders: Partial<Record<WorkerLabel, () => Promise<Worker>>> = {
   json: async () => {
-    const worker = new Worker(
-      new URL('monaco-editor/esm/vs/language/json/json.worker.js', import.meta.url),
-      { type: 'module' }
-    );
+    const worker = new Worker(jsonWorkerUrl, { type: 'module' });
     workerCache.set('json', worker);
     loadedWorkers.add('json');
     return worker;
   },
 
   css: async () => {
-    const worker = new Worker(
-      new URL('monaco-editor/esm/vs/language/css/css.worker.js', import.meta.url),
-      { type: 'module' }
-    );
+    const worker = new Worker(cssWorkerUrl, { type: 'module' });
     workerCache.set('css', worker);
     workerCache.set('scss', worker);
     workerCache.set('less', worker);
@@ -47,10 +53,7 @@ const workerLoaders: Partial<Record<WorkerLabel, () => Promise<Worker>>> = {
   },
 
   html: async () => {
-    const worker = new Worker(
-      new URL('monaco-editor/esm/vs/language/html/html.worker.js', import.meta.url),
-      { type: 'module' }
-    );
+    const worker = new Worker(htmlWorkerUrl, { type: 'module' });
     workerCache.set('html', worker);
     workerCache.set('handlebars', worker);
     workerCache.set('razor', worker);
@@ -61,10 +64,7 @@ const workerLoaders: Partial<Record<WorkerLabel, () => Promise<Worker>>> = {
   },
 
   typescript: async () => {
-    const worker = new Worker(
-      new URL('monaco-editor/esm/vs/language/typescript/ts.worker.js', import.meta.url),
-      { type: 'module' }
-    );
+    const worker = new Worker(tsWorkerUrl, { type: 'module' });
     workerCache.set('typescript', worker);
     workerCache.set('javascript', worker);
     loadedWorkers.add('typescript');
@@ -77,10 +77,7 @@ let defaultWorker: Worker | null = null;
 
 const getDefaultWorker = (): Worker => {
   if (!defaultWorker) {
-    defaultWorker = new Worker(
-      new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url),
-      { type: 'module' }
-    );
+    defaultWorker = new Worker(editorWorkerUrl, { type: 'module' });
   }
   return defaultWorker;
 };

@@ -15,7 +15,7 @@ import type { PreviewMode } from "../../types/previewTypes";
 
 describe("PreviewModeController", () => {
   let controller: PreviewModeController;
-  let mockTriggerUpdate: ReturnType<typeof vi.fn>;
+  let mockTriggerUpdate: Mock;
 
   beforeEach(() => {
     // 使用假的定时器

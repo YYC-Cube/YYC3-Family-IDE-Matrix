@@ -12,7 +12,7 @@
  * @tags: event-bus,workflow,cross-panel,communication
  */
 
-import React, { createContext, useCallback, useContext, useRef } from "react";
+import React, { createContext, useCallback, useContext, useRef, useState } from "react";
 
 const logger = {
   error: (...args: unknown[]) => console.error("[WorkflowEventBus]", ...args),
@@ -127,11 +127,13 @@ export function WorkflowEventBusProvider({
   children: React.ReactNode;
 }) {
   const handlersRef = useRef<Set<EventHandler>>(new Set());
-  const lastEventRef = useRef<WorkflowEvent | null>(null);
+  // lastEvent 用 state 承载：emit 是用户/系统事件驱动（非 render 期），
+  // 且消费方依赖 lastEvent 变化触发重渲染（ref 不触发）
+  const [lastEvent, setLastEvent] = useState<WorkflowEvent | null>(null);
 
   const emit = useCallback((event: Omit<WorkflowEvent, "timestamp">) => {
     const full: WorkflowEvent = { ...event, timestamp: Date.now() };
-    lastEventRef.current = full;
+    setLastEvent(full);
     handlersRef.current.forEach((handler) => {
       try {
         handler(full);
@@ -151,7 +153,7 @@ export function WorkflowEventBusProvider({
   const ctx: WorkflowEventBusContextType = {
     emit,
     subscribe,
-    lastEvent: lastEventRef.current,
+    lastEvent,
   };
 
   return (

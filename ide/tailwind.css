@@ -1,3 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * @file: tailwind.css
+ * @description: Tailwind v4 CSS 入口 — 主题令牌以 @theme 内联声明（取代 v3 tailwind.config.js）
+ * @author: YanYuCloudCube Team <admin@0379.email>
+ * @version: v2.0.0
+ * @created: 2026-08-19
+ * @updated: 2026-09-16
+ * @status: active
+ * @tags: [tailwind,css,theme,tokens]
+ *
+ * notes:
+ * - v4 用 @import "tailwindcss" 取代 @tailwind base/components/utilities 三指令
+ * - @theme 内联令牌直接生成 yyc3-* 工具类（等价 v3 config.theme.extend.colors.yyc3）
+ * - content 扫描无需配置：v4 自动检测 + .gitignore 感知
+ * - 令牌与 components/visualization/theme/tokens.ts 保持对齐（Cyberpunk-88）
+ */
+
+@import "tailwindcss";
+
+@theme {
+  --color-yyc3-bg: #0d1117;
+  --color-yyc3-elevated: #161b22;
+  --color-yyc3-cyan: #06b6d4;
+  --color-yyc3-emerald: #10b981;
+  --color-yyc3-amber: #f59e0b;
+  --color-yyc3-rose: #ef4444;
+}

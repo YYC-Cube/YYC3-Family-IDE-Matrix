@@ -212,7 +212,7 @@ const FALLBACK_CTX: VisualThemeContextValue = {
     if (typeof console !== "undefined") {
       console.warn(
         "[useVisualTheme] setThemeId called outside VisualThemeProvider. " +
-          "Wrap your app root with <VisualThemeProvider> to enable persistence."
+        "Wrap your app root with <VisualThemeProvider> to enable persistence."
       );
     }
   },
@@ -276,8 +276,12 @@ export function VisualThemeProvider(props: VisualThemeProviderProps) {
 
   // I-修复·挂载后：从 localStorage / 系统偏好 同步真实主题
   // 这样 SSR 与 hydration 第一帧完全一致 → useEffect 后才切换到用户真实偏好
+  // (SSR mounted-gate 是 React 官方 hydration 同步模式，豁免编译器级告警)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     // 客户端接管 DOM 完成，标记 mounted
+    // (SSR mounted-gate 是 React 官方 hydration 同步模式)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
 
     // 如果消费方已经通过 initialThemeId 显式指定了主题，

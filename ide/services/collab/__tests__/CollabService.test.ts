@@ -9,7 +9,7 @@
  * @tags: [test],[collab],[yjs]
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as Y from "yjs";
 
 // y-websocket 需要真实 WS 服务，测试用 FakeProvider 替代（Awareness 语义以轻量假实现模拟）
@@ -62,23 +62,25 @@ vi.mock("y-websocket", () => {
 });
 
 // jsdom 无 indexedDB，persistence 走 mock 验证接线而非真实落盘
+// 注：Vitest 5 的 vi.fn() 箭头函数实现不可被 new；用 function 实现保留断言
 vi.mock("y-indexeddb", () => ({
-  IndexeddbPersistence: vi.fn().mockImplementation(() => ({
-    on: vi.fn(),
-    destroy: vi.fn().mockResolvedValue(undefined),
-  })),
+  IndexeddbPersistence: vi.fn().mockImplementation(function (this: unknown) {
+    return { on: vi.fn(), destroy: vi.fn().mockResolvedValue(undefined) };
+  }),
 }));
 
 // Monaco 绑定验证接线参数，不引真实 monaco
+// 注：Vitest 5 的 vi.fn() 箭头函数实现不可被 new；用 function 实现
+// 保留 mock.calls 断言能力
 vi.mock("y-monaco", () => ({
   MonacoBinding: vi.fn().mockImplementation(function (this: unknown, ...args: unknown[]) {
     return { args, destroy: vi.fn() };
   }),
 }));
 
-import { CollabService, createCollabService } from "../CollabService";
-import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
+import { WebsocketProvider } from "y-websocket";
+import { createCollabService } from "../CollabService";
 
 /** FakeProvider 实例的结构化视图 */
 interface FakeProviderInstance {

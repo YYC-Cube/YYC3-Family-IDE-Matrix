@@ -12,24 +12,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 
+// Vitest 5 的 vi.fn() 不可被 new 调用，类替身改用 class 实现
 vi.mock("@xterm/xterm", () => {
   const instance: Record<string, unknown> = {};
-  return {
-    Terminal: vi.fn().mockImplementation(() => ({
-      open: vi.fn(), write: vi.fn(), writeln: vi.fn(), clear: vi.fn(),
-      focus: vi.fn(), onResize: vi.fn(), onTitleChange: vi.fn(),
-      dispose: vi.fn(), loadAddon: vi.fn(),
-      onData: vi.fn((cb: (d: string) => void) => {
-        (instance as { __cb?: (d: string) => void }).__cb = cb;
-      }),
-      unicode: { activeVersion: "11" }, cols: 80, rows: 24,
-    })),
-  };
+  class Terminal {
+    open = vi.fn(); write = vi.fn(); writeln = vi.fn(); clear = vi.fn();
+    focus = vi.fn(); onResize = vi.fn(); onTitleChange = vi.fn();
+    dispose = vi.fn(); loadAddon = vi.fn();
+    onData = vi.fn((cb: (d: string) => void) => {
+      (instance as { __cb?: (d: string) => void }).__cb = cb;
+    });
+    unicode = { activeVersion: "11" }; cols = 80; rows = 24;
+  }
+  return { Terminal };
 });
-vi.mock("@xterm/addon-fit", () => ({ FitAddon: vi.fn().mockImplementation(() => ({ fit: vi.fn() })) }));
-vi.mock("@xterm/addon-web-links", () => ({ WebLinksAddon: vi.fn().mockImplementation(() => ({})) }));
-vi.mock("@xterm/addon-search", () => ({ SearchAddon: vi.fn().mockImplementation(() => ({})) }));
-vi.mock("@xterm/addon-unicode11", () => ({ Unicode11Addon: vi.fn().mockImplementation(() => ({})) }));
+vi.mock("@xterm/addon-fit", () => ({ FitAddon: class { fit = vi.fn(); } }));
+vi.mock("@xterm/addon-web-links", () => ({ WebLinksAddon: class { } }));
+vi.mock("@xterm/addon-search", () => ({ SearchAddon: class { } }));
+vi.mock("@xterm/addon-unicode11", () => ({ Unicode11Addon: class { } }));
 
 // 只 mock 工厂模块（barrel 会 re-export 同一 mock 实例）
 const factoryMock = vi.fn();

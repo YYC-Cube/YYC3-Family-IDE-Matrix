@@ -9,26 +9,26 @@
  * @tags: [test],[panel-host],[shell],[layout]
  */
 
-import { describe, it, expect } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { useEffect } from "react";
+import { describe, expect, it } from "vitest";
 import {
   findNode,
   findParent,
-  splitNode,
-  removeNode,
   insertPanelBeside,
+  removeNode,
   replacePanel,
-  swapPanels,
   resizeSibling,
-
+  splitNode,
+  swapPanels,
 } from "../layout-ops";
 import type { LayoutNode } from "../PanelManagerContext";
 import {
+  LAYOUT_PRESETS,
   PanelManagerProvider,
   usePanelManager,
-  LAYOUT_PRESETS,
 } from "../PanelManagerContext";
-import { PanelShell, PanelRegistryProvider } from "../PanelShell";
+import { PanelRegistryProvider, PanelShell } from "../PanelShell";
 
 const leaf = (id: string, panelId: string, size = 50): LayoutNode => ({
   id,
@@ -209,7 +209,10 @@ describe("PanelManagerContext 布局编辑操作", () => {
   it("splitPanel 经上下文驱动 Shell 渲染新面板", () => {
     let ctx: ReturnType<typeof usePanelManager> | null = null;
     const Capture = () => {
-      ctx = usePanelManager();
+      const value = usePanelManager();
+      useEffect(() => {
+        ctx = value;
+      });
       return null;
     };
     render(

@@ -20,28 +20,28 @@
  * ```
  */
 
-import { Suspense, lazy, useCallback, useMemo, useRef, useState } from "react";
-import type { ComponentType } from "react";
 import { Boxes, FileCode } from "lucide-react";
+import type { ComponentType } from "react";
+import { Suspense, lazy, useCallback, useMemo, useState } from "react";
 
+import CollabPanel from "../../CollabPanel";
+import { preloadMonaco } from "../../LazyMonaco";
+import SandpackPreview from "../../SandpackPreview";
+import type { CollabService } from "../../services/collab";
+import { useFileStoreZustand } from "../../stores/useFileStoreZustand";
+import AgentMarket from "../agent/AgentMarket";
+import { ModelRegistryProvider } from "../agent/ModelRegistry";
 import {
+  LAYOUT_PRESETS,
   PanelManagerProvider,
   PanelRegistryProvider,
   PanelShell,
-  LAYOUT_PRESETS,
   usePanelManager,
   type LayoutNode,
 } from "../panel-host";
-import { ModelRegistryProvider } from "../agent/ModelRegistry";
 import { SandboxedTerminalPanel } from "../terminal/TerminalPanel";
-import AgentMarket from "../agent/AgentMarket";
-import CollabPanel from "../../CollabPanel";
-import FileExplorer from "./FileExplorer";
-import SandpackPreview from "../../SandpackPreview";
 import EditorTabs from "./EditorTabs";
-import { useFileStoreZustand } from "../../stores/useFileStoreZustand";
-import { preloadMonaco } from "../../LazyMonaco";
-import type { CollabService } from "../../services/collab";
+import FileExplorer from "./FileExplorer";
 
 // Monaco 按需分片（@monaco-editor/react 全量 ~2MB，绝不含进首屏）
 const MonacoWrapper = lazy(() => import("../../MonacoWrapper"));
@@ -123,11 +123,10 @@ function PresetToolbar() {
           <button
             key={name}
             onClick={() => switchTo(name)}
-            className={`rounded px-2 py-0.5 text-[0.62rem] transition-colors ${
-              active === name
-                ? "bg-cyan-600/30 text-cyan-300"
-                : "text-slate-600 hover:bg-white/5 hover:text-slate-400"
-            }`}
+            className={`rounded px-2 py-0.5 text-[0.62rem] transition-colors ${active === name
+              ? "bg-cyan-600/30 text-cyan-300"
+              : "text-slate-600 hover:bg-white/5 hover:text-slate-400"
+              }`}
           >
             {name === "default" ? "默认" : name === "designer" ? "设计" : "AI 工作区"}
           </button>
@@ -176,31 +175,30 @@ const WORKBENCH_LAYOUT: LayoutNode = {
   ],
 };
 
+/** 工作台默认布局：Monaco 左 / 终端右上 / Agent 市场右下 */
+
+// 项目初始文件（模块加载期幂等注入 store，早于任何渲染；
+// store 为非响应式快照读取，effect 期初始化不会触发重渲染）
+if (Object.keys(useFileStoreZustand.getState().fileContents).length === 0) {
+  useFileStoreZustand.getState().initializeProject({
+    "src/App.tsx": [
+      "// YYC³ IDE — 多文件编辑",
+      'export function App() {',
+      '  return <div className="p-4 text-slate-200">Hello YYC³!</div>;',
+      "}",
+      "",
+    ].join("\n"),
+    "src/index.css": "/* 全局样式 */\n",
+    "package.json": JSON.stringify({ name: "yyc3-workspace", version: "0.1.0" }, null, 2),
+    "README.md": "# YYC³ Workspace\n\n多文件编辑 + 实时预览\n",
+  }, "src/App.tsx");
+}
+
 export default function IdeWorkbench({
   collabService,
   initialLayout = WORKBENCH_LAYOUT,
 }: IdeWorkbenchProps) {
   // 面板注册表：panelId → 真实组件（nodeId 契约统一）
-  // 初始化项目文件（首次挂载）
-  const fileStore = useFileStoreZustand.getState();
-  const { initializeProject, fileContents } = fileStore;
-  const initialized = useRef(false);
-  if (!initialized.current && Object.keys(fileContents).length === 0) {
-    initializeProject({
-      "src/App.tsx": [
-        "// YYC³ IDE — 多文件编辑",
-        'export function App() {',
-        '  return <div className="p-4 text-slate-200">Hello YYC³!</div>;',
-        "}",
-        "",
-      ].join("\n"),
-      "src/index.css": "/* 全局样式 */\n",
-      "package.json": JSON.stringify({ name: "yyc3-workspace", version: "0.1.0" }, null, 2),
-      "README.md": "# YYC³ Workspace\n\n多文件编辑 + 实时预览\n",
-    }, "src/App.tsx");
-    initialized.current = true;
-  }
-
   const registry = useMemo(
     () =>
       ({

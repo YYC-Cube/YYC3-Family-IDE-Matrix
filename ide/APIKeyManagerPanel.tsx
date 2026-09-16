@@ -4,23 +4,22 @@
  * @version: 1.0.0
  */
 
-import { useState, useEffect, useCallback } from 'react';
 import {
-  Key,
-  Plus,
-  Trash2,
+  AlertTriangle,
+  CheckCircle2,
+  ChevronDown,
+  Copy,
+  ExternalLink,
   Eye,
   EyeOff,
-  CheckCircle2,
-  XCircle,
-  ExternalLink,
-  Shield,
-  AlertTriangle,
-  Copy,
+  Key,
+  Plus,
   RefreshCw,
-  ChevronDown,
-  Settings,
+  Shield,
+  Trash2,
+  XCircle
 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { apiKeyVault, PROVIDERS, type APIKeyConfig, type ProviderId, type ProviderInfo } from './services/security/APIKeyVault';
 import { confirmDialog } from './stores/useConfirmStore';
 
@@ -51,7 +50,9 @@ export function APIKeyManagerPanel({ onClose, onProviderChange }: APIKeyManagerP
   }, []);
 
   useEffect(() => {
-    loadKeys();
+    // 数据获取模式：异步回调内 setState，非 effect 体内同步调用
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadKeys();
   }, [loadKeys]);
 
   const handleAddKey = async (provider: ProviderId, apiKey: string, name: string, baseUrl?: string) => {
@@ -146,7 +147,7 @@ export function APIKeyManagerPanel({ onClose, onProviderChange }: APIKeyManagerP
           <div className="flex flex-col items-center justify-center h-32 text-slate-500">
             <Key className="w-12 h-12 mb-2 opacity-50" />
             <p>暂无 API 密钥</p>
-            <p className="text-sm mt-1">点击"添加密钥"开始配置</p>
+            <p className="text-sm mt-1">点击「添加密钥」开始配置</p>
           </div>
         ) : (
           Object.entries(groupedKeys).map(([provider, providerKeys]) => (
@@ -344,16 +345,20 @@ function AddKeyModal({ onClose, onSubmit, selectedProvider, onSelectProvider }: 
 
   const providerInfo = PROVIDERS[provider];
 
-  useEffect(() => {
-    if (selectedProvider) {
-      setProvider(selectedProvider);
-    }
-  }, [selectedProvider]);
+  // React 官方「渲染期调整状态」模式：props/内部状态变化时重置派生字段
+  // (替代 effect + setState，避免级联渲染)
+  const [prevSelectedProvider, setPrevSelectedProvider] = useState(selectedProvider);
+  if (selectedProvider !== prevSelectedProvider) {
+    setPrevSelectedProvider(selectedProvider);
+    if (selectedProvider) setProvider(selectedProvider);
+  }
 
-  useEffect(() => {
+  const [prevProvider, setPrevProvider] = useState(provider);
+  if (provider !== prevProvider) {
+    setPrevProvider(provider);
     setBaseUrl(PROVIDERS[provider].baseUrl);
     setName(PROVIDERS[provider].name);
-  }, [provider]);
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -77,7 +77,7 @@ class SanitizerService {
       '/': '&#x2F;',
     }
 
-    return text.replace(/[&<>"'\/]/g, (char) => map[char])
+    return text.replace(/[&<>"'/]/g, (char) => map[char])
   }
 
   isSafeUrl(url: string): boolean {

@@ -9,15 +9,15 @@
  * @tags: [test],[panel-host],[floating]
  */
 
-import { describe, it, expect } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { useEffect } from "react";
+import { describe, expect, it } from "vitest";
 import type { LayoutNode } from "../PanelManagerContext";
 import {
   PanelManagerProvider,
   usePanelManager,
 } from "../PanelManagerContext";
-import { PanelShell, PanelRegistryProvider } from "../PanelShell";
+import { PanelRegistryProvider, PanelShell } from "../PanelShell";
 
 const leaf = (id: string, panelId: string): LayoutNode => ({
   id,
@@ -38,9 +38,12 @@ const panels = {
   preview: () => <div>预览内容</div>,
 };
 
-/** 捕获上下文供直接调用编辑 API */
+/** 捕获上下文供直接调用编辑 API（effect 期赋值，act 会 flush） */
 function Capture({ ctxRef }: { ctxRef: { current: ReturnType<typeof usePanelManager> | null } }) {
-  ctxRef.current = usePanelManager();
+  const ctx = usePanelManager();
+  useEffect(() => {
+    ctxRef.current = ctx;
+  });
   return null;
 }
 

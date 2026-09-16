@@ -355,11 +355,12 @@ export default function MonacoWrapper({
   }, [previewScrollRatio, scrollSyncEnabled, scrollSource]);
 
   // Switch Monaco theme when global theme changes
-  if (monacoRef.current) {
-    monacoRef.current.editor.setTheme(
+  // (effect 同步外部 monaco 实例，避免 render 期访问 ref)
+  useEffect(() => {
+    monacoRef.current?.editor.setTheme(
       isCyber ? CYBER_THEME_NAME : NAVY_THEME_NAME,
     );
-  }
+  }, [isCyber]);
 
   const language = getLanguageFromPath(filePath);
 

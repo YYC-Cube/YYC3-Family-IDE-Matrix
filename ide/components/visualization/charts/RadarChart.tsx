@@ -36,14 +36,14 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import {
-  Radar,
-  RadarChart as ReRadarChart,
-  PolarGrid,
   PolarAngleAxis,
+  PolarGrid,
   PolarRadiusAxis,
+  Radar,
+  Legend as ReLegend,
+  RadarChart as ReRadarChart,
   ResponsiveContainer,
   Tooltip as RTooltip,
-  Legend as ReLegend,
 } from "recharts";
 
 // —— 主题: 按单一数据源原则从 useVisualTheme 读取 ——
@@ -51,7 +51,7 @@ import { useVisualTheme } from "../useVisualTheme";
 import { makeChartGradId } from "../utils/chartUtils";
 
 // —— Zod 契约类型 ——
-import type { RadarChartData, RadarAxis, RadarSubject } from "../validators/chart.schemas";
+import type { RadarAxis, RadarChartData, RadarChartDataInput, RadarSubject } from "../validators/chart.schemas";
 import { RadarChartDataSchema } from "../validators/chart.schemas";
 
 // ==================================================================
@@ -59,8 +59,8 @@ import { RadarChartDataSchema } from "../validators/chart.schemas";
 // ==================================================================
 
 export interface RadarChartProps {
-  /** 已标准化的雷达图数据 (axes + subjects) */
-  data: RadarChartData;
+  /** 已标准化的雷达图数据 (axes + subjects)；fullMark 可省略（default 100） */
+  data: RadarChartDataInput;
   /** 画布高度 (px)，宽度由父容器 100% */
   height?: number;
   /** 是否显示 Tooltip — 默认 true */
@@ -167,12 +167,135 @@ export function RadarChart(props: RadarChartProps) {
   // ---- (2) 维度不足或校验失败 → 空状态 ----
   const isInvalid = !validData || validData.axes.length < 3 || validData.subjects.length === 0;
 
+  // ---- (4) 转换 recharts 格式（hooks 必须先于任何 early-return，见 rules-of-hooks）----
+  const rechartsData = useMemo(
+    () => (validData ? transformToRecharts(validData) : []),
+    [validData],
+  );
+
+  // ---- (5) 为每个主体分配颜色 (优先用 subject.color，否则取 familySeries 循环) ----
+  const subjectColorMap: Record<string, string> = useMemo(() => {
+    const map: Record<string, string> = {};
+    if (!validData) return map;
+    const series = tokens.familySeries;
+    validData.subjects.forEach((s, i) => {
+      map[s.name] = s.color || series[i % series.length];
+    });
+    return map;
+  }, [validData]);
+
+  // ---- (6) SVG Gradient 唯一 ID (多个 Radar 同时展示避免冲突) ----
+  const strokeGradId = useMemo(() => makeChartGradId("radar-stroke"), []);
+
+  // ---- (7) Tooltip 定制 ----
+  const tooltipContent = useMemo(() => {
+    return function RadarTooltipContent(props: any) {
+      const { active, payload, label } = props;
+      if (!active || !payload || !payload.length) return null;
+      const axis = validData?.axes.find((a: any) => a.name === label);
+      return (
+        <div
+          style={{
+            background: tokens.canvas.bg,
+            border: `1px solid ${tokens.canvas.border}`,
+            borderRadius: 8,
+            fontSize: 10,
+            color: tokens.text.secondary,
+            padding: 8,
+            minWidth: 160,
+          }}
+        >
+          <div
+            style={{
+              color: tokens.text.tertiary,
+              fontSize: 9,
+              marginBottom: 4,
+              borderBottom: `1px dashed ${tokens.canvas.border}`,
+              paddingBottom: 4,
+            }}
+          >
+            维度：<strong style={{ color: tokens.text.primary }}>{label}</strong>
+            {axis?.unit ? ` (${axis.unit})` : ""}
+            {axis?.fullMark ? ` · 满分 ${axis.fullMark}` : ""}
+          </div>
+          {payload.map((entry: any, i: number) => {
+            const subject = validData?.subjects[i];
+            if (!subject) return null;
+            const rawVal = Number(entry.value);
+            const color = subjectColorMap[entry.name] ?? tokens.primary[500];
+            const valNode = valueFormatter
+              ? valueFormatter(rawVal, axis as RadarAxis, subject)
+              : `${rawVal}${axis?.unit ?? ""}`;
+            return (
+              <div key={entry.name} style={{ display: "flex", justifyContent: "space-between", padding: "1px 0" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span
+                    style={{
+                      width: 8, height: 8, borderRadius: 2,
+                      background: color,
+                    }}
+                  />
+                  <span>{entry.name}</span>
+                </span>
+                <span style={{ color }}>{valNode}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+    };
+  }, [validData, subjectColorMap, valueFormatter]);
+
+  // ---- (8) Legend 自定义（hooks 必须先于 early-return）----
+  const legendContent = useMemo(() => {
+    return function RadarLegendContent(props: any) {
+      const { payload } = props;
+      if (!payload?.length) return null;
+      return (
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 10px" }}>
+          {payload.map((p: any, i: number) => (
+            <div
+              key={p.value}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                fontSize: 9,
+                color: tokens.text.secondary,
+              }}
+              title={validData?.subjects[i]?.name}
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 2,
+                  background: subjectColorMap[p.value] ?? tokens.primary[500],
+                  opacity: 0.8,
+                }}
+              />
+              <span>{p.value}</span>
+            </div>
+          ))}
+        </div>
+      );
+    };
+  }, [subjectColorMap, validData]);
+
+  // ---- (3) 主体数量上限提醒 (8 家族刚好 8 条) ----
+  if (validData && validData.subjects.length > 8 && typeof console !== "undefined") {
+    console.warn(
+      `[RadarChart] 主体数量超过建议上限 8 (当前 ${validData.subjects.length})，颜色会循环，请考虑分组展示`
+    );
+  }
+
+  // ---- early-return: 无效数据空状态（位于全部 hooks 之后，符合 rules-of-hooks）----
   if (isInvalid) {
     const reason = !validData
       ? "数据未通过 Zod 校验"
       : validData.axes.length < 3
-      ? `雷达图至少需要 3 个维度 (当前 ${validData.axes.length})`
-      : "主体数据为空";
+        ? `雷达图至少需要 3 个维度 (当前 ${validData.axes.length})`
+        : "主体数据为空";
 
     return (
       emptyState ?? (
@@ -206,124 +329,6 @@ export function RadarChart(props: RadarChartProps) {
       )
     );
   }
-
-  // ---- (3) 主体数量上限提醒 (8 家族刚好 8 条) ----
-  if (validData.subjects.length > 8 && typeof console !== "undefined") {
-    console.warn(
-      `[RadarChart] 主体数量超过建议上限 8 (当前 ${validData.subjects.length})，颜色会循环，请考虑分组展示`
-    );
-  }
-
-  // ---- (4) 转换 recharts 格式 ----
-  const rechartsData = useMemo(() => transformToRecharts(validData), [validData]);
-
-  // ---- (5) 为每个主体分配颜色 (优先用 subject.color，否则取 familySeries 循环) ----
-  const subjectColorMap: Record<string, string> = useMemo(() => {
-    const map: Record<string, string> = {};
-    const series = tokens.familySeries;
-    validData.subjects.forEach((s, i) => {
-      map[s.name] = s.color || series[i % series.length];
-    });
-    return map;
-  }, [validData]);
-
-  // ---- (6) SVG Gradient 唯一 ID (多个 Radar 同时展示避免冲突) ----
-  const strokeGradId = useMemo(() => makeChartGradId("radar-stroke"), []);
-
-  // ---- (7) Tooltip 定制 ----
-  const tooltipContent = useMemo(() => {
-    return function RadarTooltipContent(props: any) {
-      const { active, payload, label } = props;
-      if (!active || !payload || !payload.length) return null;
-      const axis = validData.axes.find((a: any) => a.name === label);
-      return (
-        <div
-          style={{
-            background: tokens.canvas.bg,
-            border: `1px solid ${tokens.canvas.border}`,
-            borderRadius: 8,
-            fontSize: 10,
-            color: tokens.text.secondary,
-            padding: 8,
-            minWidth: 160,
-          }}
-        >
-          <div
-            style={{
-              color: tokens.text.tertiary,
-              fontSize: 9,
-              marginBottom: 4,
-              borderBottom: `1px dashed ${tokens.canvas.border}`,
-              paddingBottom: 4,
-            }}
-          >
-            维度：<strong style={{ color: tokens.text.primary }}>{label}</strong>
-            {axis?.unit ? ` (${axis.unit})` : ""}
-            {axis?.fullMark ? ` · 满分 ${axis.fullMark}` : ""}
-          </div>
-          {payload.map((entry: any, i: number) => {
-            const subject = validData.subjects[i];
-            if (!subject) return null;
-            const rawVal = Number(entry.value);
-            const color = subjectColorMap[entry.name] ?? tokens.primary[500];
-            const valNode = valueFormatter
-              ? valueFormatter(rawVal, axis, subject)
-              : `${rawVal}${axis?.unit ?? ""}`;
-            return (
-              <div key={entry.name} style={{ display: "flex", justifyContent: "space-between", padding: "1px 0" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span
-                    style={{
-                      width: 8, height: 8, borderRadius: 2,
-                      background: color,
-                    }}
-                  />
-                  <span>{entry.name}</span>
-                </span>
-                <span style={{ color }}>{valNode}</span>
-              </div>
-            );
-          })}
-        </div>
-      );
-    };
-  }, [validData, subjectColorMap, valueFormatter]);
-
-  // ---- (8) Legend 自定义 ----
-  const legendContent = useMemo(() => {
-    return function RadarLegendContent(props: any) {
-      const { payload } = props;
-      if (!payload?.length) return null;
-      return (
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 10px" }}>
-          {payload.map((p: any, i: number) => (
-            <div
-              key={p.value}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-                fontSize: 9,
-                color: tokens.text.secondary,
-              }}
-              title={validData.subjects[i]?.name}
-            >
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 2,
-                  background: subjectColorMap[p.value] ?? tokens.primary[500],
-                  opacity: 0.8,
-                }}
-              />
-              <span>{p.value}</span>
-            </div>
-          ))}
-        </div>
-      );
-    };
-  }, [subjectColorMap, validData]);
 
   // ---- (9) 动画策略 (同 §7.2：主体 × 维度 > 200 点关闭) ----
   const totalCells = validData.axes.length * validData.subjects.length;

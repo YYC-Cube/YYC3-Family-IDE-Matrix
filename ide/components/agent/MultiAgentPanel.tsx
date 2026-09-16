@@ -13,56 +13,49 @@
  * @migrated: 回迁自 archive/ide-monolith-2026-03/MultiAgentPanel.tsx（Agent 批③ · 2026-08-20）
  */
 
-import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import {
-  Users,
-  Brain,
-  Code2,
-  TestTube2,
-  Eye,
-  Play,
-  Pause,
-  RotateCcw,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  Loader2,
-  ChevronRight,
-  ChevronDown,
-  Zap,
-  ArrowRight,
-  GitBranch,
   Activity,
+  AlertCircle,
+  ArrowRight,
   BarChart3,
-  MessageSquare,
-  Sparkles,
-  Target,
-  CircleDot,
-  Timer,
-  X,
-  Database,
-  FileCode2,
-  Search,
-  Pin,
-  Trash2,
-  Plus,
-  BookOpen,
-  History,
-  Tag,
-  Diff,
+  Brain,
   Check,
-  XCircle,
+  CheckCircle2,
+  CircleDot,
+  Clock,
+  Code2,
+  Database,
+  Eye,
+  FileCode2,
+  GitBranch,
+  Loader2,
+  MessageSquare,
+  Pause,
+  Pin,
+  Play,
+  Plus,
+  RotateCcw,
+  Search,
   Send,
+  Sparkles,
+  Tag,
+  TestTube2,
+  Timer,
+  Trash2,
+  Users,
+  X,
+  XCircle,
+  Zap
 } from "lucide-react"
-import { PanelHeader } from "../panel-host"
-import { type ProviderId, getProviderConfigs } from "../../services/llm"
-import { useMemoryStore } from "../../stores/useMemoryStore"
-import { useMultiAgentDispatch, type PipelineStage, type AgentRole as PipelineAgentRole, type AgentResult } from "../../hooks/useMultiAgentDispatch"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useMultiAgentDispatch, type PipelineStage } from "../../hooks/useMultiAgentDispatch"
 import { useI18n } from "../../i18n"
+import { useMemoryStore } from "../../stores/useMemoryStore"
+import { PanelHeader } from "../panel-host"
 
 // ── Types ──
 
-import type { AgentRole } from "../../types/agent";
+import type { AgentRole } from "../../types/agent"
 type AgentStatus = "idle" | "running" | "waiting" | "completed" | "error"
 type TaskStage = "analysis" | "planning" | "coding" | "testing" | "review" | "complete"
 
@@ -157,11 +150,10 @@ function AgentCard({ agent, selected, onClick }: { agent: Agent; selected: boole
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left rounded-lg border p-2.5 transition-all ${
-        selected
+      className={`w-full text-left rounded-lg border p-2.5 transition-all ${selected
           ? `${cfg.borderColor} ${cfg.bgColor}`
           : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.1]"
-      }`}
+        }`}
     >
       <div className="flex items-center gap-2">
         <div className={`w-7 h-7 rounded-lg ${cfg.bgColor} flex items-center justify-center flex-shrink-0`}>
@@ -191,11 +183,10 @@ function AgentCard({ agent, selected, onClick }: { agent: Agent; selected: boole
           </div>
           <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                agent.role === "planner" ? "bg-blue-400" :
-                agent.role === "coder" ? "bg-emerald-400" :
-                agent.role === "tester" ? "bg-amber-400" : "bg-violet-400"
-              }`}
+              className={`h-full rounded-full transition-all duration-500 ${agent.role === "planner" ? "bg-blue-400" :
+                  agent.role === "coder" ? "bg-emerald-400" :
+                    agent.role === "tester" ? "bg-amber-400" : "bg-violet-400"
+                }`}
               style={{ width: `${agent.progress}%` }}
             />
           </div>
@@ -274,31 +265,28 @@ function TaskFlowView({ flow }: { flow: TaskFlowNode[] }) {
           return (
             <div key={node.stage} className="flex items-center gap-1 flex-shrink-0">
               {/* Node */}
-              <div className={`relative flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${
-                isActive
+              <div className={`relative flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${isActive
                   ? "border-blue-500/40 bg-blue-500/10 shadow-lg shadow-blue-500/10"
                   : isCompleted
-                  ? "border-emerald-500/20 bg-emerald-500/[0.05]"
-                  : isError
-                  ? "border-red-500/20 bg-red-500/[0.05]"
-                  : "border-white/[0.06] bg-white/[0.02]"
-              }`}>
-                {/* Status icon */}
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  isActive ? "bg-blue-500/20" :
-                  isCompleted ? "bg-emerald-500/20" :
-                  isError ? "bg-red-500/20" : "bg-white/[0.04]"
+                    ? "border-emerald-500/20 bg-emerald-500/[0.05]"
+                    : isError
+                      ? "border-red-500/20 bg-red-500/[0.05]"
+                      : "border-white/[0.06] bg-white/[0.02]"
                 }`}>
+                {/* Status icon */}
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isActive ? "bg-blue-500/20" :
+                    isCompleted ? "bg-emerald-500/20" :
+                      isError ? "bg-red-500/20" : "bg-white/[0.04]"
+                  }`}>
                   {isActive && <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />}
                   {isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                   {isError && <AlertCircle className="w-4 h-4 text-red-400" />}
                   {node.status === "pending" && <CircleDot className="w-4 h-4 text-white/15" />}
                 </div>
-                <span className={`text-[0.55rem] ${
-                  isActive ? "text-blue-400" :
-                  isCompleted ? "text-emerald-400" :
-                  isError ? "text-red-400" : "text-white/25"
-                }`}>
+                <span className={`text-[0.55rem] ${isActive ? "text-blue-400" :
+                    isCompleted ? "text-emerald-400" :
+                      isError ? "text-red-400" : "text-white/25"
+                  }`}>
                   {t(STAGE_LABELS[node.stage])}
                 </span>
                 {agentCfg && (
@@ -316,9 +304,8 @@ function TaskFlowView({ flow }: { flow: TaskFlowNode[] }) {
               </div>
               {/* Arrow */}
               {i < flow.length - 1 && (
-                <ArrowRight className={`w-3 h-3 flex-shrink-0 ${
-                  isCompleted ? "text-emerald-400/40" : "text-white/10"
-                }`} />
+                <ArrowRight className={`w-3 h-3 flex-shrink-0 ${isCompleted ? "text-emerald-400/40" : "text-white/10"
+                  }`} />
               )}
             </div>
           )
@@ -399,10 +386,10 @@ function CollaborationGraph({ agents, messages }: { agents: Agent[]; messages: A
                 }}
               >
                 {isOrch ? <Sparkles className="w-4 h-4" style={{ color: pos.color }} /> :
-                 i === 1 ? <Brain className="w-3.5 h-3.5" style={{ color: pos.color }} /> :
-                 i === 2 ? <Code2 className="w-3.5 h-3.5" style={{ color: pos.color }} /> :
-                 i === 3 ? <TestTube2 className="w-3.5 h-3.5" style={{ color: pos.color }} /> :
-                 <Eye className="w-3.5 h-3.5" style={{ color: pos.color }} />}
+                  i === 1 ? <Brain className="w-3.5 h-3.5" style={{ color: pos.color }} /> :
+                    i === 2 ? <Code2 className="w-3.5 h-3.5" style={{ color: pos.color }} /> :
+                      i === 3 ? <TestTube2 className="w-3.5 h-3.5" style={{ color: pos.color }} /> :
+                        <Eye className="w-3.5 h-3.5" style={{ color: pos.color }} />}
               </div>
               <span className="text-[0.5rem] text-white/40">{pos.label}</span>
               {agent && (
@@ -428,6 +415,8 @@ function CollaborationGraph({ agents, messages }: { agents: Agent[]; messages: A
               <ArrowRight className="w-2.5 h-2.5 text-white/15 flex-shrink-0" />
               <span className="text-[0.52rem] text-white/30 truncate flex-1">{msg.content}</span>
               <span className="text-[0.42rem] text-white/15 flex-shrink-0">
+                {/* 相对时间显示本质上依赖当前时刻 */}
+                {/* eslint-disable-next-line react-hooks/purity */}
                 {Math.round((Date.now() - msg.timestamp) / 1000)}s前
               </span>
             </div>
@@ -460,21 +449,19 @@ function TaskQueue({ tasks }: { tasks: ScheduledTask[] }) {
     const Icon = typeIcons[task.type] || Zap
     const agentCfg = ROLE_CONFIG[task.assignedAgent]
     return (
-      <div key={task.id} className={`rounded-lg border p-2 transition-all ${
-        task.status === "active"
+      <div key={task.id} className={`rounded-lg border p-2 transition-all ${task.status === "active"
           ? "border-blue-500/20 bg-blue-500/[0.04]"
           : task.status === "completed"
-          ? "border-emerald-500/10 bg-emerald-500/[0.02] opacity-60"
-          : task.status === "failed"
-          ? "border-red-500/15 bg-red-500/[0.03]"
-          : "border-white/[0.06] bg-white/[0.02]"
-      }`}>
+            ? "border-emerald-500/10 bg-emerald-500/[0.02] opacity-60"
+            : task.status === "failed"
+              ? "border-red-500/15 bg-red-500/[0.03]"
+              : "border-white/[0.06] bg-white/[0.02]"
+        }`}>
         <div className="flex items-center gap-2">
-          <Icon className={`w-3 h-3 flex-shrink-0 ${
-            task.status === "active" ? "text-blue-400" :
-            task.status === "completed" ? "text-emerald-400" :
-            task.status === "failed" ? "text-red-400" : "text-white/25"
-          }`} />
+          <Icon className={`w-3 h-3 flex-shrink-0 ${task.status === "active" ? "text-blue-400" :
+              task.status === "completed" ? "text-emerald-400" :
+                task.status === "failed" ? "text-red-400" : "text-white/25"
+            }`} />
           <span className="text-[0.62rem] text-white/70 flex-1 truncate">{task.name}</span>
           <span className={`text-[0.45rem] px-1 py-0.5 rounded border ${priorityColors[task.priority]}`}>
             {task.priority === "high" ? "高" : task.priority === "medium" ? "中" : "低"}
@@ -486,10 +473,9 @@ function TaskQueue({ tasks }: { tasks: ScheduledTask[] }) {
           </span>
           <div className="flex-1 h-0.5 bg-white/[0.06] rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full ${
-                task.status === "completed" ? "bg-emerald-400" :
-                task.status === "active" ? "bg-blue-400" : "bg-white/10"
-              }`}
+              className={`h-full rounded-full ${task.status === "completed" ? "bg-emerald-400" :
+                  task.status === "active" ? "bg-blue-400" : "bg-white/10"
+                }`}
               style={{ width: `${task.progress}%` }}
             />
           </div>
@@ -640,7 +626,6 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
         status,
         agent,
         duration: result ? `${(result.durationMs / 1000).toFixed(1)}s` : undefined,
-        startTime: status === 'active' ? Date.now() : undefined,
       }
     })
   }, [pipelineState])
@@ -697,11 +682,10 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-1.5 text-[0.62rem] flex items-center justify-center gap-1 transition-colors ${
-                activeTab === tab.id
+              className={`flex-1 py-1.5 text-[0.62rem] flex items-center justify-center gap-1 transition-colors ${activeTab === tab.id
                   ? "text-amber-400 border-b border-amber-500"
                   : "text-slate-600 hover:text-slate-400"
-              }`}
+                }`}
             >
               <Icon className="w-3 h-3" />
               {tab.label}
@@ -769,22 +753,21 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
 
               {/* Pipeline status indicator */}
               {pipelineState.stage !== 'idle' && (
-                <div className={`rounded-lg border p-2 ${
-                  pipelineState.stage === 'error' ? 'border-red-500/20 bg-red-500/[0.04]' :
-                  pipelineState.stage === 'completed' ? 'border-emerald-500/20 bg-emerald-500/[0.04]' :
-                  'border-blue-500/20 bg-blue-500/[0.04]'
-                }`}>
+                <div className={`rounded-lg border p-2 ${pipelineState.stage === 'error' ? 'border-red-500/20 bg-red-500/[0.04]' :
+                    pipelineState.stage === 'completed' ? 'border-emerald-500/20 bg-emerald-500/[0.04]' :
+                      'border-blue-500/20 bg-blue-500/[0.04]'
+                  }`}>
                   <div className="flex items-center gap-1.5">
                     {pipelineState.isStreaming && <Loader2 className="w-3 h-3 text-blue-400 animate-spin" />}
                     {pipelineState.stage === 'completed' && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
                     {pipelineState.stage === 'error' && <AlertCircle className="w-3 h-3 text-red-400" />}
                     <span className="text-[0.55rem] text-white/50">
                       {pipelineState.stage === 'planning' ? '🧠 规划中...' :
-                       pipelineState.stage === 'coding' ? '💻 编码中...' :
-                       pipelineState.stage === 'testing' ? '🧪 测试中...' :
-                       pipelineState.stage === 'reviewing' ? '👁 评审中...' :
-                       pipelineState.stage === 'completed' ? '✅ 流水线完成' :
-                       pipelineState.stage === 'error' ? '❌ 执行出错' : ''}
+                        pipelineState.stage === 'coding' ? '💻 编码中...' :
+                          pipelineState.stage === 'testing' ? '🧪 测试中...' :
+                            pipelineState.stage === 'reviewing' ? '👁 评审中...' :
+                              pipelineState.stage === 'completed' ? '✅ 流水线完成' :
+                                pipelineState.stage === 'error' ? '❌ 执行出错' : ''}
                     </span>
                     <span className="text-[0.45rem] text-white/20 ml-auto">
                       {pipelineState.results.length}/4 阶段
@@ -905,9 +888,9 @@ function PersistentMemoryView() {
   const filtered = searchMode === "semantic" && searchQuery.trim()
     ? semanticSearch(searchQuery, 20).map(m => ({ ...m, _similarity: m.similarity }))
     : (selectedCategory === "all"
-        ? search(searchQuery)
-        : search(searchQuery, selectedCategory as any)
-      ).map(m => ({ ...m, _similarity: undefined as number | undefined }))
+      ? search(searchQuery)
+      : search(searchQuery, selectedCategory as any)
+    ).map(m => ({ ...m, _similarity: undefined as number | undefined }))
 
   if (loading) {
     return (
@@ -940,11 +923,10 @@ function PersistentMemoryView() {
         </div>
         <button
           onClick={() => setSearchMode(searchMode === "keyword" ? "semantic" : "keyword")}
-          className={`flex-shrink-0 px-1.5 py-1 rounded text-[0.48rem] border transition-all ${
-            searchMode === "semantic"
+          className={`flex-shrink-0 px-1.5 py-1 rounded text-[0.48rem] border transition-all ${searchMode === "semantic"
               ? "bg-violet-500/20 text-violet-400 border-violet-500/20"
               : "text-white/25 border-white/[0.06] hover:text-white/40"
-          }`}
+            }`}
           title={searchMode === "semantic" ? "当前：语义搜索（TF-IDF + Cosine）" : "当前：关键词搜索"}
         >
           {searchMode === "semantic" ? "语义" : "关键词"}
@@ -1162,18 +1144,16 @@ function CodePreviewView() {
             <div key={change.id}>
               <button
                 onClick={() => setSelectedId(isSelected ? null : change.id)}
-                className={`w-full text-left rounded-lg border p-2 transition-all ${
-                  isSelected ? "border-blue-500/25 bg-blue-500/[0.04]" :
-                  change.status === "accepted" ? "border-emerald-500/15 bg-emerald-500/[0.02]" :
-                  change.status === "rejected" ? "border-red-500/15 bg-red-500/[0.02] opacity-50" :
-                  "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
-                }`}
+                className={`w-full text-left rounded-lg border p-2 transition-all ${isSelected ? "border-blue-500/25 bg-blue-500/[0.04]" :
+                    change.status === "accepted" ? "border-emerald-500/15 bg-emerald-500/[0.02]" :
+                      change.status === "rejected" ? "border-red-500/15 bg-red-500/[0.02] opacity-50" :
+                        "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                  }`}
               >
                 <div className="flex items-center gap-1.5">
-                  <FileCode2 className={`w-3 h-3 flex-shrink-0 ${
-                    change.status === "accepted" ? "text-emerald-400" :
-                    change.status === "rejected" ? "text-red-400" : "text-white/30"
-                  }`} />
+                  <FileCode2 className={`w-3 h-3 flex-shrink-0 ${change.status === "accepted" ? "text-emerald-400" :
+                      change.status === "rejected" ? "text-red-400" : "text-white/30"
+                    }`} />
                   <span className="text-[0.58rem] text-white/60 flex-1 truncate font-mono">{change.file.split("/").pop()}</span>
                   <span className="text-[0.45rem] text-emerald-400">+{change.added}</span>
                   <span className="text-[0.45rem] text-red-400">-{change.removed}</span>

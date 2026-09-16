@@ -562,7 +562,9 @@ export function useStorageManager(
   }, [manager]);
 
   useEffect(() => {
-    checkStorage();
+    // 数据获取模式：异步回调内 setState，非 effect 体内同步调用
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void checkStorage();
     manager.startMonitoring();
 
     return () => {

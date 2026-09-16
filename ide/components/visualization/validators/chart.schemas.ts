@@ -34,8 +34,12 @@ export const TimeSeriesPointSchema = z
     time: z.union([z.string(), z.number()]),
     /** 数据点显示名称 (Legend) */
     name: z.string().max(32).optional(),
-    /** Y 轴数值；null/undefined → 自动转 0 */
-    value: z.number().or(z.null().transform(() => 0)).or(z.undefined().transform(() => 0)),
+    /** Y 轴数值；null/undefined → 预处理统一转 0
+     *  (Zod 4 起 union 中 z.undefined() 不再放过「键缺失」，改用 preprocess 归一) */
+    value: z.preprocess(
+      (v) => (v == null ? 0 : v),
+      z.number(),
+    ),
     /** 语义状态标记 */
     status: z.enum(["success", "error", "warn", "warning", "idle"]).optional(),
     /** 原始时间戳 (用于 LTTB 排序，可选) */
@@ -84,8 +88,10 @@ export const RadarAxisSchema = z.object({
 export const RadarSubjectSchema = z.object({
   /** 主体名称 (Legend 用) */
   name: z.string().min(1).max(32),
-  /** 每个轴的数值 (顺序必须与 axes 对齐) */
-  values: z.array(z.number().min(0).or(z.null().transform(() => 0))),
+  /** 每个轴的数值 (顺序必须与 axes 对齐)；null → 预处理转 0 (Zod 4 同 TimeSeriesPoint) */
+  values: z.array(
+    z.preprocess((v) => (v == null ? 0 : v), z.number().min(0)),
+  ),
   /** 可选：显式颜色，不填时从 familySeries 取色 */
   color: z.string().regex(/^#[\da-fA-F]{3,8}$/).optional(),
 });
@@ -97,6 +103,11 @@ export const RadarChartDataSchema = z.object({
   /** 主体数据 (至少 1 条) */
   subjects: z.array(RadarSubjectSchema).min(1).max(8),
 });
+
+/** Radar 组件 Props 使用的输入类型（fullMark 缺省由 schema default 填充） */
+export type RadarAxisInput = z.input<typeof RadarAxisSchema>;
+export type RadarSubjectInput = z.input<typeof RadarSubjectSchema>;
+export type RadarChartDataInput = z.input<typeof RadarChartDataSchema>;
 
 /** Radar 组件的最终安全类型 (inferred from schema) */
 export type RadarAxis = z.infer<typeof RadarAxisSchema>;

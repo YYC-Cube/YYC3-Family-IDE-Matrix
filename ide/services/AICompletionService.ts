@@ -15,12 +15,12 @@
  */
 
 import type * as monaco from "monaco-editor";
+import { YYC3_CODEGEN_SYSTEM_PROMPT, isYYC3Model } from "../constants/prompts/yyc3-codegen";
 import {
   buildHeaders,
   findAvailableProvider,
   getChatEndpoint
 } from "./llm";
-import { YYC3_CODEGEN_SYSTEM_PROMPT, isYYC3Model } from "../constants/prompts/yyc3-codegen";
 import { smartChatCompletion } from "./llm/proxyAdapter";
 
 interface CompletionCache {
@@ -196,7 +196,7 @@ class AICompletionServiceImpl {
             { temperature, maxTokens: MAX_COMPLETION_TOKENS },
           );
 
-          let content = this.cleanCompletion(reply || "", prefix);
+          const content = this.cleanCompletion(reply || "", prefix);
 
 
 
@@ -252,8 +252,9 @@ export function registerAIInlineCompletionProvider(
   return monacoInstance.languages.registerInlineCompletionsProvider(
     { pattern: "**" },
     {
-      // monaco 0.52 必需：补全结果生命周期回收钩子（回迁补齐，归档版缺失）
-      freeInlineCompletions: () => { },
+      // monaco 0.56 必需：补全结果生命周期回收钩子（freeInlineCompletions
+      // 已更名为 disposeInlineCompletions，签名新增 reason 参数）
+      disposeInlineCompletions: () => { },
 
       provideInlineCompletions: async (model, position, context, token) => {
         if (!aiCompletionService.isEnabled()) {

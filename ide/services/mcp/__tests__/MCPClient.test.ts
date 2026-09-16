@@ -22,7 +22,7 @@ function rpcResponse(result: unknown, init?: ResponseInit): Response {
 }
 
 describe("MCPClient", () => {
-  let fetchMock: ReturnType<typeof vi.fn>;
+  let fetchMock: Mock;
 
   beforeEach(() => {
     fetchMock = vi.fn();

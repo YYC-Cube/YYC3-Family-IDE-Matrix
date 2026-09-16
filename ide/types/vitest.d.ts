@@ -30,11 +30,10 @@ declare global {
   const afterEach: typeof import("vitest").afterEach;
   const beforeAll: typeof import("vitest").beforeAll;
   const afterAll: typeof import("vitest").afterAll;
-  type Mock<TArgs extends any[] = any, TReturn = any> = import("vitest").Mock<
-    TArgs,
-    TReturn
-  >;
-  type MockInstance<TArgs extends any[] = any, TReturn = any> = Mock<TArgs, TReturn>;
+  type Mock<T extends import("vitest").Procedure | import("vitest").Constructable = import("vitest").Procedure> =
+    import("vitest").Mock<T>;
+  type MockInstance<T extends import("vitest").Procedure | import("vitest").Constructable = import("vitest").Procedure> =
+    import("vitest").MockInstance<T>;
 }
 
 export {};

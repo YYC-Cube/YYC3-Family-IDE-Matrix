@@ -209,7 +209,7 @@ describe("托管沙箱适配器（DI 假 SDK）", () => {
 });
 
 describe("审计修复回归（H1 元字符闸门 / M5 超时透传）", () => {
-  it("参数含 shell 元字符一律拒绝（; | & $ ` < > ( ) 换行）", () => {
+  it("参数含 shell 元字符一律拒绝（; | & $ ` < > ( ) 换行）", async () => {
     const { service } = makeService({ allowedCommands: "*" });
     const cases = [
       ["echo", ["x; rm -rf /"]],
@@ -221,8 +221,9 @@ describe("审计修复回归（H1 元字符闸门 / M5 超时透传）", () => {
       ["echo", ["a\nrm -rf /"]],
       ["echo", ["(cd / && ls)"]],
     ] as const;
+    // Vitest 5 强制异步断言必须 await（否则按 error 失败）
     for (const [command, args] of cases) {
-      expect(
+      await expect(
         service.execute("audit-s", { command, args: [...args] }),
       ).rejects.toMatchObject({ exitCode: 126 });
     }

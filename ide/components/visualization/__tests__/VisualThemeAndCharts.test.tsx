@@ -1073,8 +1073,8 @@ describe("E · useVisualTheme Provider/Hook 边界 · SSR/脏值/toggle/initial 
   });
 
   // —— E2 localStorage 脏值降级 ——
-  it.each(["", "bogus_theme", "sun", "rise", "CYBERPUNK-88", "null", "undefined", "abc"])
-  ("vis-143 localStorage 脏值 '%s' → 静默降级 cyberpunk88", (bad) => {
+  it.each(["", "bogus_theme", "sun", "rise", "CYBERPUNK-88", "null", "undefined", "abc"])(
+    "vis-143 localStorage 脏值 '%s' → 静默降级 cyberpunk88", (bad) => {
     localStorage.setItem(SK_VISUAL_THEME, bad);
     const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
       <VisualThemeProvider>{children}</VisualThemeProvider>

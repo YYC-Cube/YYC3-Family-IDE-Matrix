@@ -21,14 +21,14 @@
  * ```
  */
 
-import { createContext, useCallback, useContext, useMemo, useRef } from "react";
+import { Dock, GripVertical, Maximize2, Minimize2, PictureInPicture2, Pin, PinOff, X } from "lucide-react";
 import type { ComponentType, DragEvent, MouseEvent as ReactMouseEvent, ReactNode } from "react";
-import { Pin, PinOff, Maximize2, Minimize2, X, Dock, GripVertical, PictureInPicture2 } from "lucide-react";
+import { createContext, useCallback, useContext, useMemo, useRef } from "react";
 import {
   usePanelManager,
+  type FloatingPanelState,
   type LayoutNode,
   type PanelId,
-  type FloatingPanelState,
 } from "./PanelManagerContext";
 import { findNode } from "./layout-ops";
 
@@ -118,6 +118,8 @@ function FloatingWindow({ floating }: { floating: FloatingPanelState }) {
   const registry = usePanelRegistry();
   const { dockFloating, closeFloating, focusFloating, moveFloating } =
     usePanelManager();
+  // 注册表查找（返回外部已注册的稳定组件引用），非渲染期创建组件
+  // eslint-disable-next-line react-hooks/static-components
   const Panel = registry.get(floating.panelId);
   const title = PANEL_TITLES[floating.panelId] ?? floating.panelId;
 
@@ -171,6 +173,8 @@ function FloatingWindow({ floating }: { floating: FloatingPanelState }) {
       </div>
       <div className="min-h-0 flex-1">
         {Panel ? (
+          // 注册表组件渲染（组件本体在外部定义）
+          // eslint-disable-next-line react-hooks/static-components
           <Panel nodeId={floating.id} />
         ) : (
           <div className="flex size-full items-center justify-center text-[0.62rem] text-slate-600">
@@ -261,9 +265,8 @@ function Divider({
     <div
       ref={containerRef}
       onMouseDown={onPointerDown}
-      className={`flex-shrink-0 bg-[var(--ide-border-mid)] hover:bg-cyan-500/60 transition-colors ${
-        horizontal ? "w-1 cursor-col-resize" : "h-1 cursor-row-resize"
-      }`}
+      className={`flex-shrink-0 bg-[var(--ide-border-mid)] hover:bg-cyan-500/60 transition-colors ${horizontal ? "w-1 cursor-col-resize" : "h-1 cursor-row-resize"
+        }`}
       data-testid={`divider-${parentId}-${index}`}
     />
   );
@@ -284,6 +287,8 @@ function PanelSlot({ nodeId, panelId }: { nodeId: string; panelId?: PanelId }) {
   } = usePanelManager();
 
   const pinned = panelId ? pinnedPanels.has(panelId) : false;
+  // 注册表查找（返回外部已注册的稳定组件引用），非渲染期创建组件
+  // eslint-disable-next-line react-hooks/static-components
   const Panel = panelId ? registry.get(panelId) : undefined;
   const title = panelId ? (PANEL_TITLES[panelId] ?? panelId) : "（空）";
   const isMaximized = maximizedPanel === nodeId;
@@ -350,6 +355,8 @@ function PanelSlot({ nodeId, panelId }: { nodeId: string; panelId?: PanelId }) {
       </div>
       <div className="min-h-0 flex-1">
         {Panel ? (
+          // 注册表组件渲染（组件本体在外部定义）
+          // eslint-disable-next-line react-hooks/static-components
           <Panel nodeId={nodeId} />
         ) : (
           <div className="flex size-full items-center justify-center text-[0.62rem] text-slate-600">

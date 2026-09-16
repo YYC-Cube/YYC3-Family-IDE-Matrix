@@ -117,11 +117,11 @@ export default defineConfig({
         },
       },
 
-      // 100% 分支但未访问的计数显示
-      all: true,
-
-      // 注：perFile 非 CoverageV8Options 类型成员（vitest 1.6 类型），已移除；
-      // 当前阈值均按单文件配置，无全局 per-file 语义需求
+      // 注：
+      // - `all` 在 Vitest 5 的 CoverageOptions 中已移除（include 列表即隐式
+      //   全量范围），保留会触发 TS2769
+      // - perFile 非 CoverageV8Options 类型成员，已移除；
+      //   当前阈值均按单文件配置，无全局 per-file 语义需求
     },
 
     // mock 清理由 beforeEach 管理 (文件内我们已经手动 clearAllMocks)

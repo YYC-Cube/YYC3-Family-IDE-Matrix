@@ -1,20 +1,23 @@
-/**
- * @file: .github/workflows/ide-test-coverage.yml
- * @description: GitHub Actions CI — 测试+覆盖率+构建+安全扫描+部署（Phase 1 闭环）
- * @author: YanYuCloudCube Team <admin@0379.email>
- * @version: v2.0.0
- * @created: 2026-08-19
- * @updated: 2026-08-28
- * @status: active
- * @tags: [ci,github-actions,test,coverage,build,security,deploy]
- *
- * brief: Phase 1 生产闭环 CI——测试矩阵 + 安全审计 + 构建产物 + 部署
- *
- * security:
- * - 所有 actions 使用 commit SHA 固定（审计 R4）
- * - 顶层 permissions: contents: read（最小权限）
- * - workflow_dispatch 输入经 env 传递（不直接内插 bash）
- */
+# @file: .github/workflows/ide-test-coverage.yml
+# @description: GitHub Actions CI — 测试+覆盖率+构建+安全扫描+部署（Phase 1 闭环）
+# @author: YanYuCloudCube Team <admin@0379.email>
+# @version: v2.0.1
+# @created: 2026-08-19
+# @updated: 2026-09-16
+# @status: active
+# @tags: [ci,github-actions,test,coverage,build,security,deploy]
+#
+# brief: Phase 1 生产闭环 CI——测试矩阵 + 安全审计 + 构建产物 + 部署
+#
+# security:
+# - 所有 actions 使用 commit SHA 固定（审计 R4）
+# - 顶层 permissions: contents: read（最小权限）
+# - workflow_dispatch 输入经 env 传递（不直接内插 bash）
+#
+# notes:
+# - YAML 注释必须使用 "#" 前缀；此前的 /** ... */ 块不是合法 YAML，
+#   会导致工作流解析失败（run 创建后 0 个 job 且瞬时失败）。
+# - 修改本文件后请勿再引入 /* 风格的块注释。
 
 name: IDE · CI Pipeline
 

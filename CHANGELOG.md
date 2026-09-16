@@ -20,6 +20,23 @@ All notable changes are documented here. Based on [Keep a Changelog](https://kee
 
 ## [Unreleased]
 
+### Changed 变更
+
+- **主版本迁移完成（2026-09-17）**：82 个依赖主版本升级全量落地，五门禁全绿（tsc 0 错误 / test 1056 通过 / build 成功 / audit 0 漏洞 / lint 0 errors）
+  - **Tailwind 3 → 4**：PostCSS 插件拆分至 `@tailwindcss/postcss`；CSS 入口改用 `@import "tailwindcss"` + `@theme` 令牌；移除 `tailwind.config.js`（autoprefixer v4 内置）
+  - **Vite 6 → 8 (rolldown)**：`manualChunks` 改函数式；Monaco 五类 Worker 经磁盘绝对路径 alias + `?worker&url` 打包（规避 rolldown 裸说明符限制）
+  - **Vitest 3 → 5**：`vi.fn()` 不可 new（xterm/y-indexeddb/y-monaco mock 改类/function 替身）；异步断言 `await expect`；移除 `coverage.all`
+  - **Zod 3 → 4**：union 中 undefined 语义变更（TimeSeries/Radar 数值字段改 `z.preprocess` 归一）；Props 区分 `z.input<>` / `z.infer<>`
+  - **Monaco 0.52 → 0.56**：`freeInlineCompletions` → `disposeInlineCompletions`
+  - **TypeScript**：tsgo 7.0.2 回退 5.9.3（`@typescript-eslint` 8.x peer 断点，待生态跟进）
+  - **CI 修复**：`ide-test-coverage.yml` 头部非法块注释致工作流从未真正运行，改行注释后 5 job + 3 触发器生效
+  - **Lint 体系建立**：新增 `.eslintrc.json`（@typescript-eslint + react + react-hooks v7 编译器级规则），23 处编译器级 error 全部根治（render 期 ref 访问/effect 同步 setState/非纯渲染/动态组件模式等）
+
+### Security 安全
+
+- dompurify 4 项告警（2 moderate + 2 low）清零：`^3.4.15` + overrides 覆盖 monaco-editor 传递依赖
+- vitest 生态对齐消除 glob high 告警；`pnpm audit`（prod + dev）全清零
+
 ### 计划 Planned
 
 - 首屏 gzip 从 253KB 降至 < 200KB（性能预算见 [`docs/developer-guide.md`](docs/developer-guide.md) §8）

@@ -14,37 +14,42 @@ import { render, act } from "@testing-library/react";
 
 // xterm 在 jsdom 下无法完成字体测量，mock 只验证接线；
 // 导出 getLastTerminal() 供断言 write 调用，emitData() 模拟键盘输入
+// 注：Vitest 5 的 vi.fn() 不可被 new 调用，Terminal 等类替身用 class 实现
 vi.mock("@xterm/xterm", () => {
   let instance: {
-    write: ReturnType<typeof vi.fn>;
-    writeln: ReturnType<typeof vi.fn>;
-    clear: ReturnType<typeof vi.fn>;
-    onData: ReturnType<typeof vi.fn>;
+    write: Mock;
+    writeln: Mock;
+    clear: Mock;
+    onData: Mock;
   } | null = null;
-  return {
-    Terminal: vi.fn().mockImplementation(() => {
+  class Terminal {
+    write = vi.fn();
+    writeln = vi.fn();
+    clear = vi.fn();
+    onData = vi.fn((cb: (d: string) => void) => {
+      // 保留回调供 emitData 触发
+      (instance as unknown as { __cb?: (d: string) => void }).__cb = cb;
+    });
+    open = vi.fn();
+    focus = vi.fn();
+    onResize = vi.fn();
+    onTitleChange = vi.fn();
+    dispose = vi.fn();
+    loadAddon = vi.fn();
+    unicode = { activeVersion: "11" };
+    cols = 80;
+    rows = 24;
+    constructor() {
       instance = {
-        write: vi.fn(),
-        writeln: vi.fn(),
-        clear: vi.fn(),
-        onData: vi.fn((cb: (d: string) => void) => {
-          // 保留回调供 emitData 触发
-          (instance as unknown as { __cb?: (d: string) => void }).__cb = cb;
-        }),
+        write: this.write,
+        writeln: this.writeln,
+        clear: this.clear,
+        onData: this.onData,
       };
-      return {
-        ...instance,
-        open: vi.fn(),
-        focus: vi.fn(),
-        onResize: vi.fn(),
-        onTitleChange: vi.fn(),
-        dispose: vi.fn(),
-        loadAddon: vi.fn(),
-        unicode: { activeVersion: "11" },
-        cols: 80,
-        rows: 24,
-      };
-    }),
+    }
+  }
+  return {
+    Terminal,
     emitData: (d: string) => {
       const holder = instance as unknown as { __cb?: (d: string) => void } | null;
       holder?.__cb?.(d);
@@ -52,10 +57,10 @@ vi.mock("@xterm/xterm", () => {
     getLastTerminal: () => instance,
   };
 });
-vi.mock("@xterm/addon-fit", () => ({ FitAddon: vi.fn().mockImplementation(() => ({ fit: vi.fn() })) }));
-vi.mock("@xterm/addon-web-links", () => ({ WebLinksAddon: vi.fn().mockImplementation(() => ({})) }));
-vi.mock("@xterm/addon-search", () => ({ SearchAddon: vi.fn().mockImplementation(() => ({})) }));
-vi.mock("@xterm/addon-unicode11", () => ({ Unicode11Addon: vi.fn().mockImplementation(() => ({})) }));
+vi.mock("@xterm/addon-fit", () => ({ FitAddon: class { fit = vi.fn(); } }));
+vi.mock("@xterm/addon-web-links", () => ({ WebLinksAddon: class { } }));
+vi.mock("@xterm/addon-search", () => ({ SearchAddon: class { } }));
+vi.mock("@xterm/addon-unicode11", () => ({ Unicode11Addon: class { } }));
 
 import TerminalPanel from "../TerminalPanel";
 import * as XTermModule from "@xterm/xterm";
@@ -64,10 +69,10 @@ import * as XTermModule from "@xterm/xterm";
 const { emitData, getLastTerminal } = XTermModule as unknown as {
   emitData: (d: string) => void;
   getLastTerminal: () => {
-    write: ReturnType<typeof vi.fn>;
-    writeln: ReturnType<typeof vi.fn>;
-    clear: ReturnType<typeof vi.fn>;
-    onData: ReturnType<typeof vi.fn>;
+    write: Mock;
+    writeln: Mock;
+    clear: Mock;
+    onData: Mock;
   } | null;
 };
 import {

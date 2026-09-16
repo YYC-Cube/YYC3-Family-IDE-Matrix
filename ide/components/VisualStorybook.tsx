@@ -601,7 +601,7 @@ export function VisualStorybook() {
         >
           <strong style={{ color: tokens.text.primary }}>深色模式性能最佳实践 · 自动触发规则：</strong>
           <ul style={{ margin: "6px 0 0 18px", padding: 0 }}>
-            <li>数据点数 <code>{">"}200</code> → LatencyTrendChart 自动 <code>isAnimationActive=false</code> (SVG + CSS + Layout 压力)"</li>
+            <li>数据点数 <code>{">"}200</code> → LatencyTrendChart 自动 <code>isAnimationActive=false</code>（SVG + CSS + Layout 压力）</li>
             <li>RadarChart axes × subjects {">"} 64 → 自动关动画 (组件内部判断)</li>
             <li>LTTB 4 档阈值：2k / 10k / 50k → 400 / 500 / 600，保证任何规模渲染不超过 600 点</li>
             <li>所有 SVG 渐变 ID 唯一 (makeChartGradId) → 多图表不串色、无回流</li>
