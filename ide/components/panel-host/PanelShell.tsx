@@ -202,7 +202,12 @@ function LayoutRenderer({ node }: { node: LayoutNode }) {
         <div
           key={child.id}
           className="flex min-h-0 min-w-0"
-          style={{ flexBasis: `${child.size ?? 100 / (node.children?.length ?? 1)}%`, flexGrow: 0, flexShrink: 1 }}
+          style={{
+            // grow 按占比分配（basis 0）：分隔条固定 px 不挤压比例，拖拽所见即所得
+            flexGrow: child.size ?? 100 / (node.children?.length ?? 1),
+            flexShrink: 1,
+            flexBasis: 0,
+          }}
         >
           <div className="size-full min-h-0 min-w-0">
             <LayoutRenderer node={child} />

@@ -42,6 +42,7 @@ import {
 import { SandboxedTerminalPanel } from "../terminal/TerminalPanel";
 import EditorTabs from "./EditorTabs";
 import FileExplorer from "./FileExplorer";
+import WorkbenchTopBar from "./WorkbenchTopBar";
 
 // Monaco 按需分片（@monaco-editor/react 全量 ~2MB，绝不含进首屏）
 const MonacoWrapper = lazy(() => import("../../MonacoWrapper"));
@@ -101,7 +102,8 @@ function MonacoPanel({ nodeId }: { nodeId: string }) {
 
 function PresetToolbar() {
   const { layout, setLayout } = usePanelManager();
-  const [active, setActive] = useState("default");
+  // 初始布局为工作台专属布局，不对应任何预设按钮，故无高亮项
+  const [active, setActive] = useState("");
 
   const switchTo = useCallback(
     (name: keyof typeof LAYOUT_PRESETS) => {
@@ -222,9 +224,10 @@ export default function IdeWorkbench({
 
   return (
     <ModelRegistryProvider>
+      <WorkbenchTopBar />
       <PanelManagerProvider initialLayout={initialLayout}>
         <PresetToolbar />
-        <div className="h-[calc(100%-2rem)]">
+        <div className="h-[calc(100%-2rem-2.25rem)]">
           <PanelRegistryProvider panels={registry}>
             <PanelShell />
           </PanelRegistryProvider>

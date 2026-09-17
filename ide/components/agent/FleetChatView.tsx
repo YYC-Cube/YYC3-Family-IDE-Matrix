@@ -197,7 +197,7 @@ export default function FleetChatView() {
               >
                 {turn.agent.label.slice(0, 1)}
               </div>
-              <div className="max-w-[85%] rounded-lg bg-white/20 border border-white/60 px-2.5 py-1.5">
+              <div className="max-w-[85%] rounded-lg bg-white/[0.02] border border-white/[0.06] px-2.5 py-1.5">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="text-[0.48rem] text-blue-400">
                     {turn.agent.label}
@@ -272,7 +272,7 @@ export default function FleetChatView() {
             }}
             placeholder="描述任务，Enter 发送 / Shift+Enter 换行…"
             rows={2}
-            className="flex-1 bg-white/30 border border-white/80 rounded-lg px-2.5 py-1.5 text-[0.58rem] text-white/60 placeholder:text-white/15 focus:outline-none focus:border-amber-500/30 resize-none"
+            className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-[0.58rem] text-white/60 placeholder:text-white/15 focus:outline-none focus:border-amber-500/30 resize-none"
           />
           <button
             onClick={() => void send()}
