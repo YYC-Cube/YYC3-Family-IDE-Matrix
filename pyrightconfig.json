@@ -1,0 +1,9 @@
+{
+  "//": "basedpyright 配置 — Python 脚本仅限 scripts/dev 与部署文档内工具，依赖取自 .venv-fleet",
+  "include": ["scripts"],
+  "exclude": [".venv-fleet", "docs", "ide", "node_modules"],
+  "venvPath": ".",
+  "venv": ".venv-fleet",
+  "reportMissingImports": "warning",
+  "typeCheckingMode": "basic"
+}

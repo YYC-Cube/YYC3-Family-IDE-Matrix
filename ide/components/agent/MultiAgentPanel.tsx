@@ -34,6 +34,7 @@ import {
   Pin,
   Play,
   Plus,
+  Radio,
   RotateCcw,
   Search,
   Send,
@@ -50,7 +51,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useMultiAgentDispatch, type PipelineStage } from "../../hooks/useMultiAgentDispatch"
 import { useI18n } from "../../i18n"
-import { useMemoryStore } from "../../stores/useMemoryStore"
+import { useMemoryStore, type MemoryCategory } from "../../stores/useMemoryStore"
 import { PanelHeader } from "../panel-host"
 
 // ── Types ──
@@ -139,7 +140,7 @@ const MOCK_MESSAGES: AgentMessage[] = [
 
 // ── Sub Components ──
 
-type TabId = "status" | "flow" | "graph" | "queue" | "memory" | "preview"
+type TabId = "status" | "fleet" | "flow" | "graph" | "queue" | "memory" | "preview"
 
 function AgentCard({ agent, selected, onClick }: { agent: Agent; selected: boolean; onClick: () => void }) {
   const { t } = useI18n()
@@ -151,8 +152,8 @@ function AgentCard({ agent, selected, onClick }: { agent: Agent; selected: boole
     <button
       onClick={onClick}
       className={`w-full text-left rounded-lg border p-2.5 transition-all ${selected
-          ? `${cfg.borderColor} ${cfg.bgColor}`
-          : "border-white/60 bg-white/20 hover:bg-white/40 hover:border-white/10"
+        ? `${cfg.borderColor} ${cfg.bgColor}`
+        : "border-white/60 bg-white/20 hover:bg-white/40 hover:border-white/10"
         }`}
     >
       <div className="flex items-center gap-2">
@@ -184,8 +185,8 @@ function AgentCard({ agent, selected, onClick }: { agent: Agent; selected: boole
           <div className="h-1 bg-white/60 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${agent.role === "planner" ? "bg-blue-400" :
-                  agent.role === "coder" ? "bg-emerald-400" :
-                    agent.role === "tester" ? "bg-amber-400" : "bg-violet-400"
+                agent.role === "coder" ? "bg-emerald-400" :
+                  agent.role === "tester" ? "bg-amber-400" : "bg-violet-400"
                 }`}
               style={{ width: `${agent.progress}%` }}
             />
@@ -266,17 +267,17 @@ function TaskFlowView({ flow }: { flow: TaskFlowNode[] }) {
             <div key={node.stage} className="flex items-center gap-1 shrink-0">
               {/* Node */}
               <div className={`relative flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${isActive
-                  ? "border-blue-500/40 bg-blue-500/10 shadow-lg shadow-blue-500/10"
-                  : isCompleted
-                    ? "border-emerald-500/20 bg-emerald-500/50"
-                    : isError
-                      ? "border-red-500/20 bg-red-500/50"
-                      : "border-white/60 bg-white/20"
+                ? "border-blue-500/40 bg-blue-500/10 shadow-lg shadow-blue-500/10"
+                : isCompleted
+                  ? "border-emerald-500/20 bg-emerald-500/50"
+                  : isError
+                    ? "border-red-500/20 bg-red-500/50"
+                    : "border-white/60 bg-white/20"
                 }`}>
                 {/* Status icon */}
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isActive ? "bg-blue-500/20" :
-                    isCompleted ? "bg-emerald-500/20" :
-                      isError ? "bg-red-500/20" : "bg-white/40"
+                  isCompleted ? "bg-emerald-500/20" :
+                    isError ? "bg-red-500/20" : "bg-white/40"
                   }`}>
                   {isActive && <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />}
                   {isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
@@ -284,8 +285,8 @@ function TaskFlowView({ flow }: { flow: TaskFlowNode[] }) {
                   {node.status === "pending" && <CircleDot className="w-4 h-4 text-white/15" />}
                 </div>
                 <span className={`text-[0.55rem] ${isActive ? "text-blue-400" :
-                    isCompleted ? "text-emerald-400" :
-                      isError ? "text-red-400" : "text-white/25"
+                  isCompleted ? "text-emerald-400" :
+                    isError ? "text-red-400" : "text-white/25"
                   }`}>
                   {t(STAGE_LABELS[node.stage])}
                 </span>
@@ -450,17 +451,17 @@ function TaskQueue({ tasks }: { tasks: ScheduledTask[] }) {
     const agentCfg = ROLE_CONFIG[task.assignedAgent]
     return (
       <div key={task.id} className={`rounded-lg border p-2 transition-all ${task.status === "active"
-          ? "border-blue-500/20 bg-blue-500/40"
-          : task.status === "completed"
-            ? "border-emerald-500/10 bg-emerald-500/20 opacity-60"
-            : task.status === "failed"
-              ? "border-red-500/15 bg-red-500/30"
-              : "border-white/60 bg-white/20"
+        ? "border-blue-500/20 bg-blue-500/40"
+        : task.status === "completed"
+          ? "border-emerald-500/10 bg-emerald-500/20 opacity-60"
+          : task.status === "failed"
+            ? "border-red-500/15 bg-red-500/30"
+            : "border-white/60 bg-white/20"
         }`}>
         <div className="flex items-center gap-2">
           <Icon className={`w-3 h-3 shrink-0 ${task.status === "active" ? "text-blue-400" :
-              task.status === "completed" ? "text-emerald-400" :
-                task.status === "failed" ? "text-red-400" : "text-white/25"
+            task.status === "completed" ? "text-emerald-400" :
+              task.status === "failed" ? "text-red-400" : "text-white/25"
             }`} />
           <span className="text-[0.62rem] text-white/70 flex-1 truncate">{task.name}</span>
           <span className={`text-[0.45rem] px-1 py-0.5 rounded border ${priorityColors[task.priority]}`}>
@@ -474,7 +475,7 @@ function TaskQueue({ tasks }: { tasks: ScheduledTask[] }) {
           <div className="flex-1 h-0.5 bg-white/60 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${task.status === "completed" ? "bg-emerald-400" :
-                  task.status === "active" ? "bg-blue-400" : "bg-white/10"
+                task.status === "active" ? "bg-blue-400" : "bg-white/10"
                 }`}
               style={{ width: `${task.progress}%` }}
             />
@@ -586,7 +587,7 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
     }
 
     return baseAgents
-  }, [pipelineState])
+  }, [pipelineState, t])
 
   // ── Derive Flow from Pipeline ──
   const flow = useMemo<TaskFlowNode[]>(() => {
@@ -635,6 +636,7 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
   const selected = agents.find(a => a.id === selectedAgent)
   const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
     { id: "status", label: t('agent.status'), icon: Users },
+    { id: "fleet", label: "舰队", icon: Radio },
     { id: "flow", label: t('agent.flow'), icon: GitBranch },
     { id: "graph", label: t('agent.collaboration'), icon: Activity },
     { id: "queue", label: t('agent.queue'), icon: BarChart3 },
@@ -683,8 +685,8 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-1.5 text-[0.62rem] flex items-center justify-center gap-1 transition-colors ${activeTab === tab.id
-                  ? "text-amber-400 border-b border-amber-500"
-                  : "text-slate-600 hover:text-slate-400"
+                ? "text-amber-400 border-b border-amber-500"
+                : "text-slate-600 hover:text-slate-400"
                 }`}
             >
               <Icon className="w-3 h-3" />
@@ -754,8 +756,8 @@ export default function MultiAgentPanel({ nodeId }: { nodeId: string }) {
               {/* Pipeline status indicator */}
               {pipelineState.stage !== 'idle' && (
                 <div className={`rounded-lg border p-2 ${pipelineState.stage === 'error' ? 'border-red-500/20 bg-red-500/40' :
-                    pipelineState.stage === 'completed' ? 'border-emerald-500/20 bg-emerald-500/40' :
-                      'border-blue-500/20 bg-blue-500/40'
+                  pipelineState.stage === 'completed' ? 'border-emerald-500/20 bg-emerald-500/40' :
+                    'border-blue-500/20 bg-blue-500/40'
                   }`}>
                   <div className="flex items-center gap-1.5">
                     {pipelineState.isStreaming && <Loader2 className="w-3 h-3 text-blue-400 animate-spin" />}
@@ -877,7 +879,7 @@ function PersistentMemoryView() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [searchMode, setSearchMode] = useState<"keyword" | "semantic">("keyword")
   const [showAddForm, setShowAddForm] = useState(false)
-  const [newMemory, setNewMemory] = useState({ title: "", summary: "", category: "project" as const, agent: "planner" as const, relevance: 80, tags: "" })
+  const [newMemory, setNewMemory] = useState<{ title: string; summary: string; category: MemoryCategory; agent: AgentRole; relevance: number; tags: string }>({ title: "", summary: "", category: "project", agent: "planner", relevance: 80, tags: "" })
 
   // Initialize store on mount
   useEffect(() => {
@@ -889,7 +891,7 @@ function PersistentMemoryView() {
     ? semanticSearch(searchQuery, 20).map(m => ({ ...m, _similarity: m.similarity }))
     : (selectedCategory === "all"
       ? search(searchQuery)
-      : search(searchQuery, selectedCategory as any)
+      : search(searchQuery, selectedCategory as MemoryCategory)
     ).map(m => ({ ...m, _similarity: undefined as number | undefined }))
 
   if (loading) {
@@ -924,8 +926,8 @@ function PersistentMemoryView() {
         <button
           onClick={() => setSearchMode(searchMode === "keyword" ? "semantic" : "keyword")}
           className={`shrink-0 px-1.5 py-1 rounded text-[0.48rem] border transition-all ${searchMode === "semantic"
-              ? "bg-violet-500/20 text-violet-400 border-violet-500/20"
-              : "text-white/25 border-white/60 hover:text-white/40"
+            ? "bg-violet-500/20 text-violet-400 border-violet-500/20"
+            : "text-white/25 border-white/60 hover:text-white/40"
             }`}
           title={searchMode === "semantic" ? "当前：语义搜索（TF-IDF + Cosine）" : "当前：关键词搜索"}
         >
@@ -959,14 +961,14 @@ function PersistentMemoryView() {
           <div className="flex items-center gap-1.5">
             <select
               value={newMemory.category}
-              onChange={e => setNewMemory(p => ({ ...p, category: e.target.value as any }))}
+              onChange={e => setNewMemory(p => ({ ...p, category: e.target.value as MemoryCategory }))}
               className="bg-white/30 border border-white/60 rounded px-1.5 py-0.5 text-[0.52rem] text-white/50 focus:outline-none"
             >
               {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
             <select
               value={newMemory.agent}
-              onChange={e => setNewMemory(p => ({ ...p, agent: e.target.value as any }))}
+              onChange={e => setNewMemory(p => ({ ...p, agent: e.target.value as AgentRole }))}
               className="bg-white/30 border border-white/60 rounded px-1.5 py-0.5 text-[0.52rem] text-white/50 focus:outline-none"
             >
               {Object.entries(ROLE_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -1145,14 +1147,14 @@ function CodePreviewView() {
               <button
                 onClick={() => setSelectedId(isSelected ? null : change.id)}
                 className={`w-full text-left rounded-lg border p-2 transition-all ${isSelected ? "border-blue-500/25 bg-blue-500/40" :
-                    change.status === "accepted" ? "border-emerald-500/15 bg-emerald-500/20" :
-                      change.status === "rejected" ? "border-red-500/15 bg-red-500/20 opacity-50" :
-                        "border-white/60 bg-white/20 hover:bg-white/40"
+                  change.status === "accepted" ? "border-emerald-500/15 bg-emerald-500/20" :
+                    change.status === "rejected" ? "border-red-500/15 bg-red-500/20 opacity-50" :
+                      "border-white/60 bg-white/20 hover:bg-white/40"
                   }`}
               >
                 <div className="flex items-center gap-1.5">
                   <FileCode2 className={`w-3 h-3 shrink-0 ${change.status === "accepted" ? "text-emerald-400" :
-                      change.status === "rejected" ? "text-red-400" : "text-white/30"
+                    change.status === "rejected" ? "text-red-400" : "text-white/30"
                     }`} />
                   <span className="text-[0.58rem] text-white/60 flex-1 truncate font-mono">{change.file.split("/").pop()}</span>
                   <span className="text-[0.45rem] text-emerald-400">+{change.added}</span>
