@@ -45,6 +45,22 @@ export default defineConfig({
   // base 路径可配（支持子路径 CDN 部署）
   base: process.env.VITE_BASE ?? "/",
 
+  optimizeDeps: {
+    // —— Monaco worker 别名必须排除出依赖预打包 ——
+    // 否则 Vite 8 dev 会把 worker 文件按普通 ESM 模块预打包，
+    // import 侧拿到「模块默认导出」语义而非「URL」语义，
+    // 运行时 new Worker(depsURL) 触发
+    // "does not provide an export named 'default'" SyntaxError。
+    // exclude 后交由 worker 插件按 ?worker&url 正确出 URL。
+    exclude: [
+      "monaco-worker:json",
+      "monaco-worker:css",
+      "monaco-worker:html",
+      "monaco-worker:ts",
+      "monaco-worker:editor",
+    ],
+  },
+
   build: {
     // 安全：禁用 sourcemap（审计 R3/A3）
     sourcemap: false,

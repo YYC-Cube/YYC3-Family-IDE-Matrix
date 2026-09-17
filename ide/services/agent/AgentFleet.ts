@@ -439,7 +439,15 @@ export class AgentFleet {
   }
 }
 
-/** 舰队单例 */
-export const agentFleet = new AgentFleet();
+/** 舰队宿主机配置键（localStorage 持久化，生产部署非 localhost 时设置） */
+export const FLEET_BASE_URL_KEY = "yyc3_fleet_base_url";
+
+/** 舰队单例 — baseUrl 可经 localStorage 覆盖（默认 http://localhost） */
+export const agentFleet = new AgentFleet({
+  baseUrl:
+    typeof localStorage !== "undefined"
+      ? localStorage.getItem(FLEET_BASE_URL_KEY) || DEFAULT_CONFIG.baseUrl
+      : DEFAULT_CONFIG.baseUrl,
+});
 
 export default AgentFleet;
