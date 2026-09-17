@@ -13,32 +13,35 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig } from "vite";
 
+// Vite 8 configLoader: 'native' 要求 ESM 语义 —— 以 import.meta.dirname 取代 CJS __dirname
+const rootDir = import.meta.dirname;
+
 export default defineConfig({
   plugins: [react() as never],
 
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@services": path.resolve(__dirname, "./services"),
-      "@components": path.resolve(__dirname, "./components"),
-      "@stores": path.resolve(__dirname, "./stores"),
-      "@hooks": path.resolve(__dirname, "./hooks"),
-      "@lib": path.resolve(__dirname, "./lib"),
-      "@utils": path.resolve(__dirname, "./utils"),
-      "@types": path.resolve(__dirname, "./types"),
+      "@": path.resolve(rootDir, "./src"),
+      "@services": path.resolve(rootDir, "./services"),
+      "@components": path.resolve(rootDir, "./components"),
+      "@stores": path.resolve(rootDir, "./stores"),
+      "@hooks": path.resolve(rootDir, "./hooks"),
+      "@lib": path.resolve(rootDir, "./lib"),
+      "@utils": path.resolve(rootDir, "./utils"),
+      "@types": path.resolve(rootDir, "./types"),
       // —— Monaco 0.56 worker 别名（exports 通配不跨目录，深路径 Node 无法解析）——
       // alias 目标必须为磁盘绝对路径（bare specifier 仍会被 exports 拦截）；
       // ?worker&url 由 Vite 构建期出独立 worker chunk（测试环境由 vi.mock 接管）
       "monaco-worker:json": path.resolve(
-        __dirname, "node_modules/monaco-editor/esm/vs/language/json/json.worker.js?worker&url"),
+        rootDir, "node_modules/monaco-editor/esm/vs/language/json/json.worker.js?worker&url"),
       "monaco-worker:css": path.resolve(
-        __dirname, "node_modules/monaco-editor/esm/vs/language/css/css.worker.js?worker&url"),
+        rootDir, "node_modules/monaco-editor/esm/vs/language/css/css.worker.js?worker&url"),
       "monaco-worker:html": path.resolve(
-        __dirname, "node_modules/monaco-editor/esm/vs/language/html/html.worker.js?worker&url"),
+        rootDir, "node_modules/monaco-editor/esm/vs/language/html/html.worker.js?worker&url"),
       "monaco-worker:ts": path.resolve(
-        __dirname, "node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js?worker&url"),
+        rootDir, "node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js?worker&url"),
       "monaco-worker:editor": path.resolve(
-        __dirname, "node_modules/monaco-editor/esm/vs/editor/editor.worker.js?worker&url"),
+        rootDir, "node_modules/monaco-editor/esm/vs/editor/editor.worker.js?worker&url"),
     },
   },
 
