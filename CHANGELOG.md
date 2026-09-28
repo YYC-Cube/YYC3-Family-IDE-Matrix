@@ -22,6 +22,15 @@ All notable changes are documented here. Based on [Keep a Changelog](https://kee
 
 ### Changed 变更
 
+- **CI 全线修复 + GitHub Pages 部署闭环（2026-09-28）**：远程 main 三工作流全绿，`https://ide.yyc3.top/` 上线（HTTP 200，证书至 2026-12-27）
+  - **pnpm 预装前置**：runner 镜像移除预装 pnpm，`npm i -g pnpm@9.0.0` 先于 `setup-node(cache:pnpm)`，根治 "Unable to locate executable file: pnpm" 瞬时红
+  - **working-directory 下沉**：`ide` 由全局 defaults 收敛至所需 job，根治无 checkout job 的 bash 启动失败
+  - **CodeQL SHA 更新**：失效 SHA 换为 v3 现行 commit（1190a97）
+  - **测试矩阵收敛 Node 22.x**：Node 20 已 EOL（2026-04-30），且 Vite 8.3/coverage-v8 5.0.1 组合下未覆盖文件回退路径以 JS 模式解析裸 TS 崩溃（阈值 0% 误报）
+  - **新增 `pages-deploy.yml`**：build → 产物校验（index.html + CNAME）→ deploy-pages；CNAME 落位 `ide/public/` 经 Vite publicDir 进 dist
+  - **workbench 面板注册表扩展**：fleet-chat / agents / git / knowledge / rag / ops 六面板接入
+  - **CodeMirror 6 语言包**：css/html/javascript/json/markdown + core 入列
+
 - **主版本迁移完成（2026-09-17）**：82 个依赖主版本升级全量落地，五门禁全绿（tsc 0 错误 / test 1056 通过 / build 成功 / audit 0 漏洞 / lint 0 errors）
   - **Tailwind 3 → 4**：PostCSS 插件拆分至 `@tailwindcss/postcss`；CSS 入口改用 `@import "tailwindcss"` + `@theme` 令牌；移除 `tailwind.config.js`（autoprefixer v4 内置）
   - **Vite 6 → 8 (rolldown)**：`manualChunks` 改函数式；Monaco 五类 Worker 经磁盘绝对路径 alias + `?worker&url` 打包（规避 rolldown 裸说明符限制）
@@ -34,6 +43,7 @@ All notable changes are documented here. Based on [Keep a Changelog](https://kee
 
 ### Security 安全
 
+- **（2026-09-28）** 并入 dependabot security-updates 组 54 项（dompurify ^3.4.16 / framer-motion ^13.4.3 / vite 8.3.1 等）；lint 门禁维持暂停（`@typescript-eslint` v8 硬性不支持 TS 7.0，跟踪 typescript-eslint#10940），期间以 tsc + vitest 1148 用例为质量基线
 - dompurify 4 项告警（2 moderate + 2 low）清零：`^3.4.15` + overrides 覆盖 monaco-editor 传递依赖
 - vitest 生态对齐消除 glob high 告警；`pnpm audit`（prod + dev）全清零
 
