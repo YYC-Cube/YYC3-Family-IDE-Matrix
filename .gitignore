@@ -30,3 +30,4 @@ pnpm-debug.log*
 .env.*.local
 metrics/
 .venv-fleet/
+docs/YYC3-APP-HUB.html

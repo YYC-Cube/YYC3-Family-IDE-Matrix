@@ -30,6 +30,8 @@ import SandpackPreview from "../../SandpackPreview";
 import type { CollabService } from "../../services/collab";
 import { useFileStoreZustand } from "../../stores/useFileStoreZustand";
 import AgentMarket from "../agent/AgentMarket";
+import AgentOrchestrator from "../agent/AgentOrchestrator";
+import FleetChatView from "../agent/FleetChatView";
 import { ModelRegistryProvider } from "../agent/ModelRegistry";
 import {
   LAYOUT_PRESETS,
@@ -42,6 +44,7 @@ import {
 import { SandboxedTerminalPanel } from "../terminal/TerminalPanel";
 import EditorTabs from "./EditorTabs";
 import FileExplorer from "./FileExplorer";
+import { GitPanel, KnowledgePanel, OpsPanel, RagPanel } from "./PlaceholderPanels";
 import WorkbenchTopBar from "./WorkbenchTopBar";
 
 // Monaco 按需分片（@monaco-editor/react 全量 ~2MB，绝不含进首屏）
@@ -204,6 +207,7 @@ export default function IdeWorkbench({
   const registry = useMemo(
     () =>
       ({
+        ai: FleetChatView as ComponentType<{ nodeId: string }>,
         code: MonacoPanel,
         files: FileExplorer,
         terminal: SandboxedTerminalPanel,
@@ -212,6 +216,11 @@ export default function IdeWorkbench({
         collab: ({ nodeId }: { nodeId: string }) => (
           <CollabPanel nodeId={nodeId} service={collabService} />
         ),
+        agents: AgentOrchestrator as ComponentType<{ nodeId: string }>,
+        git: GitPanel,
+        knowledge: KnowledgePanel,
+        rag: RagPanel,
+        ops: OpsPanel,
       }) as Record<string, ComponentType<{ nodeId: string }>>,
     [collabService],
   );

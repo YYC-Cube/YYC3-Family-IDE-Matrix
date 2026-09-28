@@ -1,0 +1,94 @@
+# @file: .github/workflows/pages-deploy.yml
+# @description: GitHub Pages 部署 — ide 构建产物发布至自定义域名 ide.yyc3.top
+# @author: YanYuCloudCube Team <admin@0379.email>
+# @version: v1.0.0
+# @created: 2026-09-28
+# @updated: 2026-09-28
+# @status: active
+# @tags: [deploy,github-pages,cdn,vite]
+#
+# brief: Pages 仓库设置已为 build_type=workflow + 已验证域名 ide.yyc3.top，
+#        本工作流负责 构建 → 产物校验(index.html/CNAME) → 部署 闭环
+#
+# security:
+# - 所有 actions 使用 commit SHA 固定
+# - 最小权限: contents: read + pages: write + id-token: write（OIDC 部署所必需）
+#
+# notes:
+# - pnpm 必须先于 setup-node(cache:pnpm) 安装——runner 镜像已移除预装 pnpm，
+#   否则 setup-node 计算 pnpm store 路径时即失败（2026-09-28 病灶根治）
+# - CNAME 由 ide/public/CNAME 经 Vite publicDir 拷贝进 dist，缺失即失败（防域名漂移）
+
+name: Deploy · GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ide/**"
+      - ".github/workflows/pages-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build IDE
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ide
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install pnpm (先于 setup-node 缓存步骤)
+        run: npm install -g pnpm@9.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.x
+          cache: "pnpm"
+          cache-dependency-path: "ide/pnpm-lock.yaml"
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Build production bundle (tsc -b + vite)
+        run: pnpm build
+
+      - name: Verify Pages artifacts (index.html + CNAME)
+        run: |
+          test -f dist/index.html || { echo "❌ dist/index.html 缺失"; exit 1; }
+          test -f dist/CNAME || { echo "❌ dist/CNAME 缺失 — 自定义域名 ide.yyc3.top 无法绑定"; exit 1; }
+          echo "✅ Pages 产物齐备 · CNAME → $(cat dist/CNAME)"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: ide/dist
+
+  deploy:
+    name: Deploy to ide.yyc3.top
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

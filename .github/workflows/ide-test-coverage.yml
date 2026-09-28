@@ -1,9 +1,9 @@
 # @file: .github/workflows/ide-test-coverage.yml
 # @description: GitHub Actions CI — 测试+覆盖率+构建+安全扫描+部署（Phase 1 闭环）
 # @author: YanYuCloudCube Team <admin@0379.email>
-# @version: v2.0.1
+# @version: v2.1.0
 # @created: 2026-08-19
-# @updated: 2026-09-16
+# @updated: 2026-09-28
 # @status: active
 # @tags: [ci,github-actions,test,coverage,build,security,deploy]
 #
@@ -18,6 +18,15 @@
 # - YAML 注释必须使用 "#" 前缀；此前的 /** ... */ 块不是合法 YAML，
 #   会导致工作流解析失败（run 创建后 0 个 job 且瞬时失败）。
 # - 修改本文件后请勿再引入 /* 风格的块注释。
+#
+# v2.1.0 (2026-09-28) 病灶修复：
+# 1. pnpm 改为 npm i -g 预装且必须先于 setup-node(cache:pnpm)——
+#    runner 镜像已移除预装 pnpm，setup-node 计算 store 路径即失败
+#    （"Unable to locate executable file: pnpm" 瞬时红）。
+#    corepack 方案弃用（可用性不稳）。
+# 2. working-directory: ide 从全局 defaults 下沉到所需 job——
+#    否则 final-status 等无 checkout 的 job 因 ide/ 不存在而
+#    "start process bash ... No such file or directory"。
 
 name: IDE · CI Pipeline
 
@@ -49,7 +58,6 @@ concurrency:
 
 defaults:
   run:
-    working-directory: ide
     shell: bash
 
 jobs:
@@ -59,21 +67,22 @@ jobs:
   security-audit:
     name: Security Audit
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ide
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install pnpm (先于 setup-node 缓存步骤)
+        run: npm install -g pnpm@9.0.0
+
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v4.1.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.x
           cache: "pnpm"
           cache-dependency-path: "ide/pnpm-lock.yaml"
-
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@9.0.0 --activate
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -96,6 +105,9 @@ jobs:
     name: Test & Coverage · Node ${{ matrix.node-version }}
     needs: security-audit
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ide
     strategy:
       fail-fast: false
       matrix:
@@ -110,18 +122,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install pnpm (先于 setup-node 缓存步骤)
+        run: npm install -g pnpm@9.0.0
+
       - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v4.1.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
           cache-dependency-path: "ide/pnpm-lock.yaml"
-
-      - name: Enable corepack & install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@9.0.0 --activate
-          pnpm --version
 
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -156,21 +165,22 @@ jobs:
     name: Build Production Bundle
     needs: security-audit
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ide
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install pnpm (先于 setup-node 缓存步骤)
+        run: npm install -g pnpm@9.0.0
+
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v4.1.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.x
           cache: "pnpm"
           cache-dependency-path: "ide/pnpm-lock.yaml"
-
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@9.0.0 --activate
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
