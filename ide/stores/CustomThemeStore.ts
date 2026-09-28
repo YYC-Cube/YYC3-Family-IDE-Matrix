@@ -138,8 +138,8 @@ const DEFAULT_FONTS: ThemeFonts = {
     secondary: "'Palatino Linotype', 'Book Antiqua', Palatino, serif",
   },
   mono: {
-    primary: "'Fira Code', 'JetBrains Mono', 'Courier New', monospace",
-    secondary: "'Consolas', 'Monaco', 'Lucida Console', monospace",
+    primary: "'JetBrains Mono', 'Fira Code', 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace",
+    secondary: "'JetBrains Mono', 'Fira Code', 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace",
   },
 };
 

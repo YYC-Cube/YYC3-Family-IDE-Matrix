@@ -50,7 +50,7 @@ describe("ErrorReportingService", () => {
   });
 
   it("captureError 接受非 Error 输入不抛出", () => {
-    let result: unknown = "no-throw";
+    let result: unknown;
     try {
       result = errorReporting.captureError("裸字符串错误");
     } catch {

@@ -65,7 +65,7 @@ export class DataImporter {
       const data = JSON.parse(jsonText) as ExportData;
       return await this.importData(data);
     } catch (e) {
-      throw new Error(`Invalid JSON: ${(e as Error).message}`);
+      throw new Error(`Invalid JSON: ${(e as Error).message}`, { cause: e });
     }
   }
 

@@ -22,6 +22,13 @@ All notable changes are documented here. Based on [Keep a Changelog](https://kee
 
 ### Changed 变更
 
+- **全端图标 + lint 根治 + 页面实测闭环（2026-09-28 · 二）**：四门禁全绿（tsc / lint 0 errors / 1148 tests / build），Playwright 全链路实测通过
+  - **全端图标**：`public/yyc3` 五端图标库落位 `ide/public/icons/`（favicon 16/32 / apple-touch 180 / android-chrome 192·512 含 maskable）；manifest 重写（scope/id/lang/purpose）；补 theme-color / og 分享卡全套 meta
+  - **lint 根治（P1 闭环）**：TypeScript 收敛 `~6.0.3`（typescript-eslint 官方支持区间），ESLint 10 flat config（`eslint.config.mjs`）取代 `.eslintrc.json`；`pnpm lint` 恢复 **0 errors**；eslint-plugin-react 待上游适配 ESLint 10 后回归
+  - **ESLint 10 新规则实修**：preserve-caught-error 补 `{ cause }` 错误链×4；no-useless-assignment×2；Monaco 预热 useMemo→useEffect
+  - **字体统一**：sans（含 PingFang SC/微软雅黑 CJK 回退）与 mono（JetBrains Mono 首位）双令牌全端对齐（index/tailwind @theme/Monaco/XTerm/主题令牌五处）
+  - **CSP 修复**：移除 meta 下无效的 frame-ancestors；connect-src 放行 `localhost:*`（Ollama 本地 AI 探测恢复）；frame-src 放行 sandpack 预览域（代码沙箱恢复）
+  - **弹窗链路修复**：分享/API 密钥 overlay 补 Esc 关闭（WorkbenchTopBar 统一 keydown effect）；Playwright 实测开→Esc→重开→backdrop 关全通过
 - **CI 全线修复 + GitHub Pages 部署闭环（2026-09-28）**：远程 main 三工作流全绿，`https://ide.yyc3.top/` 上线（HTTP 200，证书至 2026-12-27）
   - **pnpm 预装前置**：runner 镜像移除预装 pnpm，`npm i -g pnpm@9.0.0` 先于 `setup-node(cache:pnpm)`，根治 "Unable to locate executable file: pnpm" 瞬时红
   - **working-directory 下沉**：`ide` 由全局 defaults 收敛至所需 job，根治无 checkout job 的 bash 启动失败

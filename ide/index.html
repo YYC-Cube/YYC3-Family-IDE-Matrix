@@ -4,9 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YYC³ IDE Workbench</title>
-    <link rel="icon" type="image/png" href="/yyc3-family.png" />
 
-    <!-- Security Headers (Phase 1 P1-3 · 审计 R3) -->
+    <!-- ── 全端图标（PWA/Favicon/iOS）── -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#06b6d4" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="YYC³" />
+
+    <!-- ── Open Graph（分享卡片）── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="YYC³ IDE Workbench" />
+    <meta property="og:description" content="智能代码开发工作台 — AI Agent + 快照管理 + 多实例协作" />
+    <meta property="og:image" content="https://ide.yyc3.top/icons/android-chrome-512.png" />
+    <meta property="og:url" content="https://ide.yyc3.top/" />
+
+    <!--
+      Security Headers (Phase 1 P1-3 · 审计 R3；2026-09-28 复审修订)
+      - 移除 frame-ancestors：meta 交付方式下浏览器忽略该指令并报错，
+        防点击劫持应由部署层 HTTP header 下发（GitHub Pages 不支持自定义 header）
+      - connect-src 增补 http://localhost:* / 127.0.0.1:*：AI 助手探测本地
+        Ollama(11434) 等本地推理服务的功能通道
+      - frame-src 增补 sandpack 预览域：代码沙箱 iframe 功能通道
+    -->
     <meta
       http-equiv="Content-Security-Policy"
       content="
@@ -15,9 +39,9 @@
         style-src 'self' 'unsafe-inline';
         img-src 'self' data: blob:;
         font-src 'self';
-        connect-src 'self' ws://localhost:* wss://*;
+        connect-src 'self' ws://localhost:* wss://* http://localhost:* http://127.0.0.1:*;
         worker-src 'self' blob:;
-        frame-ancestors 'none';
+        frame-src https://*.sandpack-static-server.codesandbox.io;
         base-uri 'self';
         form-action 'self';
       "
@@ -28,7 +52,8 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body, #root { height: 100%; width: 100%; overflow: hidden; }
       body {
-        font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Text", sans-serif;
+        /* 全端统一 sans 令牌 — 与 tailwind.css @theme --font-sans 保持一致 */
+        font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
         background: #0d1117;
         color: rgba(255, 255, 255, 0.85);
       }

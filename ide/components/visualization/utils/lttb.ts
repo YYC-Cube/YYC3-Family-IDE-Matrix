@@ -71,7 +71,7 @@ export function lttbDownsample<T extends LTTBPoint>(
 
   // -------- Step 1: 选入起点 --------
   let a = 0;
-  let nextA = 0;
+  let nextA: number;
   sampled[0] = data[a];
 
   // 排除首尾后，桶数 = 目标长度 - 2

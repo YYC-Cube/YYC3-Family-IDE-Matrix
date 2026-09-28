@@ -72,7 +72,7 @@ class RootErrorBoundary extends React.Component<
             height: "100vh",
             background: "#0d1117",
             color: "rgba(255,255,255,0.85)",
-            fontFamily: "system-ui, sans-serif",
+            fontFamily: "inherit",
             gap: "16px",
           }}
         >

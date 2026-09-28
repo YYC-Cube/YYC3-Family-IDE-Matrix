@@ -1,14 +1,21 @@
 {
   "name": "YYC³ IDE",
   "short_name": "YYC³",
-  "description": "智能代码开发工作台",
+  "description": "智能代码开发工作台 — AI Agent + 快照管理 + 多实例协作",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#06b6d4",
+  "lang": "zh-CN",
   "orientation": "any",
   "icons": [
-    { "src": "/yyc3-family.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/yyc3-family.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/icons/favicon-16.png", "sizes": "16x16", "type": "image/png" },
+    { "src": "/icons/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icons/android-chrome-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/android-chrome-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/android-chrome-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

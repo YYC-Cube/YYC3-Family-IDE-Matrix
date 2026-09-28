@@ -134,7 +134,7 @@ export const CYBERPUNK_88_THEME: VisualTokensType = {
     disabled: "rgba(255,255,255,0.10)",
   },
   primary: {
-    50:  "#ecfeff",
+    50: "#ecfeff",
     100: "#cffafe",
     200: "#a5f3fc",
     300: "#67e8f9",
@@ -145,11 +145,11 @@ export const CYBERPUNK_88_THEME: VisualTokensType = {
   },
   semantic: {
     success: "#10b981",
-    error:   "#ef4444",
+    error: "#ef4444",
     warning: "#f59e0b",
-    info:    "#3b82f6",
-    purple:  "#a855f7",
-    pink:    "#ec4899",
+    info: "#3b82f6",
+    purple: "#a855f7",
+    pink: "#ec4899",
   },
   familySeries: [
     "#06b6d4", "#3b82f6", "#8b5cf6", "#a855f7",
@@ -157,7 +157,7 @@ export const CYBERPUNK_88_THEME: VisualTokensType = {
   ],
   gradients: {
     latencyArea: ["rgba(6,182,212,0.30)", "rgba(6,182,212,0.02)"],
-    errorArea:   ["rgba(239,68,68,0.30)",  "rgba(239,68,68,0.02)"],
+    errorArea: ["rgba(239,68,68,0.30)", "rgba(239,68,68,0.02)"],
     successArea: ["rgba(16,185,129,0.30)", "rgba(16,185,129,0.02)"],
   },
   grid: {
@@ -183,7 +183,7 @@ export const CYBERPUNK_88_THEME: VisualTokensType = {
   },
   font: {
     sans: `ui-sans-serif, system-ui, -apple-system, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif`,
-    mono: `ui-monospace, SFMono-Regular, Menlo, Consolas, "SF Mono", "JetBrains Mono", monospace`,
+    mono: `"JetBrains Mono", "Fira Code", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace`,
   },
 };
 
@@ -205,14 +205,14 @@ export const VISUAL_TOKENS_SUNRISE: VisualTokensType = {
   },
   text: {
     // 与 white 对比度测试 (WCAG AA ≥4.5:1 for body)
-    primary:  "#0f172a",   // slate-900 → 14.2 : 1 ✅
-    secondary:"#475569",   // slate-600 →  7.2 : 1 ✅
+    primary: "#0f172a",   // slate-900 → 14.2 : 1 ✅
+    secondary: "#475569",   // slate-600 →  7.2 : 1 ✅
     tertiary: "#94a3b8",   // slate-400 →  3.3 : 1 (适合辅助信息)
     disabled: "#cbd5e1",   // slate-300 →  2.0 : 1 (仅禁用态)
   },
   primary: {
     // 亮色主色使用 Cyan-600/700 档加深
-    50:  "#ecfeff",
+    50: "#ecfeff",
     100: "#cffafe",
     200: "#a5f3fc",
     300: "#67e8f9",
@@ -224,11 +224,11 @@ export const VISUAL_TOKENS_SUNRISE: VisualTokensType = {
   semantic: {
     // 亮色统一加深到 600/700 档 (白纸对比度均 ≥ 4.5:1)
     success: "#059669",   // emerald-600 → 5.9 : 1 ✅
-    error:   "#dc2626",   // red-600     → 5.2 : 1 ✅
+    error: "#dc2626",   // red-600     → 5.2 : 1 ✅
     warning: "#d97706",   // amber-600   → 4.7 : 1 ✅
-    info:    "#2563eb",   // blue-600    → 5.8 : 1 ✅
-    purple:  "#9333ea",   // purple-600  → 5.6 : 1 ✅
-    pink:    "#db2777",   // pink-600    → 5.3 : 1 ✅
+    info: "#2563eb",   // blue-600    → 5.8 : 1 ✅
+    purple: "#9333ea",   // purple-600  → 5.6 : 1 ✅
+    pink: "#db2777",   // pink-600    → 5.3 : 1 ✅
   },
   familySeries: [
     "#0891b2", // 0 tianshu 天枢 — cyan-600     4.7:1
@@ -242,9 +242,9 @@ export const VISUAL_TOKENS_SUNRISE: VisualTokensType = {
   ],
   gradients: {
     // 亮色梯度：主色 15% → 2% (白底下更柔和)
-    latencyArea: ["rgba(8,145,178,0.15)",  "rgba(8,145,178,0.02)"],
-    errorArea:   ["rgba(220,38,38,0.15)",   "rgba(220,38,38,0.02)"],
-    successArea: ["rgba(5,150,105,0.15)",   "rgba(5,150,105,0.02)"],
+    latencyArea: ["rgba(8,145,178,0.15)", "rgba(8,145,178,0.02)"],
+    errorArea: ["rgba(220,38,38,0.15)", "rgba(220,38,38,0.02)"],
+    successArea: ["rgba(5,150,105,0.15)", "rgba(5,150,105,0.02)"],
   },
   grid: {
     stroke: "rgba(15,23,42,0.06)",   // 对白纸非常淡的 slate-900 影
@@ -265,7 +265,7 @@ export const VISUAL_TOKENS_SUNRISE: VisualTokensType = {
   },
   font: {
     sans: `ui-sans-serif, system-ui, -apple-system, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif`,
-    mono: `ui-monospace, SFMono-Regular, Menlo, Consolas, "SF Mono", "JetBrains Mono", monospace`,
+    mono: `"JetBrains Mono", "Fira Code", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace`,
   },
 };
 

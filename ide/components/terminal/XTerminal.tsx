@@ -50,7 +50,7 @@ interface XTerminalProps {
 export function XTerminal({
   sessionId,
   theme,
-  fontFamily = '"JetBrains Mono", "Fira Code", "SF Mono", "Menlo", "Monaco", "Consolas", monospace',
+  fontFamily = '"JetBrains Mono", "Fira Code", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace',
   fontSize = 14,
   cursorBlink = true,
   onData,

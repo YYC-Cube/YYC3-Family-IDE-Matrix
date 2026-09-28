@@ -22,7 +22,7 @@
 
 import { Boxes, FileCode } from "lucide-react";
 import type { ComponentType } from "react";
-import { Suspense, lazy, useCallback, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 
 import CollabPanel from "../../CollabPanel";
 import { preloadMonaco } from "../../LazyMonaco";
@@ -226,7 +226,7 @@ export default function IdeWorkbench({
   );
 
   // Monaco 预热：空闲 2s 后预取分片（首屏不变）
-  useMemo(() => {
+  useEffect(() => {
     const t = setTimeout(() => void preloadMonaco(), 2_000);
     return () => clearTimeout(t);
   }, []);

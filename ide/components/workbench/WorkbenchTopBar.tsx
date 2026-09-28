@@ -110,6 +110,20 @@ export default function WorkbenchTopBar() {
 
   const toolbarActive = showExport || notifOpen || shareOpen || showKeyPanel;
 
+  // Esc 关闭浮层链路：与 backdrop 点击关闭等价（可访问性 + 探针实测 Esc 缺失）
+  useEffect(() => {
+    if (!toolbarActive) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setShowExport(false);
+      setNotifOpen(false);
+      setShareOpen(false);
+      setShowKeyPanel(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toolbarActive]);
+
   // 项目名编辑聚焦
   useEffect(() => {
     if (editing) editRef.current?.select();

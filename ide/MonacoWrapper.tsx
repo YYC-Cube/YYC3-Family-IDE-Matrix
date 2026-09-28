@@ -247,7 +247,7 @@ export default function MonacoWrapper({
         // Additional editor configurations
         editor.updateOptions({
           fontFamily:
-            "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+            "'JetBrains Mono', 'Fira Code', 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace",
           fontLigatures: true,
           renderLineHighlight: "line",
           smoothScrolling: true,

@@ -202,7 +202,7 @@ export class MCPClient {
       const result = await this.request("resources/read", { uri });
       return result.contents[0] || {};
     } catch (error) {
-      throw new Error(`Failed to read resource: ${(error as Error).message}`);
+      throw new Error(`Failed to read resource: ${(error as Error).message}`, { cause: error });
     }
   }
 
@@ -223,7 +223,7 @@ export class MCPClient {
       });
       return result;
     } catch (error) {
-      throw new Error(`Failed to get prompt: ${(error as Error).message}`);
+      throw new Error(`Failed to get prompt: ${(error as Error).message}`, { cause: error });
     }
   }
 

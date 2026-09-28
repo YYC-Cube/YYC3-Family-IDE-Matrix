@@ -158,7 +158,7 @@ export class CloudSyncService {
     } catch (error: unknown) {
       clearTimeout(timeoutId);
       if (error instanceof DOMException && error.name === "AbortError") {
-        throw new Error("Request timeout");
+        throw new Error("Request timeout", { cause: error });
       }
       const errMsg = error instanceof Error ? error.message : String(error);
       if (retryCount < retryAttempts && !errMsg.includes("Authentication")) {

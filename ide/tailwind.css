@@ -18,6 +18,10 @@
 @import "tailwindcss";
 
 @theme {
+  /* 全端统一字体令牌 — index.html body / 组件 tokens 均与此对齐 */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+
   --color-yyc3-bg: #0d1117;
   --color-yyc3-elevated: #161b22;
   --color-yyc3-cyan: #06b6d4;
