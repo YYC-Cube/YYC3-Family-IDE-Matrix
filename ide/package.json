@@ -50,7 +50,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "codemirror": "^6.0.2",
-    "dompurify": "^3.4.16",
+    "dompurify": "^3.4.17",
     "framer-motion": "^13.4.3",
     "idb": "^8.0.3",
     "lib0": "^0.2.117",
